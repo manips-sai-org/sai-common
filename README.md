@@ -12,6 +12,8 @@ The Sai2-Common library implements a set of utility functionalities to simplify 
 
 ### 3rdParty dependencies (* = installation required):
 
+sudo apt install libhiredis-dev libjsoncpp-dev
+
 * Redis*: Redis server [brew, apt-get]
 * Hiredis*: Redis minimalist client [brew, apt-get]
 * JsonCpp*: JSON serialization [brew, apt-get]
