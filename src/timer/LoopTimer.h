@@ -47,6 +47,10 @@ public:
 	 * \return true if a wait was required, and false if no wait was required. */
 	bool waitForNextLoop();
 
+	/** \brief Wait for a specified time.
+	 * \return true if a wait was required, and false if no wait was required. */
+	bool waitTime(const int time_nsec);
+
 	/** \brief Number of loops since calling run. */
 	unsigned long long elapsedCycles();
 

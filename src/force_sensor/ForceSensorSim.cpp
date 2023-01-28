@@ -45,6 +45,9 @@ void ForceSensorSim::update(Simulation::Sai2Simulation* sim) {
 	if(point_list.empty()) {
 		return;
 	}
+	// return contact position (world frame)
+	_data->_pos_in_world = point_list[0];  // assuming single contact scenario
+
 	// transform to sensor frame
 	Eigen::Vector3d rel_pos;
 	Eigen::Vector3d link_pos;

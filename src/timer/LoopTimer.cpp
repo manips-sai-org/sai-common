@@ -26,6 +26,10 @@ static inline timespec& operator+=(timespec& t, unsigned int nsecs) {
 		nsecs -= 1e9;
 	}
 	t.tv_nsec += nsecs;
+	if (t.tv_nsec >= 1000000000) {
+		t.tv_sec++;
+		t.tv_nsec -= 1000000000;
+	}
 	return t;
 }
 
@@ -89,6 +93,34 @@ bool LoopTimer::waitForNextLoop() {
 
 	// calculate next shot
 	t_next_ += ns_update_interval_;
+
+	// increment loop counter
+	++update_counter_;
+
+	return slept;
+#endif  // USE_CHRONO
+}
+
+bool LoopTimer::waitTime(const int time_nsec) {
+#ifdef USE_CHRONO
+	bool slept = true;
+	auto ns_wait = std::chrono::nanoseconds(time_nsec);
+	std::this_thread::sleep_for(ns_wait);
+	update_counter_++;
+	return slept;
+#else  // USE_CHRONO
+	// grab the time
+	getCurrentTime(t_curr_);
+
+	// wait until next shot if necessary (this check is redundant for linux)
+	bool slept = true;
+
+	auto ns_wait = std::chrono::nanoseconds(time_nsec);
+	t_next_ += ns_wait;
+	nanoSleepUntil(t_next_, t_curr_);
+
+	// calculate dt
+	t_loop_ = t_curr_ - t_start_;
 
 	// increment loop counter
 	++update_counter_;

@@ -21,6 +21,7 @@ public:
 	Eigen::Affine3d _transform_in_link;
 	Eigen::Vector3d _force; // in sensor frame
 	Eigen::Vector3d _moment; // in sensor frame
+	Eigen::Vector3d _pos_in_world;
 
 public:
 	// ctor: assign defaults
@@ -29,7 +30,8 @@ public:
 	_link_name(""),
 	_transform_in_link(Eigen::Affine3d::Identity()),
 	_force(Eigen::Vector3d::Zero()),
-	_moment(Eigen::Vector3d::Zero())
+	_moment(Eigen::Vector3d::Zero()),
+	_pos_in_world(Eigen::Vector3d::Zero())
 	{
 		// nothing to do
 	}
