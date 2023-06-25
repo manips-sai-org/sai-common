@@ -30,6 +30,7 @@ class LoopTimer {
 public:
 
 	LoopTimer() {}
+	LoopTimer(double frequency);
 
 	virtual ~LoopTimer() {}
 
