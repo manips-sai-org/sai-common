@@ -34,6 +34,10 @@ static inline double timespec_to_double(const timespec& t) {
 }
 #endif  // USE_CHRONO
 
+LoopTimer::LoopTimer(double frequency) {
+	setLoopFrequency(frequency);
+}
+
 void LoopTimer::setLoopFrequency (double frequency) {
 #ifdef USE_CHRONO
 	ns_update_interval_ = std::chrono::nanoseconds(static_cast<unsigned int>(1e9 / frequency));
