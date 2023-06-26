@@ -4,14 +4,12 @@
 
 #include "Sai2Graphics.h"
 #include "Sai2Simulation.h"
-// #include "unistd.h"
 #include "timer/LoopTimer.h"
 
 using namespace std;
 
 const string world_fname = "resources/world.urdf";
 const string robot_name = "RRBot";
-const string camera_name = "camera_fixed";
 
 bool fSimulationRunning = false;
 
@@ -39,13 +37,9 @@ int main(int argc, char** argv) {
 
 	// while window is open:
 	while (graphics->isWindowOpen()) {
-		// read joint position from simulation
-		Eigen::VectorXd robot_q;
-		sim->getJointPositions(robot_name, robot_q);
-		// update graphics. this automatically waits for the correct amount of
-		// time
-		graphics->updateRobotGraphics(robot_name, robot_q);
-		graphics->updateDisplayedWorld();
+		// update graphics.
+		graphics->updateRobotGraphics(robot_name, sim->getJointPositions(robot_name));
+		graphics->renderGraphicsWorld();
 	}
 
 	// stop simulation
