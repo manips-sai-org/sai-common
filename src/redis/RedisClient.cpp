@@ -35,8 +35,8 @@ void RedisClient::connect(const std::string& hostname, const int port,
 	_context = std::move(context);
 
 	// create default send and receive groups
-	createNewSendGroup(0);
-	createNewReceiveGroup(0);
+	createNewSendGroup("default");
+	createNewReceiveGroup("default");
 }
 
 std::unique_ptr<redisReply, redisReplyDeleter> RedisClient::command(
@@ -213,243 +213,148 @@ void RedisClient::mset(
 		throw std::runtime_error("RedisClient: MSET command failed.");
 }
 
-void RedisClient::createNewReceiveGroup(const int group_number) {
-	int n = _receive_group_indexes.size();
-	bool found = false;
-	for (int group_index = 0; group_index < n; group_index++) {
-		if (_receive_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-	}
-	if (found) {
-		cout << "receive group already exists with this index. Not creating a new "
-				"one"
-			 << endl;
-		return;
-	}
-
-	_receive_group_indexes.push_back(group_number);
-	_keys_to_receive.push_back(vector<string>());
-	_objects_to_receive.push_back(vector<void*>());
-	_objects_to_receive_types.push_back(vector<RedisSupportedTypes>());
-}
-
-void RedisClient::createNewSendGroup(const int group_number) {
-	int n = _send_group_indexes.size();
-	bool found = false;
-	for (int group_index = 0; group_index < n; group_index++) {
-		if (_send_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-	}
-	if (found) {
-		cout << "send group already exists with this index. Not creating a "
+void RedisClient::createNewReceiveGroup(const std::string& group_name) {
+	if (receiveGroupExists(group_name)) {
+		cout << "receive group already exists with this name. Not creating a "
 				"new one"
 			 << endl;
 		return;
 	}
 
-	_send_group_indexes.push_back(group_number);
-	_keys_to_send.push_back(vector<string>());
-	_objects_to_send.push_back(vector<const void*>());
-	_objects_to_send_types.push_back(vector<RedisSupportedTypes>());
-	_objects_to_send_sizes.push_back(vector<pair<int, int>>());
+	_receive_group_names.push_back(group_name);
+	_keys_to_receive[group_name] = vector<string>();
+	_objects_to_receive[group_name] = vector<void*>();
+	_objects_to_receive_types[group_name] = vector<RedisSupportedTypes>();
+}
+
+void RedisClient::createNewSendGroup(const std::string& group_name) {
+	if (sendGroupExists(group_name)) {
+		cout << "send group already exists with this name. Not creating a new "
+				"one"
+			 << endl;
+		return;
+	}
+
+	_send_group_names.push_back(group_name);
+	_keys_to_send[group_name] = vector<string>();
+	_objects_to_send[group_name] = vector<const void*>();
+	_objects_to_send_types[group_name] = vector<RedisSupportedTypes>();
+	_objects_to_send_sizes[group_name] = vector<pair<int, int>>();
 }
 
 void RedisClient::addToReceiveGroup(const std::string& key, double& object,
-									const int group_number) {
-	int n = _receive_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_receive_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no read group with this index in "
-			"RedisClient::addToReceiveGroup(const "
-			"std::string& key, double &object)\n");
+									const std::string& group_name) {
+	if (!receiveGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Receive group with that name not found, cannot add object to "
+			"receive");
 	}
 
-	_keys_to_receive[group_index].push_back(key);
-	_objects_to_receive[group_index].push_back(&object);
-	_objects_to_receive_types[group_index].push_back(DOUBLE_NUMBER);
+	_keys_to_receive[group_name].push_back(key);
+	_objects_to_receive[group_name].push_back(&object);
+	_objects_to_receive_types[group_name].push_back(DOUBLE_NUMBER);
 }
 
 void RedisClient::addToReceiveGroup(const std::string& key, std::string& object,
-									const int group_number) {
-	int n = _receive_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_receive_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no read group with this index in "
-			"RedisClient::addToReceiveGroup(const "
-			"std::string& key, std::string &object)\n");
+									const std::string& group_name) {
+	if (!receiveGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Receive group with that name not found, cannot add object to "
+			"receive");
 	}
 
-	_keys_to_receive[group_index].push_back(key);
-	_objects_to_receive[group_index].push_back(&object);
-	_objects_to_receive_types[group_index].push_back(STRING);
+	_keys_to_receive[group_name].push_back(key);
+	_objects_to_receive[group_name].push_back(&object);
+	_objects_to_receive_types[group_name].push_back(STRING);
 }
 
 void RedisClient::addToReceiveGroup(const std::string& key, int& object,
-									const int group_number) {
-	int n = _receive_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_receive_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no read group with this index in "
-			"RedisClient::addToReceiveGroup(const "
-			"std::string& key, int &object)\n");
+									const std::string& group_name) {
+	if (!receiveGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Receive group with that name not found, cannot add object to "
+			"receive");
 	}
 
-	_keys_to_receive[group_index].push_back(key);
-	_objects_to_receive[group_index].push_back(&object);
-	_objects_to_receive_types[group_index].push_back(INT_NUMBER);
+	_keys_to_receive[group_name].push_back(key);
+	_objects_to_receive[group_name].push_back(&object);
+	_objects_to_receive_types[group_name].push_back(INT_NUMBER);
 }
 
 void RedisClient::addToSendGroup(const std::string& key, const double& object,
-								 const int group_number) {
-	int n = _send_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_send_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no write group with this index in "
-			"RedisClient::addToSendGroup(const "
-			"std::string& key, double &object)\n");
+								 const std::string& group_name) {
+	if (!sendGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Send group with that name not found, cannot add object to send");
 	}
 
-	_keys_to_send[group_index].push_back(key);
-	_objects_to_send[group_index].push_back(&object);
-	_objects_to_send_types[group_index].push_back(DOUBLE_NUMBER);
-	_objects_to_send_sizes[group_index].push_back(std::make_pair(0, 0));
+	_keys_to_send[group_name].push_back(key);
+	_objects_to_send[group_name].push_back(&object);
+	_objects_to_send_types[group_name].push_back(DOUBLE_NUMBER);
+	_objects_to_send_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
 void RedisClient::addToSendGroup(const std::string& key,
 								 const std::string& object,
-								 const int group_number) {
-	int n = _send_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_send_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no write group with this index in "
-			"RedisClient::addToSendGroup(const "
-			"std::string& key, std::string &object)\n");
+								 const std::string& group_name) {
+	if (!sendGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Send group with that name not found, cannot add object to send");
 	}
 
-	_keys_to_send[group_index].push_back(key);
-	_objects_to_send[group_index].push_back(&object);
-	_objects_to_send_types[group_index].push_back(STRING);
-	_objects_to_send_sizes[group_index].push_back(std::make_pair(0, 0));
+	_keys_to_send[group_name].push_back(key);
+	_objects_to_send[group_name].push_back(&object);
+	_objects_to_send_types[group_name].push_back(STRING);
+	_objects_to_send_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
 void RedisClient::addToSendGroup(const std::string& key, const int& object,
-								 const int group_number) {
-	int n = _send_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_send_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no write group with this index in "
-			"RedisClient::addToSendGroup(const "
-			"std::string& key, int &object)\n");
+								 const std::string& group_name) {
+	if (!sendGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Send group with that name not found, cannot add object to send");
 	}
 
-	_keys_to_send[group_index].push_back(key);
-	_objects_to_send[group_index].push_back(&object);
-	_objects_to_send_types[group_index].push_back(INT_NUMBER);
-	_objects_to_send_sizes[group_index].push_back(std::make_pair(0, 0));
+	_keys_to_send[group_name].push_back(key);
+	_objects_to_send[group_name].push_back(&object);
+	_objects_to_send_types[group_name].push_back(INT_NUMBER);
+	_objects_to_send_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
-void RedisClient::receiveAllFromGroup(const int group_number) {
-	int n = _receive_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_receive_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no read group with this index in RedisClient::receiveAllFromGroup(const "
-			"int "
-			"group_number)\n");
+void RedisClient::receiveAllFromGroup(const std::string& group_name) {
+	if (!receiveGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Receive group with that name not found, cannot "
+			"receiveAllFromGroup");
 	}
 
 	std::vector<std::string> return_values =
 		// pipeget(_keys_to_receive[group_index]);
-		mget(_keys_to_receive[group_index]);
+		mget(_keys_to_receive.at(group_name));
 
 	for (int i = 0; i < return_values.size(); i++) {
-		switch (_objects_to_receive_types[group_index].at(i)) {
+		switch (_objects_to_receive_types.at(group_name).at(i)) {
 			case DOUBLE_NUMBER: {
 				double* tmp_pointer =
-					(double*)_objects_to_receive[group_index].at(i);
+					(double*)_objects_to_receive.at(group_name).at(i);
 				*tmp_pointer = stod(return_values[i]);
 			} break;
 
 			case INT_NUMBER: {
-				int* tmp_pointer = (int*)_objects_to_receive[group_index].at(i);
+				int* tmp_pointer =
+					(int*)_objects_to_receive.at(group_name).at(i);
 				*tmp_pointer = stoi(return_values[i]);
 			} break;
 
 			case STRING: {
 				std::string* tmp_pointer =
-					(std::string*)_objects_to_receive[group_index].at(i);
+					(std::string*)_objects_to_receive.at(group_name).at(i);
 				*tmp_pointer = return_values[i];
 			} break;
 
 			case EIGEN_OBJECT: {
 				double* tmp_pointer =
-					(double*)_objects_to_receive[group_index].at(i);
+					(double*)_objects_to_receive.at(group_name).at(i);
 
 				Eigen::MatrixXd tmp_return_matrix =
 					RedisClient::decodeEigenMatrix(return_values[i]);
@@ -470,51 +375,40 @@ void RedisClient::receiveAllFromGroup(const int group_number) {
 	}
 }
 
-void RedisClient::sendAllFromGroup(const int group_number) {
-	int n = _send_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_send_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
-		throw runtime_error(
-			"no write group with this index in RedisClient::sendAllFromGroup(const "
-			"int group_number)\n");
+void RedisClient::sendAllFromGroup(const std::string& group_name) {
+	if (!sendGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Send group with that name not found, cannot sendAllFromGroup");
 	}
 
 	std::vector<std::pair<std::string, std::string>> write_key_value_pairs;
 
-	for (int i = 0; i < _keys_to_send[group_index].size(); i++) {
+	for (int i = 0; i < _keys_to_send.at(group_name).size(); i++) {
 		std::string encoded_value = "";
 
-		switch (_objects_to_send_types[group_index].at(i)) {
+		switch (_objects_to_send_types.at(group_name).at(i)) {
 			case DOUBLE_NUMBER: {
 				double* tmp_pointer =
-					(double*)_objects_to_send[group_index].at(i);
+					(double*)_objects_to_send.at(group_name).at(i);
 				encoded_value = std::to_string(*tmp_pointer);
 			} break;
 
 			case INT_NUMBER: {
-				int* tmp_pointer = (int*)_objects_to_send[group_index].at(i);
+				int* tmp_pointer = (int*)_objects_to_send.at(group_name).at(i);
 				encoded_value = std::to_string(*tmp_pointer);
 			} break;
 
 			case STRING: {
 				std::string* tmp_pointer =
-					(std::string*)_objects_to_send[group_index].at(i);
+					(std::string*)_objects_to_send.at(group_name).at(i);
 				encoded_value = (*tmp_pointer);
 			} break;
 
 			case EIGEN_OBJECT: {
 				double* tmp_pointer =
-					(double*)_objects_to_send[group_index].at(i);
-				int nrows = _objects_to_send_sizes[group_index].at(i).first;
-				int ncols = _objects_to_send_sizes[group_index].at(i).second;
+					(double*)_objects_to_send.at(group_name).at(i);
+				int nrows = _objects_to_send_sizes.at(group_name).at(i).first;
+				int ncols = _objects_to_send_sizes.at(group_name).at(i).second;
 
 				Eigen::MatrixXd tmp_matrix =
 					Eigen::MatrixXd::Zero(nrows, ncols);
@@ -530,12 +424,24 @@ void RedisClient::sendAllFromGroup(const int group_number) {
 
 		if (encoded_value != "") {
 			write_key_value_pairs.push_back(
-				make_pair(_keys_to_send[group_index].at(i), encoded_value));
+				make_pair(_keys_to_send.at(group_name).at(i), encoded_value));
 		}
 	}
 
 	// pipeset(write_key_value_pairs);
 	mset(write_key_value_pairs);
+}
+
+bool RedisClient::sendGroupExists(const std::string& group_name) const {
+	auto it = std::find(_send_group_names.begin(), _send_group_names.end(),
+						group_name);
+	return it != _send_group_names.end();
+}
+
+bool RedisClient::receiveGroupExists(const std::string& group_name) const {
+	auto it = std::find(_receive_group_names.begin(),
+						_receive_group_names.end(), group_name);
+	return it != _receive_group_names.end();
 }
 
 static inline Eigen::MatrixXd decodeEigenMatrixWithDelimiters(

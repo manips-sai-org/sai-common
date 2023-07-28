@@ -12,6 +12,7 @@
 #include <hiredis/hiredis.h>
 
 #include <Eigen/Core>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -159,7 +160,7 @@ public:
 	 *
 	 * @param group_number index of the send group to create
 	 */
-	void createNewSendGroup(const int group_number);
+	void createNewSendGroup(const std::string& group_name);
 
 	/**
 	 * @brief Create a New Receive Group indexed by an int (group 0 is created
@@ -171,61 +172,71 @@ public:
 	 *
 	 * @param group_number index of the receive group to create
 	 */
-	void createNewReceiveGroup(const int group_number);
+	void createNewReceiveGroup(const std::string& group_name);
 
 	/**
-	 * @brief Adds an object to be received in the given group. We can set up strings, doulbes, ints and Eigen objects to be received that way.
-	 * 
+	 * @brief Adds an object to be received in the given group. We can set up
+	 * strings, doulbes, ints and Eigen objects to be received that way.
+	 *
 	 * @param key The redis key of the object
-	 * @param object The object reference to populate with the value in the database corresponding to the key each time the receiveAllFromGroup function is called with that group number
-	 * @param group_number Group number to which to add the object to reveive (0 by default)
+	 * @param object The object reference to populate with the value in the
+	 * database corresponding to the key each time the receiveAllFromGroup
+	 * function is called with that group number
+	 * @param group_number Group number to which to add the object to reveive (0
+	 * by default)
 	 */
 	void addToReceiveGroup(const std::string& key, double& object,
-						   const int group_number = 0);
+						   const std::string& group_name = "default");
 	void addToReceiveGroup(const std::string& key, std::string& object,
-						   const int group_number = 0);
+						   const std::string& group_name = "default");
 	void addToReceiveGroup(const std::string& key, int& object,
-						   const int group_number = 0);
+						   const std::string& group_name = "default");
 	template <typename _Scalar, int _Rows, int _Cols, int _Options,
 			  int _MaxRows, int _MaxCols>
 	void addToReceiveGroup(const std::string& key,
 						   Eigen::Matrix<_Scalar, _Rows, _Cols, _Options,
 										 _MaxRows, _MaxCols>& object,
-						   const int group_number = 0);
+						   const std::string& group_name = "default");
 
 	/**
-	 * @brief Adds an object to be sent in the given group. We can set up strings, doulbes, ints and Eigen objects to be sent that way.
-	 * 
+	 * @brief Adds an object to be sent in the given group. We can set up
+	 * strings, doulbes, ints and Eigen objects to be sent that way.
+	 *
 	 * @param key The redis key of the object
-	 * @param object The object reference to send to the database for the given key each time the sendAllFromGroup function is called with that group number
-	 * @param group_number Group number to which to add the object to send (0 by default)
+	 * @param object The object reference to send to the database for the given
+	 * key each time the sendAllFromGroup function is called with that group
+	 * number
+	 * @param group_number Group number to which to add the object to send (0 by
+	 * default)
 	 */
 	void addToSendGroup(const std::string& key, const double& object,
-						const int group_number = 0);
+						const std::string& group_name = "default");
 	void addToSendGroup(const std::string& key, const std::string& object,
-						const int group_number = 0);
+						const std::string& group_name = "default");
 	void addToSendGroup(const std::string& key, const int& object,
-						const int group_number = 0);
+						const std::string& group_name = "default");
 	template <typename _Scalar, int _Rows, int _Cols, int _Options,
 			  int _MaxRows, int _MaxCols>
 	void addToSendGroup(const std::string& key,
 						const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options,
 											_MaxRows, _MaxCols>& object,
-						const int group_number = 0);
+						const std::string& group_name = "default");
 
 	/**
-	 * @brief update all objects of that group set up via the addToReceiveGroup with the values from the redis database
-	 * 
-	 * @param group_number 
+	 * @brief update all objects of that group set up via the addToReceiveGroup
+	 * with the values from the redis database
+	 *
+	 * @param group_number
 	 */
-	void receiveAllFromGroup(const int group_number = 0);
+	void receiveAllFromGroup(const std::string& group_name = "default");
 
 	/**
-	 * @brief update the redis database with all the objects of that group set up by the addToSendGroup
-	 * 
-	 * @param group_number 
+	 * @brief update the redis database with all the objects of that group set
+	 * up by the addToSendGroup
+	 *
+	 * @param group_number
 	 */
-	void sendAllFromGroup(const int group_number = 0);
+	void sendAllFromGroup(const std::string& group_name = "default");
 
 private:
 	/**
@@ -329,22 +340,28 @@ private:
 	 */
 	void mset(const std::vector<std::pair<std::string, std::string>>& keyvals);
 
+	bool sendGroupExists(const std::string& group_name) const;
+	bool receiveGroupExists(const std::string& group_name) const;
+
 	/**
 	 * @brief redis context pointer
-	 * 
+	 *
 	 */
 	std::unique_ptr<redisContext, redisContextDeleter> _context;
 
-	std::vector<int> _receive_group_indexes;
-	std::vector<std::vector<std::string>> _keys_to_receive;
-	std::vector<std::vector<void*>> _objects_to_receive;
-	std::vector<std::vector<RedisSupportedTypes>> _objects_to_receive_types;
+	std::vector<std::string> _receive_group_names;
+	std::map<std::string, std::vector<std::string>> _keys_to_receive;
+	std::map<std::string, std::vector<void*>> _objects_to_receive;
+	std::map<std::string, std::vector<RedisSupportedTypes>>
+		_objects_to_receive_types;
 
-	std::vector<int> _send_group_indexes;
-	std::vector<std::vector<std::string>> _keys_to_send;
-	std::vector<std::vector<const void*>> _objects_to_send;
-	std::vector<std::vector<RedisSupportedTypes>> _objects_to_send_types;
-	std::vector<std::vector<std::pair<int, int>>> _objects_to_send_sizes;
+	std::vector<std::string> _send_group_names;
+	std::map<std::string, std::vector<std::string>> _keys_to_send;
+	std::map<std::string, std::vector<const void*>> _objects_to_send;
+	std::map<std::string, std::vector<RedisSupportedTypes>>
+		_objects_to_send_types;
+	std::map<std::string, std::vector<std::pair<int, int>>>
+		_objects_to_send_sizes;
 };
 
 // Implementation must be part of header for compile time template
@@ -383,28 +400,16 @@ template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows,
 void RedisClient::addToReceiveGroup(
 	const std::string& key,
 	Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& object,
-	const int group_number) {
-	int n = _receive_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_receive_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
+	const std::string& group_name) {
+	if (!receiveGroupExists(group_name)) {
 		throw std::runtime_error(
-			"no read callback with this index in "
-			"RedisClient::addToReceiveGroup("
-			"const std::string& key, Eigen::Matrix< _Scalar, _Rows, _Cols, "
-			"_Options, _MaxRows, _MaxCols >& object)\n");
+			"Receive group with that name not found, cannot add object to "
+			"receive");
 	}
 
-	_keys_to_receive[group_index].push_back(key);
-	_objects_to_receive[group_index].push_back(object.data());
-	_objects_to_receive_types[group_index].push_back(EIGEN_OBJECT);
+	_keys_to_receive[group_name].push_back(key);
+	_objects_to_receive[group_name].push_back(object.data());
+	_objects_to_receive_types[group_name].push_back(EIGEN_OBJECT);
 }
 
 template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows,
@@ -413,29 +418,16 @@ void RedisClient::addToSendGroup(
 	const std::string& key,
 	const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>&
 		object,
-	const int group_number) {
-	int n = _send_group_indexes.size();
-	int group_index = 0;
-	bool found = false;
-	while (group_index < n) {
-		if (_send_group_indexes[group_index] == group_number) {
-			found = true;
-			break;
-		}
-		group_index++;
-	}
-	if (!found) {
+	const std::string& group_name) {
+	if (!sendGroupExists(group_name)) {
 		throw std::runtime_error(
-			"no write group with this index in "
-			"RedisClient::addToSendGroup("
-			"const std::string& key, Eigen::Matrix< _Scalar, _Rows, _Cols, "
-			"_Options, _MaxRows, _MaxCols >& object)\n");
+			"Send group with that name not found, cannot add object to send");
 	}
 
-	_keys_to_send[group_index].push_back(key);
-	_objects_to_send[group_index].push_back(object.data());
-	_objects_to_send_types[group_index].push_back(EIGEN_OBJECT);
-	_objects_to_send_sizes[group_index].push_back(
+	_keys_to_send[group_name].push_back(key);
+	_objects_to_send[group_name].push_back(object.data());
+	_objects_to_send_types[group_name].push_back(EIGEN_OBJECT);
+	_objects_to_send_sizes[group_name].push_back(
 		std::make_pair(object.rows(), object.cols()));
 }
 
