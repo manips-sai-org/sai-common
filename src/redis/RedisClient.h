@@ -12,21 +12,16 @@
 #include <hiredis/hiredis.h>
 
 #include <Eigen/Core>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <memory>
 #include <vector>
 
 namespace Sai2Common {
 
 namespace RedisServer {
-// Default server ip
 const std::string DEFAULT_IP = "127.0.0.1";
-
-// Default server port
 const int DEFAULT_PORT = 6379;
-
-// Default Redis key prefix
 static const std::string KEY_PREFIX = "sai2::";
 }  // namespace RedisServer
 
@@ -41,51 +36,98 @@ struct redisContextDeleter {
 class RedisClient {
 public:
 	/**
-	 * Connect to Redis server.
+	 * @brief Connect to Redis server.
 	 *
 	 * @param hostname  Redis server IP address (default 127.0.0.1).
 	 * @param port      Redis server port number (default 6379).
 	 * @param timeout   Connection attempt timeout (default 1.5s).
 	 */
+
 	void connect(const std::string& hostname = "127.0.0.1",
 				 const int port = 6379,
 				 const struct timeval& timeout = {1, 500000});
 
 	/**
-	 * Perform Redis command: PING.
+	 * @brief Perform Redis command: PING.
 	 *
 	 * If the server is responsive, it should reply PONG.
 	 */
 	void ping();
 
 	/**
-	 * Perform Redis command: GET key.
+	 * @brief Perform Redis command: GET key and returns as a string
 	 *
 	 * @param key  Key to get from Redis (entry must be String type).
-	 * @return     String value.
+	 * @return     value as a string.
 	 */
 	std::string get(const std::string& key);
+
+	/**
+	 * @brief Perform Redis command: GET key and returns as a double
+	 *
+	 * @param key
+	 * @return value converted to a double
+	 */
 	inline double getDouble(const std::string& key) {
 		return std::stod(get(key));
 	}
+
+	/**
+	 * @brief Perform Redis command: GET key and returns as an int
+	 *
+	 * @param key
+	 * @return value converted to an int
+	 */
 	inline int getInt(const std::string& key) { return std::stoi(get(key)); }
+
+	/**
+	 * @brief Perform Redis command: GET key and returns as a matrix or vector
+	 * from Eigen library
+	 *
+	 * @param key
+	 * @return value converted to an Eigen object
+	 */
 	inline Eigen::MatrixXd getEigen(const std::string& key) {
 		return decodeEigenMatrix(get(key));
 	}
 
 	/**
-	 * Perform Redis command: SET key value.
+	 * @brief Perform Redis command: SET key value.
 	 *
 	 * @param key    Key to set in Redis.
-	 * @param value  Value for key.
+	 * @param value  string value for key.
 	 */
 	void set(const std::string& key, const std::string& value);
+
+	/**
+	 * @brief Perform Redis command: SET key value, with the value converted
+	 * from a double
+	 *
+	 * @param key    Key to set in Redis.
+	 * @param value  double value for key.
+	 */
 	inline void setDouble(const std::string& key, const double& value) {
 		set(key, std::to_string(value));
 	}
+
+	/**
+	 * @brief Perform Redis command: SET key value, with the value converted
+	 * from an int
+	 *
+	 * @param key    Key to set in Redis.
+	 * @param value  int value for key.
+	 */
 	inline void setInt(const std::string& key, const int& value) {
 		set(key, std::to_string(value));
 	}
+
+	/**
+	 * @brief Perform Redis command: SET key value, with the value converted
+	 * from an Eigen MatrixXd or VectorXd object
+	 *
+	 * @param key    Key to set in Redis.
+	 * @param value  Eigen object value for key.
+	 */
 	template <typename Derived>
 	inline void setEigen(const std::string& key,
 						 const Eigen::MatrixBase<Derived>& value) {
@@ -93,23 +135,51 @@ public:
 	}
 
 	/**
-	 * Perform Redis command: DEL key.
+	 * @brief Perform Redis command: DEL key to delete a key
 	 *
 	 * @param key    Key to delete in Redis.
 	 */
 	void del(const std::string& key);
 
 	/**
-	 * Perform Redis command: EXISTS key.
+	 * Perform Redis command: EXISTS key to check is a key exists
 	 *
 	 * @param key    Key to delete in Redis.
 	 * @return       true if key exists, false otherwise.
 	 */
 	bool exists(const std::string& key);
 
+	/**
+	 * @brief Create a New Send Group indexed by an int (group 0 is created by
+	 * default)
+	 *
+	 * A send group is a group of keys and object reference to send to the redis
+	 * database as a batch (single redis call) each time the
+	 * sendAllFromGroup(group_number) function is called
+	 *
+	 * @param group_number index of the send group to create
+	 */
 	void createNewSendGroup(const int group_number);
+
+	/**
+	 * @brief Create a New Receive Group indexed by an int (group 0 is created
+	 * by default)
+	 *
+	 * Areceive group is a group of keys and references to objects to be
+	 * populated by the value from the redis database each time the
+	 * receiveAllFromGroup function is called
+	 *
+	 * @param group_number index of the receive group to create
+	 */
 	void createNewReceiveGroup(const int group_number);
 
+	/**
+	 * @brief Adds an object to be received in the given group. We can set up strings, doulbes, ints and Eigen objects to be received that way.
+	 * 
+	 * @param key The redis key of the object
+	 * @param object The object reference to populate with the value in the database corresponding to the key each time the receiveAllFromGroup function is called with that group number
+	 * @param group_number Group number to which to add the object to reveive (0 by default)
+	 */
 	void addToReceiveGroup(const std::string& key, double& object,
 						   const int group_number = 0);
 	void addToReceiveGroup(const std::string& key, std::string& object,
@@ -123,6 +193,13 @@ public:
 										 _MaxRows, _MaxCols>& object,
 						   const int group_number = 0);
 
+	/**
+	 * @brief Adds an object to be sent in the given group. We can set up strings, doulbes, ints and Eigen objects to be sent that way.
+	 * 
+	 * @param key The redis key of the object
+	 * @param object The object reference to send to the database for the given key each time the sendAllFromGroup function is called with that group number
+	 * @param group_number Group number to which to add the object to send (0 by default)
+	 */
 	void addToSendGroup(const std::string& key, const double& object,
 						const int group_number = 0);
 	void addToSendGroup(const std::string& key, const std::string& object,
@@ -136,7 +213,18 @@ public:
 											_MaxRows, _MaxCols>& object,
 						const int group_number = 0);
 
+	/**
+	 * @brief update all objects of that group set up via the addToReceiveGroup with the values from the redis database
+	 * 
+	 * @param group_number 
+	 */
 	void receiveAllFromGroup(const int group_number = 0);
+
+	/**
+	 * @brief update the redis database with all the objects of that group set up by the addToSendGroup
+	 * 
+	 * @param group_number 
+	 */
 	void sendAllFromGroup(const int group_number = 0);
 
 private:
@@ -241,7 +329,11 @@ private:
 	 */
 	void mset(const std::vector<std::pair<std::string, std::string>>& keyvals);
 
-	std::unique_ptr<redisContext, redisContextDeleter> context_;
+	/**
+	 * @brief redis context pointer
+	 * 
+	 */
+	std::unique_ptr<redisContext, redisContextDeleter> _context;
 
 	std::vector<int> _receive_group_indexes;
 	std::vector<std::vector<std::string>> _keys_to_receive;

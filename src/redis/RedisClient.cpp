@@ -18,7 +18,7 @@ namespace Sai2Common {
 void RedisClient::connect(const std::string& hostname, const int port,
 						  const struct timeval& timeout) {
 	// Connect to new server
-	context_.reset(nullptr);
+	_context.reset(nullptr);
 	redisContext* c = redisConnectWithTimeout(hostname.c_str(), port, timeout);
 	std::unique_ptr<redisContext, redisContextDeleter> context(c);
 
@@ -32,7 +32,7 @@ void RedisClient::connect(const std::string& hostname, const int port,
 			std::string(context->errstr));
 
 	// Save context
-	context_ = std::move(context);
+	_context = std::move(context);
 
 	// create default send and receive groups
 	createNewSendGroup(0);
@@ -43,7 +43,7 @@ std::unique_ptr<redisReply, redisReplyDeleter> RedisClient::command(
 	const char* format, ...) {
 	va_list ap;
 	va_start(ap, format);
-	redisReply* reply = (redisReply*)redisvCommand(context_.get(), format, ap);
+	redisReply* reply = (redisReply*)redisvCommand(_context.get(), format, ap);
 	va_end(ap);
 	return std::unique_ptr<redisReply, redisReplyDeleter>(reply);
 }
@@ -51,8 +51,8 @@ std::unique_ptr<redisReply, redisReplyDeleter> RedisClient::command(
 void RedisClient::ping() {
 	auto reply = command("PING");
 	std::cout << std::endl
-			  << "RedisClient: PING " << context_->tcp.host << ":"
-			  << context_->tcp.port << std::endl;
+			  << "RedisClient: PING " << _context->tcp.host << ":"
+			  << _context->tcp.port << std::endl;
 	if (!reply) throw std::runtime_error("RedisClient: PING failed.");
 	std::cout << "Reply: " << reply->str << std::endl << std::endl;
 }
@@ -118,14 +118,14 @@ std::vector<std::string> RedisClient::pipeget(
 	const std::vector<std::string>& keys) {
 	// Prepare key list
 	for (const auto& key : keys) {
-		redisAppendCommand(context_.get(), "GET %s", key.c_str());
+		redisAppendCommand(_context.get(), "GET %s", key.c_str());
 	}
 
 	// Collect values
 	std::vector<std::string> values;
 	for (size_t i = 0; i < keys.size(); i++) {
 		redisReply* r;
-		if (redisGetReply(context_.get(), (void**)&r) == REDIS_ERR)
+		if (redisGetReply(_context.get(), (void**)&r) == REDIS_ERR)
 			throw std::runtime_error(
 				"RedisClient: Pipeline GET command failed for key:" + keys[i] +
 				".");
@@ -146,13 +146,13 @@ void RedisClient::pipeset(
 	const std::vector<std::pair<std::string, std::string>>& keyvals) {
 	// Prepare key list
 	for (const auto& keyval : keyvals) {
-		redisAppendCommand(context_.get(), "SET %s %s", keyval.first.c_str(),
+		redisAppendCommand(_context.get(), "SET %s %s", keyval.first.c_str(),
 						   keyval.second.c_str());
 	}
 
 	for (size_t i = 0; i < keyvals.size(); i++) {
 		redisReply* r;
-		if (redisGetReply(context_.get(), (void**)&r) == REDIS_ERR)
+		if (redisGetReply(_context.get(), (void**)&r) == REDIS_ERR)
 			throw std::runtime_error(
 				"RedisClient: Pipeline SET command failed for key: " +
 				keyvals[i].first + ".");
@@ -174,7 +174,7 @@ std::vector<std::string> RedisClient::mget(
 	}
 
 	// Call MGET command with variable argument formatting
-	redisReply* r = (redisReply*)redisCommandArgv(context_.get(), argv.size(),
+	redisReply* r = (redisReply*)redisCommandArgv(_context.get(), argv.size(),
 												  &argv[0], nullptr);
 	std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 
@@ -204,7 +204,7 @@ void RedisClient::mset(
 	}
 
 	// Call MSET command with variable argument formatting
-	redisReply* r = (redisReply*)redisCommandArgv(context_.get(), argv.size(),
+	redisReply* r = (redisReply*)redisCommandArgv(_context.get(), argv.size(),
 												  &argv[0], nullptr);
 	std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 
