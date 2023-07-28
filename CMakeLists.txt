@@ -26,7 +26,10 @@ elseif (CMAKE_SYSTEM_NAME MATCHES Linux)
 	set(JSONCPP_LIBRARY ${JSONCPP_LIBRARIES})
 endif ()
 
+# hiredis
+find_library(HIREDIS_LIBRARY hiredis)
 
+# set include directories
 SET (SAI2-COMMON_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src)
 
 # include Redis
@@ -58,6 +61,7 @@ ADD_LIBRARY (sai2-common STATIC
 
 SET (SAI2-COMMON_LIBRARIES sai2-common 
 	${JSONCPP_LIBRARY}
+	${HIREDIS_LIBRARY}
 	)
 
 # 

@@ -7,39 +7,52 @@
  */
 
 #include "RedisClient.h"
+
 #include <iostream>
 #include <sstream>
 
 using namespace std;
 
+namespace Sai2Common {
+
 void RedisClient::connect(const std::string& hostname, const int port,
-	                      const struct timeval& timeout) {
+						  const struct timeval& timeout) {
 	// Connect to new server
-	context_.reset(nullptr);
-	redisContext *c= redisConnectWithTimeout(hostname.c_str(), port, timeout);
+	_context.reset(nullptr);
+	redisContext* c = redisConnectWithTimeout(hostname.c_str(), port, timeout);
 	std::unique_ptr<redisContext, redisContextDeleter> context(c);
 
 	// Check for errors
 	if (!context)
-		throw std::runtime_error("RedisClient: Could not allocate redis context.");
+		throw std::runtime_error(
+			"RedisClient: Could not allocate redis context.");
 	if (context->err)
-		throw std::runtime_error("RedisClient: Could not connect to redis server: " + std::string(context->errstr));
+		throw std::runtime_error(
+			"RedisClient: Could not connect to redis server: " +
+			std::string(context->errstr));
 
 	// Save context
-	context_ = std::move(context);
+	_context = std::move(context);
+
+	// create default send and receive groups
+	createNewSendGroup(0);
+	createNewReceiveGroup(0);
 }
 
-std::unique_ptr<redisReply, redisReplyDeleter> RedisClient::command(const char *format, ...) {
+std::unique_ptr<redisReply, redisReplyDeleter> RedisClient::command(
+	const char* format, ...) {
 	va_list ap;
 	va_start(ap, format);
-	redisReply *reply = (redisReply *)redisvCommand(context_.get(), format, ap);
+	redisReply* reply = (redisReply*)redisvCommand(_context.get(), format, ap);
 	va_end(ap);
 	return std::unique_ptr<redisReply, redisReplyDeleter>(reply);
 }
 
 void RedisClient::ping() {
 	auto reply = command("PING");
-	std::cout << std::endl << "RedisClient: PING " << context_->tcp.host << ":" << context_->tcp.port << std::endl;
+	std::cout << std::endl
+			  << "RedisClient: PING " << _context->tcp.host << ":"
+			  << _context->tcp.port << std::endl;
 	if (!reply) throw std::runtime_error("RedisClient: PING failed.");
 	std::cout << "Reply: " << reply->str << std::endl << std::endl;
 }
@@ -49,10 +62,12 @@ std::string RedisClient::get(const std::string& key) {
 	auto reply = command("GET %s", key.c_str());
 
 	// Check for errors
-	if (!reply || reply->type == REDIS_REPLY_ERROR || reply->type == REDIS_REPLY_NIL)
+	if (!reply || reply->type == REDIS_REPLY_ERROR ||
+		reply->type == REDIS_REPLY_NIL)
 		throw std::runtime_error("RedisClient: GET '" + key + "' failed.");
 	if (reply->type != REDIS_REPLY_STRING)
-		throw std::runtime_error("RedisClient: GET '" + key + "' returned non-string value.");
+		throw std::runtime_error("RedisClient: GET '" + key +
+								 "' returned non-string value.");
 
 	// Return value
 	return reply->str;
@@ -64,7 +79,8 @@ void RedisClient::set(const std::string& key, const std::string& value) {
 
 	// Check for errors
 	if (!reply || reply->type == REDIS_REPLY_ERROR)
-		throw std::runtime_error("RedisClient: SET '" + key + "' '" + value + "' failed.");
+		throw std::runtime_error("RedisClient: SET '" + key + "' '" + value +
+								 "' failed.");
 }
 
 void RedisClient::del(const std::string& key) {
@@ -81,69 +97,85 @@ bool RedisClient::exists(const std::string& key) {
 	auto reply = command("EXISTS %s", key.c_str());
 
 	// Check for errors
-	if (!reply || reply->type == REDIS_REPLY_ERROR || reply->type == REDIS_REPLY_NIL)
+	if (!reply || reply->type == REDIS_REPLY_ERROR ||
+		reply->type == REDIS_REPLY_NIL)
 		throw std::runtime_error("RedisClient: EXISTS '" + key + "' failed.");
 	if (reply->type != REDIS_REPLY_INTEGER)
-		throw std::runtime_error("RedisClient: EXISTS '" + key + "' returned non-integer value.");
-	
+		throw std::runtime_error("RedisClient: EXISTS '" + key +
+								 "' returned non-integer value.");
+
 	bool return_value = (reply->integer == 1);
 
-	if (!return_value && (reply->integer != 0))
-	{
-		throw std::runtime_error("RedisClient: EXISTS '" + key + "' returned unexpected value (not 0 or 1)");
+	if (!return_value && (reply->integer != 0)) {
+		throw std::runtime_error("RedisClient: EXISTS '" + key +
+								 "' returned unexpected value (not 0 or 1)");
 	}
 
 	return return_value;
 }
 
-std::vector<std::string> RedisClient::pipeget(const std::vector<std::string>& keys) {
+std::vector<std::string> RedisClient::pipeget(
+	const std::vector<std::string>& keys) {
 	// Prepare key list
 	for (const auto& key : keys) {
-		redisAppendCommand(context_.get(), "GET %s", key.c_str());
+		redisAppendCommand(_context.get(), "GET %s", key.c_str());
 	}
 
 	// Collect values
 	std::vector<std::string> values;
 	for (size_t i = 0; i < keys.size(); i++) {
-		redisReply *r;
-		if (redisGetReply(context_.get(), (void **)&r) == REDIS_ERR)
-			throw std::runtime_error("RedisClient: Pipeline GET command failed for key:" + keys[i] + ".");
-		
+		redisReply* r;
+		if (redisGetReply(_context.get(), (void**)&r) == REDIS_ERR)
+			throw std::runtime_error(
+				"RedisClient: Pipeline GET command failed for key:" + keys[i] +
+				".");
+
 		std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 		if (reply->type != REDIS_REPLY_STRING)
-			throw std::runtime_error("RedisClient: Pipeline GET command returned non-string value for key: " + keys[i] + ".");
+			throw std::runtime_error(
+				"RedisClient: Pipeline GET command returned non-string value "
+				"for key: " +
+				keys[i] + ".");
 
 		values.push_back(reply->str);
 	}
 	return values;
 }
 
-void RedisClient::pipeset(const std::vector<std::pair<std::string, std::string>>& keyvals) {
+void RedisClient::pipeset(
+	const std::vector<std::pair<std::string, std::string>>& keyvals) {
 	// Prepare key list
 	for (const auto& keyval : keyvals) {
-		redisAppendCommand(context_.get(), "SET %s %s", keyval.first.c_str(), keyval.second.c_str());
+		redisAppendCommand(_context.get(), "SET %s %s", keyval.first.c_str(),
+						   keyval.second.c_str());
 	}
 
 	for (size_t i = 0; i < keyvals.size(); i++) {
-		redisReply *r;
-		if (redisGetReply(context_.get(), (void **)&r) == REDIS_ERR)
-			throw std::runtime_error("RedisClient: Pipeline SET command failed for key: " + keyvals[i].first + ".");
+		redisReply* r;
+		if (redisGetReply(_context.get(), (void**)&r) == REDIS_ERR)
+			throw std::runtime_error(
+				"RedisClient: Pipeline SET command failed for key: " +
+				keyvals[i].first + ".");
 
 		std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 		if (reply->type == REDIS_REPLY_ERROR)
-			throw std::runtime_error("RedisClient: Pipeline SET command failed for key: " + keyvals[i].first + ".");
+			throw std::runtime_error(
+				"RedisClient: Pipeline SET command failed for key: " +
+				keyvals[i].first + ".");
 	}
 }
 
-std::vector<std::string> RedisClient::mget(const std::vector<std::string>& keys) {
+std::vector<std::string> RedisClient::mget(
+	const std::vector<std::string>& keys) {
 	// Prepare key list
-	std::vector<const char *> argv = {"MGET"};
+	std::vector<const char*> argv = {"MGET"};
 	for (const auto& key : keys) {
 		argv.push_back(key.c_str());
 	}
 
 	// Call MGET command with variable argument formatting
-	redisReply *r = (redisReply *)redisCommandArgv(context_.get(), argv.size(), &argv[0], nullptr);
+	redisReply* r = (redisReply*)redisCommandArgv(_context.get(), argv.size(),
+												  &argv[0], nullptr);
 	std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 
 	// Check for errors
@@ -154,23 +186,26 @@ std::vector<std::string> RedisClient::mget(const std::vector<std::string>& keys)
 	std::vector<std::string> values;
 	for (size_t i = 0; i < reply->elements; i++) {
 		if (reply->element[i]->type != REDIS_REPLY_STRING)
-			throw std::runtime_error("RedisClient: MGET command returned non-string values.");
+			throw std::runtime_error(
+				"RedisClient: MGET command returned non-string values.");
 
 		values.push_back(reply->element[i]->str);
 	}
 	return values;
 }
 
-void RedisClient::mset(const std::vector<std::pair<std::string, std::string>>& keyvals) {
+void RedisClient::mset(
+	const std::vector<std::pair<std::string, std::string>>& keyvals) {
 	// Prepare key-value list
-	std::vector<const char *> argv = {"MSET"};
+	std::vector<const char*> argv = {"MSET"};
 	for (const auto& keyval : keyvals) {
 		argv.push_back(keyval.first.c_str());
 		argv.push_back(keyval.second.c_str());
 	}
 
 	// Call MSET command with variable argument formatting
-	redisReply *r = (redisReply *)redisCommandArgv(context_.get(), argv.size(), &argv[0], nullptr);
+	redisReply* r = (redisReply*)redisCommandArgv(_context.get(), argv.size(),
+												  &argv[0], nullptr);
 	std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 
 	// Check for errors
@@ -178,368 +213,334 @@ void RedisClient::mset(const std::vector<std::pair<std::string, std::string>>& k
 		throw std::runtime_error("RedisClient: MSET command failed.");
 }
 
-
-void RedisClient::createReadCallback(const int callback_number)
-{
-	int n = _read_callback_indexes.size();
+void RedisClient::createNewReceiveGroup(const int group_number) {
+	int n = _receive_group_indexes.size();
 	bool found = false;
-	for(int callback_index=0 ; callback_index < n ; callback_index++)
-	{
-		if(_read_callback_indexes[callback_index] == callback_number)
-		{
+	for (int group_index = 0; group_index < n; group_index++) {
+		if (_receive_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
 	}
-	if(found)
-	{
-		cout << "read callback already exists with this index. Not creating a new one" << endl;
+	if (found) {
+		cout << "receive group already exists with this index. Not creating a new "
+				"one"
+			 << endl;
 		return;
 	}
 
-	_read_callback_indexes.push_back(callback_number);
-	_keys_to_read.push_back(vector<string>());
-	_objects_to_read.push_back(vector<void *>());
-	_objects_to_read_types.push_back(vector<RedisSupportedTypes>());
+	_receive_group_indexes.push_back(group_number);
+	_keys_to_receive.push_back(vector<string>());
+	_objects_to_receive.push_back(vector<void*>());
+	_objects_to_receive_types.push_back(vector<RedisSupportedTypes>());
 }
 
-void RedisClient::createWriteCallback(const int callback_number)
-{
-	int n = _write_callback_indexes.size();
+void RedisClient::createNewSendGroup(const int group_number) {
+	int n = _send_group_indexes.size();
 	bool found = false;
-	for(int callback_index=0 ; callback_index < n ; callback_index++)
-	{
-		if(_write_callback_indexes[callback_index] == callback_number)
-		{
+	for (int group_index = 0; group_index < n; group_index++) {
+		if (_send_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
 	}
-	if(found)
-	{
-		cout << "write callback already exists with this index. Not creating a new one" << endl;
+	if (found) {
+		cout << "send group already exists with this index. Not creating a "
+				"new one"
+			 << endl;
 		return;
 	}
 
-	_write_callback_indexes.push_back(callback_number);
-	_keys_to_write.push_back(vector<string>());
-	_objects_to_write.push_back(vector<void *>());
-	_objects_to_write_types.push_back(vector<RedisSupportedTypes>());
-	_objects_to_write_sizes.push_back(vector<pair<int, int>>());
+	_send_group_indexes.push_back(group_number);
+	_keys_to_send.push_back(vector<string>());
+	_objects_to_send.push_back(vector<const void*>());
+	_objects_to_send_types.push_back(vector<RedisSupportedTypes>());
+	_objects_to_send_sizes.push_back(vector<pair<int, int>>());
 }
 
-
-
-void RedisClient::addDoubleToReadCallback(const int callback_number, const std::string& key, double &object)
-{
-	int n = _read_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::addToReceiveGroup(const std::string& key, double& object,
+									const int group_number) {
+	int n = _receive_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_read_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_receive_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no read callback with this index in RedisClient::addDoubleToReadCallback(const int callback_number, const std::string& key, double &object)\n");
+	if (!found) {
+		throw runtime_error(
+			"no read group with this index in "
+			"RedisClient::addToReceiveGroup(const "
+			"std::string& key, double &object)\n");
 	}
 
-
-	_keys_to_read[callback_index].push_back(key);
-	_objects_to_read[callback_index].push_back(&object);
-	_objects_to_read_types[callback_index].push_back(DOUBLE_NUMBER);
+	_keys_to_receive[group_index].push_back(key);
+	_objects_to_receive[group_index].push_back(&object);
+	_objects_to_receive_types[group_index].push_back(DOUBLE_NUMBER);
 }
 
-void RedisClient::addStringToReadCallback(const int callback_number, const std::string& key, std::string &object)
-{
-	int n = _read_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::addToReceiveGroup(const std::string& key, std::string& object,
+									const int group_number) {
+	int n = _receive_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_read_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_receive_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no read callback with this index in RedisClient::addStringToReadCallback(const int callback_number, const std::string& key, std::string &object)\n");
+	if (!found) {
+		throw runtime_error(
+			"no read group with this index in "
+			"RedisClient::addToReceiveGroup(const "
+			"std::string& key, std::string &object)\n");
 	}
 
-	_keys_to_read[callback_index].push_back(key);
-	_objects_to_read[callback_index].push_back(&object);
-	_objects_to_read_types[callback_index].push_back(STRING);
+	_keys_to_receive[group_index].push_back(key);
+	_objects_to_receive[group_index].push_back(&object);
+	_objects_to_receive_types[group_index].push_back(STRING);
 }
 
-void RedisClient::addIntToReadCallback(const int callback_number, const std::string& key, int &object)
-{
-	int n = _read_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::addToReceiveGroup(const std::string& key, int& object,
+									const int group_number) {
+	int n = _receive_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_read_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_receive_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no read callback with this index in RedisClient::addIntToReadCallback(const int callback_number, const std::string& key, int &object)\n");
+	if (!found) {
+		throw runtime_error(
+			"no read group with this index in "
+			"RedisClient::addToReceiveGroup(const "
+			"std::string& key, int &object)\n");
 	}
 
-	_keys_to_read[callback_index].push_back(key);
-	_objects_to_read[callback_index].push_back(&object);
-	_objects_to_read_types[callback_index].push_back(INT_NUMBER);
+	_keys_to_receive[group_index].push_back(key);
+	_objects_to_receive[group_index].push_back(&object);
+	_objects_to_receive_types[group_index].push_back(INT_NUMBER);
 }
 
-
-
-void RedisClient::addDoubleToWriteCallback(const int callback_number, const std::string& key, double &object)
-{
-	int n = _write_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::addToSendGroup(const std::string& key, const double& object,
+								 const int group_number) {
+	int n = _send_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_write_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_send_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no write callback with this index in RedisClient::addDoubleToWriteCallback(const int callback_number, const std::string& key, double &object)\n");
+	if (!found) {
+		throw runtime_error(
+			"no write group with this index in "
+			"RedisClient::addToSendGroup(const "
+			"std::string& key, double &object)\n");
 	}
 
-	_keys_to_write[callback_index].push_back(key);
-	_objects_to_write[callback_index].push_back(&object);
-	_objects_to_write_types[callback_index].push_back(DOUBLE_NUMBER);
-	_objects_to_write_sizes[callback_index].push_back(std::make_pair(0,0));
+	_keys_to_send[group_index].push_back(key);
+	_objects_to_send[group_index].push_back(&object);
+	_objects_to_send_types[group_index].push_back(DOUBLE_NUMBER);
+	_objects_to_send_sizes[group_index].push_back(std::make_pair(0, 0));
 }
 
-void RedisClient::addStringToWriteCallback(const int callback_number, const std::string& key, std::string &object)
-{
-	int n = _write_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::addToSendGroup(const std::string& key,
+								 const std::string& object,
+								 const int group_number) {
+	int n = _send_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_write_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_send_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no write callback with this index in RedisClient::addStringToWriteCallback(const int callback_number, const std::string& key, std::string &object)\n");
+	if (!found) {
+		throw runtime_error(
+			"no write group with this index in "
+			"RedisClient::addToSendGroup(const "
+			"std::string& key, std::string &object)\n");
 	}
 
-	_keys_to_write[callback_index].push_back(key);
-	_objects_to_write[callback_index].push_back(&object);
-	_objects_to_write_types[callback_index].push_back(STRING);
-	_objects_to_write_sizes[callback_index].push_back(std::make_pair(0,0));
+	_keys_to_send[group_index].push_back(key);
+	_objects_to_send[group_index].push_back(&object);
+	_objects_to_send_types[group_index].push_back(STRING);
+	_objects_to_send_sizes[group_index].push_back(std::make_pair(0, 0));
 }
 
-void RedisClient::addIntToWriteCallback(const int callback_number, const std::string& key, int &object)
-{
-	int n = _write_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::addToSendGroup(const std::string& key, const int& object,
+								 const int group_number) {
+	int n = _send_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_write_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_send_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no write callback with this index in RedisClient::addIntToWriteCallback(const int callback_number, const std::string& key, int &object)\n");
+	if (!found) {
+		throw runtime_error(
+			"no write group with this index in "
+			"RedisClient::addToSendGroup(const "
+			"std::string& key, int &object)\n");
 	}
 
-	_keys_to_write[callback_index].push_back(key);
-	_objects_to_write[callback_index].push_back(&object);
-	_objects_to_write_types[callback_index].push_back(INT_NUMBER);
-	_objects_to_write_sizes[callback_index].push_back(std::make_pair(0,0));
+	_keys_to_send[group_index].push_back(key);
+	_objects_to_send[group_index].push_back(&object);
+	_objects_to_send_types[group_index].push_back(INT_NUMBER);
+	_objects_to_send_sizes[group_index].push_back(std::make_pair(0, 0));
 }
 
-
-
-void RedisClient::executeReadCallback(const int callback_number)
-{
-	int n = _read_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::receiveAllFromGroup(const int group_number) {
+	int n = _receive_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_read_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_receive_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no read callback with this index in RedisClient::executeReadCallback(const int callback_number)\n");
+	if (!found) {
+		throw runtime_error(
+			"no read group with this index in RedisClient::receiveAllFromGroup(const "
+			"int "
+			"group_number)\n");
 	}
 
-	std::vector<std::string> return_values = pipeget(_keys_to_read[callback_index]);
+	std::vector<std::string> return_values =
+		// pipeget(_keys_to_receive[group_index]);
+		mget(_keys_to_receive[group_index]);
 
-	for(int i=0 ; i<return_values.size() ; i++)
-	{
-		switch(_objects_to_read_types[callback_index].at(i))
-		{
-			case DOUBLE_NUMBER :
-			{
-				double* tmp_pointer = (double*) _objects_to_read[callback_index].at(i);
+	for (int i = 0; i < return_values.size(); i++) {
+		switch (_objects_to_receive_types[group_index].at(i)) {
+			case DOUBLE_NUMBER: {
+				double* tmp_pointer =
+					(double*)_objects_to_receive[group_index].at(i);
 				*tmp_pointer = stod(return_values[i]);
-			}
-			break;
+			} break;
 
-			case INT_NUMBER :
-			{
-				int* tmp_pointer = (int*) _objects_to_read[callback_index].at(i);
-				*tmp_pointer = stoi(return_values[i]);				
-			}
-			break;
+			case INT_NUMBER: {
+				int* tmp_pointer = (int*)_objects_to_receive[group_index].at(i);
+				*tmp_pointer = stoi(return_values[i]);
+			} break;
 
-			case STRING :
-			{
-				std::string* tmp_pointer = (std::string*) _objects_to_read[callback_index].at(i);
+			case STRING: {
+				std::string* tmp_pointer =
+					(std::string*)_objects_to_receive[group_index].at(i);
 				*tmp_pointer = return_values[i];
-			}
-			break;
+			} break;
 
-			case EIGEN_OBJECT :
-			{
-				double* tmp_pointer = (double*) _objects_to_read[callback_index].at(i);
+			case EIGEN_OBJECT: {
+				double* tmp_pointer =
+					(double*)_objects_to_receive[group_index].at(i);
 
-				Eigen::MatrixXd tmp_return_matrix = RedisClient::decodeEigenMatrixJSON(return_values[i]);
+				Eigen::MatrixXd tmp_return_matrix =
+					RedisClient::decodeEigenMatrix(return_values[i]);
 
 				int nrows = tmp_return_matrix.rows();
 				int ncols = tmp_return_matrix.cols();
 
-				for(int k=0 ; k<nrows ; k++)
-				{
-					for(int l=0 ; l<ncols ; l++)
-					{
-						tmp_pointer[k + ncols*l] = tmp_return_matrix(k,l);
+				for (int k = 0; k < nrows; k++) {
+					for (int l = 0; l < ncols; l++) {
+						tmp_pointer[k + ncols * l] = tmp_return_matrix(k, l);
 					}
 				}
-			}
-			break;
+			} break;
 
-			default :
-			break;
+			default:
+				break;
 		}
 	}
 }
 
-void RedisClient::executeWriteCallback(const int callback_number)
-{
-	int n = _write_callback_indexes.size();
-	int callback_index = 0;
+void RedisClient::sendAllFromGroup(const int group_number) {
+	int n = _send_group_indexes.size();
+	int group_index = 0;
 	bool found = false;
-	while(callback_index < n)
-	{
-		if(_write_callback_indexes[callback_index] == callback_number)
-		{
+	while (group_index < n) {
+		if (_send_group_indexes[group_index] == group_number) {
 			found = true;
 			break;
 		}
-		callback_index++;
+		group_index++;
 	}
-	if(!found)
-	{
-		throw runtime_error("no write callback with this index in RedisClient::executeWriteCallback(const int callback_number)\n");
+	if (!found) {
+		throw runtime_error(
+			"no write group with this index in RedisClient::sendAllFromGroup(const "
+			"int group_number)\n");
 	}
 
+	std::vector<std::pair<std::string, std::string>> write_key_value_pairs;
 
-	std::vector<std::pair<std::string,std::string>> write_key_value_pairs;
-
-	for(int i=0 ; i<_keys_to_write[callback_index].size() ; i++)
-	{
+	for (int i = 0; i < _keys_to_send[group_index].size(); i++) {
 		std::string encoded_value = "";
 
-		switch(_objects_to_write_types[callback_index].at(i))
-		{
-			case DOUBLE_NUMBER:
-			{
-				double* tmp_pointer = (double*) _objects_to_write[callback_index].at(i);
+		switch (_objects_to_send_types[group_index].at(i)) {
+			case DOUBLE_NUMBER: {
+				double* tmp_pointer =
+					(double*)_objects_to_send[group_index].at(i);
 				encoded_value = std::to_string(*tmp_pointer);
-			}
-			break;
+			} break;
 
-			case INT_NUMBER:
-			{
-				int* tmp_pointer = (int*) _objects_to_write[callback_index].at(i);
+			case INT_NUMBER: {
+				int* tmp_pointer = (int*)_objects_to_send[group_index].at(i);
 				encoded_value = std::to_string(*tmp_pointer);
-			}
-			break;
+			} break;
 
-			case STRING:
-			{
-				std::string* tmp_pointer = (std::string*) _objects_to_write[callback_index].at(i);
+			case STRING: {
+				std::string* tmp_pointer =
+					(std::string*)_objects_to_send[group_index].at(i);
 				encoded_value = (*tmp_pointer);
-			}
-			break;
+			} break;
 
-			case EIGEN_OBJECT:
-			{
-				double* tmp_pointer = (double*) _objects_to_write[callback_index].at(i);
-				int nrows = _objects_to_write_sizes[callback_index].at(i).first;
-				int ncols = _objects_to_write_sizes[callback_index].at(i).second;
+			case EIGEN_OBJECT: {
+				double* tmp_pointer =
+					(double*)_objects_to_send[group_index].at(i);
+				int nrows = _objects_to_send_sizes[group_index].at(i).first;
+				int ncols = _objects_to_send_sizes[group_index].at(i).second;
 
-				Eigen::MatrixXd tmp_matrix = Eigen::MatrixXd::Zero(nrows, ncols);
-				for(int k=0 ; k<nrows ; k++)
-				{
-					for(int l=0 ; l<ncols ; l++)
-					{
-						tmp_matrix(k,l) = tmp_pointer[k + ncols*l];
+				Eigen::MatrixXd tmp_matrix =
+					Eigen::MatrixXd::Zero(nrows, ncols);
+				for (int k = 0; k < nrows; k++) {
+					for (int l = 0; l < ncols; l++) {
+						tmp_matrix(k, l) = tmp_pointer[k + ncols * l];
 					}
 				}
 
-				encoded_value = encodeEigenMatrixJSON(tmp_matrix);
-			}
-			break;
+				encoded_value = encodeEigenMatrix(tmp_matrix);
+			} break;
 		}
 
-		if(encoded_value != "")
-		{
-				write_key_value_pairs.push_back(make_pair(_keys_to_write[callback_index].at(i),encoded_value));
+		if (encoded_value != "") {
+			write_key_value_pairs.push_back(
+				make_pair(_keys_to_send[group_index].at(i), encoded_value));
 		}
 	}
 
-	pipeset(write_key_value_pairs);
+	// pipeset(write_key_value_pairs);
+	mset(write_key_value_pairs);
 }
 
-
-
-
-
-
-static inline Eigen::MatrixXd decodeEigenMatrixWithDelimiters(const std::string& str,
-	char col_delimiter, char row_delimiter, const std::string& delimiter_set,
-	size_t idx_row_end = std::string::npos)
-{
+static inline Eigen::MatrixXd decodeEigenMatrixWithDelimiters(
+	const std::string& str, char col_delimiter, char row_delimiter,
+	const std::string& delimiter_set, size_t idx_row_end = std::string::npos) {
 	// Count number of columns
 	size_t num_cols = 0;
 	size_t idx = 0;
@@ -569,7 +570,8 @@ static inline Eigen::MatrixXd decodeEigenMatrixWithDelimiters(const std::string&
 
 	// Check number of rows and columns
 	if (num_cols == 0)
-		throw std::runtime_error("RedisClient: Failed to decode Eigen Matrix from: " + str + ".");
+		throw std::runtime_error(
+			"RedisClient: Failed to decode Eigen Matrix from: " + str + ".");
 	if (num_rows == 1) {
 		// Convert to vector
 		num_rows = num_cols;
@@ -588,9 +590,11 @@ static inline Eigen::MatrixXd decodeEigenMatrixWithDelimiters(const std::string&
 			std::string val;
 			ss >> val;
 			try {
-				matrix(i,j) = std::stod(val);
+				matrix(i, j) = std::stod(val);
 			} catch (const std::exception& e) {
-				throw std::runtime_error("RedisClient: Failed to decode Eigen Matrix from: " + str + ".");
+				throw std::runtime_error(
+					"RedisClient: Failed to decode Eigen Matrix from: " + str +
+					".");
 			}
 		}
 	}
@@ -598,11 +602,7 @@ static inline Eigen::MatrixXd decodeEigenMatrixWithDelimiters(const std::string&
 	return matrix;
 }
 
-Eigen::MatrixXd RedisClient::decodeEigenMatrixString(const std::string& str) {
-	return decodeEigenMatrixWithDelimiters(str, ' ', ';', ";");
-}
-
-Eigen::MatrixXd RedisClient::decodeEigenMatrixJSON(const std::string& str) {
+Eigen::MatrixXd RedisClient::decodeEigenMatrix(const std::string& str) {
 	// Find last nested row delimiter
 	size_t idx_row_end = str.find_last_of(']');
 	if (idx_row_end != std::string::npos) {
@@ -611,3 +611,5 @@ Eigen::MatrixXd RedisClient::decodeEigenMatrixJSON(const std::string& str) {
 	}
 	return decodeEigenMatrixWithDelimiters(str, ',', ']', ",[]", idx_row_end);
 }
+
+}  // namespace Sai2Common
