@@ -406,7 +406,7 @@ void RedisClient::addToSendGroup(const std::string& key, const int& object,
 	_objects_to_send_sizes[group_index].push_back(std::make_pair(0, 0));
 }
 
-void RedisClient::receiveGroup(const int group_number) {
+void RedisClient::receiveAllFromGroup(const int group_number) {
 	int n = _receive_group_indexes.size();
 	int group_index = 0;
 	bool found = false;
@@ -419,7 +419,7 @@ void RedisClient::receiveGroup(const int group_number) {
 	}
 	if (!found) {
 		throw runtime_error(
-			"no read group with this index in RedisClient::receiveGroup(const "
+			"no read group with this index in RedisClient::receiveAllFromGroup(const "
 			"int "
 			"group_number)\n");
 	}
@@ -470,7 +470,7 @@ void RedisClient::receiveGroup(const int group_number) {
 	}
 }
 
-void RedisClient::sendGroup(const int group_number) {
+void RedisClient::sendAllFromGroup(const int group_number) {
 	int n = _send_group_indexes.size();
 	int group_index = 0;
 	bool found = false;
@@ -483,7 +483,7 @@ void RedisClient::sendGroup(const int group_number) {
 	}
 	if (!found) {
 		throw runtime_error(
-			"no write group with this index in RedisClient::sendGroup(const "
+			"no write group with this index in RedisClient::sendAllFromGroup(const "
 			"int group_number)\n");
 	}
 

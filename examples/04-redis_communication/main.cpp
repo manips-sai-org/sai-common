@@ -76,10 +76,10 @@ int main(int argc, char** argv) {
 		robot->setQ(robot_q);
 		robot->updateModel();
 
-		redis_client.sendGroup();
+		redis_client.sendAllFromGroup();
 
 		std::string second_thread_message = redis_client.get(STR_KEY);
-		redis_client.receiveGroup();
+		redis_client.receiveAllFromGroup();
 
 		cout << "info received from second thread:" << endl;
 		cout << second_thread_message << endl;
@@ -144,8 +144,8 @@ void second_program() {
 	while(!stopRunning) {
 		timer.waitForNextLoop();
 		counter = timer.elapsedCycles();
-		redis_client_2.sendGroup();
-		redis_client_2.receiveGroup();
+		redis_client_2.sendAllFromGroup();
+		redis_client_2.receiveAllFromGroup();
 
 		cout << "robot info received from first thread:" << endl;
 		cout << "robot joint angles:\n" << robot_q.transpose() << endl;

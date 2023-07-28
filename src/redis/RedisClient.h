@@ -136,8 +136,8 @@ public:
 											_MaxRows, _MaxCols>& object,
 						const int group_number = 0);
 
-	void receiveGroup(const int group_number = 0);
-	void sendGroup(const int group_number = 0);
+	void receiveAllFromGroup(const int group_number = 0);
+	void sendAllFromGroup(const int group_number = 0);
 
 private:
 	/**
