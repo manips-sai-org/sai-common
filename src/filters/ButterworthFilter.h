@@ -1,38 +1,71 @@
-// ButterworthFilter: Implements a digital second order Butterworth filter for an Eigen::VectorXd type object 
+// ButterworthFilter: Implements a digital second order Butterworth filter for
+// an Eigen::VectorXd type object
 
 #ifndef SAI2_COMMON_BUTTERWORTH_FILTER_H_
 #define SAI2_COMMON_BUTTERWORTH_FILTER_H_
 
 #include <math.h>
-#include <stdexcept>
-#include <iostream>
+
 #include <Eigen/Dense>
+#include <iostream>
+#include <stdexcept>
 
-class ButterworthFilter
-{
+class ButterworthFilter {
 public:
-	/** \brief Constructor. Call setDimension before using */
-	// ButterworthFilter(){}
+	/**
+	 * @brief Construct a new Butterworth Filter object
+	 *
+	 * @param normalized_cutoff the normalized cutoff frequency of the filter
+	 * (must be strictly between 0 and 0.5)
+	 */
+	ButterworthFilter(const double normalized_cutoff_freq);
 
-	ButterworthFilter(const int input_size);
+	/**
+	 * @brief Construct a new Butterworth Filter object
+	 *
+	 * @param sampling_rate the sampling rate of the signal to be filtered
+	 * @param cutoff_freq the cutoff frequency of the filter (must be strictly
+	 * between 0 and sampling_rate/2)
+	 */
+	ButterworthFilter(const double cutoff_freq, const double sampling_rate)
+		: ButterworthFilter(cutoff_freq / sampling_rate){};
 
-	ButterworthFilter(const int input_size, const double normalized_cutoff);
+	// disallow copy and assignement
+	ButterworthFilter(const ButterworthFilter&) = delete;
+	ButterworthFilter& operator=(const ButterworthFilter&) = delete;
 
-	ButterworthFilter(const int input_size, const double sampling_rate, const double cutoff_freq);
+	/**
+	 * @brief Initialize the filter to a given value.
+	 *
+	 * @param initial_signal_values the initial value of the signal to be
+	 * filtered
+	 */
+	void initializeFilter(const Eigen::VectorXd& initial_signal_values);
 
-	// default initialize to zero values
-	void initializeFilter(const Eigen::VectorXd& x);
+	/**
+	 * @brief filter the new input value and return the filtered value. Each
+	 * coefficient if filtered independently
+	 *
+	 * @param raw_input   the new input value
+	 * @return Eigen::VectorXd  the filtered value
+	 */
+	Eigen::VectorXd update(const Eigen::VectorXd& raw_input);
 
+private:
+	/**
+	 * @brief Set the Cutoff Frequency of the filter.
+	 *
+	 * @param fc the normalized cutoff frequency of the filter (must be strictly
+	 * between 0 and 0.5)
+	 */
 	void setCutoffFrequency(const double fc);
 
-	void setCutoffFrequency(const double sampling_rate, const double cutoff_freq);
+	// is intialized
+	bool _is_initialized;
 
-	/** \brief Update the filter
-	 * \param x State vector. Each element is filtered individually. */
-	Eigen::VectorXd update(const Eigen::VectorXd& x);
-
-// private:
-	unsigned int _state_size = 0;
+	// dimenson of the signal to be filtered
+	size_t _dim;
+	size_t _filter_order;
 
 	// each column is a sample. Most recent sample at the left
 	Eigen::MatrixXd _raw_buffer;
@@ -44,9 +77,6 @@ public:
 
 	double _normalized_cutoff;
 	double _pre_warp_cutoff;
-
-	double _filter_order;
 };
 
-
-#endif //SAI2_COMMON_BUTTERWORTH_FILTER_H_
+#endif	// SAI2_COMMON_BUTTERWORTH_FILTER_H_

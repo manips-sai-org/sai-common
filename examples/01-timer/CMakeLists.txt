@@ -1,4 +1,4 @@
-set(EXAMPLE_NAME 01-timers)
+set(EXAMPLE_NAME 01-timer)
 
 # create an executable
 add_executable (${EXAMPLE_NAME} main.cpp)
