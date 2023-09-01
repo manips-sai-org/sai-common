@@ -63,12 +63,13 @@ occur.
 - Time since start is automatically logged as the first column of the output
 file.
 - Logging frequency is specified in Hz and is 100 Hz by default.
-- Output is a csv file with following format:
+- Output is a csv file with following format, and the variables will always be
+logged with the eigen values first, followed by double, int and bool values:
 
-time,	 Signal1_0,	 Signal1_1,  Signal2_0,  Signal2_1
-0,			5.0,		5.0,		5.0,		5.0
-0.01,		5.0,		5.0,		5.0,		5.0
-0.02,		5.0,		5.0,		5.0,		5.0
+time,	 Vector1_0,	 Vector1_1,  Vector2_0,  Vector2_1,  double1,  int1,  bool1
+0,			5.0,		5.0,		5.0,		5.0,		2.0, 	23, 	0
+0.01,		5.0,		5.0,		5.0,		5.0,		2.0, 	23, 	0
+0.02,		5.0,		5.0,		5.0,		5.0,		2.0, 	23, 	0
 ...
 */
 class Logger {
