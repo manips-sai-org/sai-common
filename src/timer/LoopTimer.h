@@ -52,7 +52,7 @@ public:
 	 * wait was required. */
 	bool waitForNextLoop();
 
-	/** \brief Number of loops since calling run. */
+	/** \brief Number of full loops completed since calling run. */
 	unsigned long long elapsedCycles();
 
 	/** \brief Time when waitForNextLoop was last called */
@@ -65,6 +65,11 @@ public:
 	/** \brief Elapsed simulation time since calling initializeTimer() or run()
 	 * in seconds. */
 	double elapsedSimTime();
+
+#ifdef USE_CHRONO
+	/** \brief Print the loop frequency and the average loop time. */
+	void printInfoPostRun();
+#endif
 
 #ifndef USE_CHRONO
 	/** \brief Time when waitForNextLoop was last called */
@@ -106,7 +111,7 @@ public:
 	 */
 	// static void setThreadRealTime(const int MAX_SAFE_STACK = 8*1024);
 
-protected:
+private:
 #ifndef USE_CHRONO
 	inline void getCurrentTime(timespec& t_ret);
 
@@ -123,6 +128,7 @@ protected:
 	std::chrono::high_resolution_clock::time_point t_next_;
 	std::chrono::high_resolution_clock::time_point t_curr_;
 	std::chrono::high_resolution_clock::time_point t_start_;
+	std::chrono::high_resolution_clock::time_point t_end_;
 	std::chrono::high_resolution_clock::duration t_loop_;
 	std::chrono::high_resolution_clock::duration t_tmp_;
 	std::chrono::nanoseconds ns_update_interval_;

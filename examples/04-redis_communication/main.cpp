@@ -2,8 +2,6 @@
 #include <string>
 #include <thread>
 
-#include "Sai2Model.h"
-
 #include "timer/LoopTimer.h"
 #include "redis/RedisClient.h"
 
@@ -12,8 +10,7 @@ bool stopRunning = false;
 void sighandler(int){stopRunning = true;}
 
 using namespace std;
-
-const string robot_fname = "resources/rrbot.urdf";
+using namespace Eigen;
 
 void second_program();
 
@@ -24,11 +21,18 @@ const string VECTOR_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-exa
 const string MATRIX_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-example::matrix_key";
 
 int main(int argc, char** argv) {
-	// make robot model
-	auto robot = make_shared<Sai2Model::Sai2Model>(robot_fname, false);
-	Eigen::Vector2d robot_q(0.1, 0.5);
-	robot->setQ(robot_q);
-	robot->updateModel();
+	// // make robot model
+	// auto robot = make_shared<Sai2Model::Sai2Model>(robot_fname, false);
+	// Eigen::Vector2d robot_q(0.1, 0.5);
+	// robot->setQ(robot_q);
+	// robot->updateModel();
+
+	// example data that a robot would have
+	int robot_dofs = 2;
+	double robot_gripper_opening = 0.1;
+	Vector2d robot_q = Vector2d(0.1, 0.5);
+	Matrix2d robot_M;
+	robot_M << 5.0, -1.5, -1.5, 1.0;
 
 	// set up signal handler
 	signal(SIGABRT, &sighandler);
@@ -41,10 +45,10 @@ int main(int argc, char** argv) {
 
 	// set some values in redis database
 	redis_client.set(STR_KEY, "Hello World !");
-	redis_client.setInt(INT_KEY, robot->dof());
-	redis_client.setDouble(DOUBLE_KEY, robot->q()[0] );
-	redis_client.setEigen(VECTOR_KEY, robot->q());
-	redis_client.setEigen(MATRIX_KEY, robot->M());
+	redis_client.setInt(INT_KEY, robot_dofs);
+	redis_client.setDouble(DOUBLE_KEY, robot_gripper_opening);
+	redis_client.setEigen(VECTOR_KEY, robot_q);
+	redis_client.setEigen(MATRIX_KEY, robot_M);
 
 	cout << endl;
 	cout << "keys read from thread 1 before the loop: " << endl;
@@ -56,8 +60,8 @@ int main(int argc, char** argv) {
 	cout << endl;
 
 	// setup send and receive groups
-	redis_client.addToSendGroup(VECTOR_KEY, robot->q());
-	redis_client.addToSendGroup(MATRIX_KEY, robot->M());
+	redis_client.addToSendGroup(VECTOR_KEY, robot_q);
+	redis_client.addToSendGroup(MATRIX_KEY, robot_M);
 
 	int second_thread_counter = 0;
 	double second_thread_time = 0.0;
@@ -73,8 +77,7 @@ int main(int argc, char** argv) {
 		timer.waitForNextLoop();
 
 		robot_q += Eigen::Vector2d(0.1, 0.1);
-		robot->setQ(robot_q);
-		robot->updateModel();
+		robot_M += Eigen::Matrix2d::Identity() * 0.01;
 
 		redis_client.sendAllFromGroup();
 
@@ -152,6 +155,4 @@ void second_program() {
 		cout << "robot mass matrix:\n" << robot_M << endl;
 		cout << endl;
 	}
-
-
 }

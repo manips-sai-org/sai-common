@@ -50,11 +50,13 @@ void LoopTimer::setLoopFrequency(double frequency) {
 }
 
 void LoopTimer::initializeTimer(unsigned int initial_wait_nanoseconds) {
+	update_counter_ = 0;
 #ifdef USE_CHRONO
 	auto ns_initial_wait = std::chrono::nanoseconds(initial_wait_nanoseconds);
 	t_next_ = std::chrono::high_resolution_clock::now() + ns_initial_wait;
 	t_start_ = t_next_;
 	t_loop_ = t_start_ - t_start_;
+	running_ = true;
 #else	// USE_CHRONO
 	// initialize time
 	getCurrentTime(t_next_);
@@ -104,7 +106,9 @@ bool LoopTimer::waitForNextLoop() {
 #endif	// USE_CHRONO
 }
 
-unsigned long long LoopTimer::elapsedCycles() { return update_counter_; }
+unsigned long long LoopTimer::elapsedCycles() { 
+	return update_counter_ == 0 ? 0 : update_counter_ - 1;
+}
 
 double LoopTimer::loopTime() {
 #ifdef USE_CHRONO
@@ -116,6 +120,9 @@ double LoopTimer::loopTime() {
 
 double LoopTimer::elapsedTime() {
 #ifdef USE_CHRONO
+	if(!running_){
+		return std::chrono::duration<double>(t_end_ - t_start_).count();
+	}
 	t_tmp_ = std::chrono::high_resolution_clock::now() - t_start_;
 	return std::chrono::duration<double>(t_tmp_).count();
 #else	// USE_CHRONO
@@ -127,12 +134,21 @@ double LoopTimer::elapsedTime() {
 
 double LoopTimer::elapsedSimTime() {
 #ifdef USE_CHRONO
-	return update_counter_ *
+	return elapsedCycles() *
 		   std::chrono::duration<double>(ns_update_interval_).count();
 #else	// USE_CHRONO
 	return update_counter_ * (1e-9 * ns_update_interval_);
 #endif	// USE_CHRONO
 }
+
+#ifdef USE_CHRONO
+void LoopTimer::printInfoPostRun() {
+    std::cout << "Timer Run time		: " << elapsedTime() << " seconds\n";
+    std::cout << "Timer Sim time		: " << elapsedSimTime() << " seconds\n";
+    std::cout << "Timer Loop updates	: " << elapsedCycles() << "\n";
+    std::cout << "Timer Loop frequency	: " << elapsedCycles()/elapsedTime() << "Hz\n";
+}
+#endif	// USE_CHRONO
 
 #ifndef USE_CHRONO
 void LoopTimer::loopTime(timespec& t) { t = t_loop_; }
@@ -158,7 +174,10 @@ void LoopTimer::run(void (*userCallback)(void)) {
 	}
 }
 
-void LoopTimer::stop() { running_ = false; }
+void LoopTimer::stop() {
+	t_end_ = std::chrono::high_resolution_clock::now();
+	running_ = false;
+}
 
 // static void LoopTimer::setThreadHighPriority(){
 //     pid_t pid = getpid();
