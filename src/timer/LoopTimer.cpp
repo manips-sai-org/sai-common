@@ -1,22 +1,24 @@
 #include "LoopTimer.h"
 
+namespace Sai2Common {
+
+namespace {
 #ifndef USE_CHRONO
 // Helper timespec functions
 static inline timespec operator-(const timespec& a, const timespec& b) {
 	timespec dt;
 	if (a.tv_nsec - b.tv_nsec < 0) {
-		dt.tv_sec  = a.tv_sec  - b.tv_sec  - 1;
+		dt.tv_sec = a.tv_sec - b.tv_sec - 1;
 		dt.tv_nsec = a.tv_nsec - b.tv_nsec + 1e9;
 	} else {
-		dt.tv_sec  = a.tv_sec  - b.tv_sec;
+		dt.tv_sec = a.tv_sec - b.tv_sec;
 		dt.tv_nsec = a.tv_nsec - b.tv_nsec;
 	}
 	return dt;
 }
 
 static inline bool operator<(const timespec& lhs, const timespec& rhs) {
-	if (lhs.tv_sec == rhs.tv_sec)
-		return lhs.tv_nsec < rhs.tv_nsec;
+	if (lhs.tv_sec == rhs.tv_sec) return lhs.tv_nsec < rhs.tv_nsec;
 	return lhs.tv_sec < rhs.tv_sec;
 }
 
@@ -32,18 +34,19 @@ static inline timespec& operator+=(timespec& t, unsigned int nsecs) {
 static inline double timespec_to_double(const timespec& t) {
 	return t.tv_sec + 1e-9 * static_cast<double>(t.tv_nsec);
 }
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 
-LoopTimer::LoopTimer(double frequency) {
-	setLoopFrequency(frequency);
-}
+}  // namespace
 
-void LoopTimer::setLoopFrequency (double frequency) {
+LoopTimer::LoopTimer(double frequency) { setLoopFrequency(frequency); }
+
+void LoopTimer::setLoopFrequency(double frequency) {
 #ifdef USE_CHRONO
-	ns_update_interval_ = std::chrono::nanoseconds(static_cast<unsigned int>(1e9 / frequency));
-#else  // USE_CHRONO
+	ns_update_interval_ =
+		std::chrono::nanoseconds(static_cast<unsigned int>(1e9 / frequency));
+#else	// USE_CHRONO
 	ns_update_interval_ = 1e9 / frequency;
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 }
 
 void LoopTimer::initializeTimer(unsigned int initial_wait_nanoseconds) {
@@ -52,7 +55,7 @@ void LoopTimer::initializeTimer(unsigned int initial_wait_nanoseconds) {
 	t_next_ = std::chrono::high_resolution_clock::now() + ns_initial_wait;
 	t_start_ = t_next_;
 	t_loop_ = t_start_ - t_start_;
-#else  // USE_CHRONO
+#else	// USE_CHRONO
 	// initialize time
 	getCurrentTime(t_next_);
 
@@ -61,7 +64,7 @@ void LoopTimer::initializeTimer(unsigned int initial_wait_nanoseconds) {
 	t_start_ = t_next_;
 	// TODO os x
 	// http://stackoverflow.com/questions/11338899/are-there-any-well-behaved-posix-interval-timers
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 }
 
 bool LoopTimer::waitForNextLoop() {
@@ -77,7 +80,7 @@ bool LoopTimer::waitForNextLoop() {
 	t_next_ += ns_update_interval_;
 	update_counter_++;
 	return slept;
-#else  // USE_CHRONO
+#else	// USE_CHRONO
 	// grab the time
 	getCurrentTime(t_curr_);
 
@@ -98,59 +101,55 @@ bool LoopTimer::waitForNextLoop() {
 	++update_counter_;
 
 	return slept;
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 }
 
-unsigned long long LoopTimer::elapsedCycles() {
-	return update_counter_;
-}
+unsigned long long LoopTimer::elapsedCycles() { return update_counter_; }
 
 double LoopTimer::loopTime() {
 #ifdef USE_CHRONO
 	return std::chrono::duration<double>(t_loop_).count();
-#else  // USE_CHRONO
+#else	// USE_CHRONO
 	return timespec_to_double(t_loop_);
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 }
 
 double LoopTimer::elapsedTime() {
 #ifdef USE_CHRONO
 	t_tmp_ = std::chrono::high_resolution_clock::now() - t_start_;
 	return std::chrono::duration<double>(t_tmp_).count();
-#else  // USE_CHRONO
+#else	// USE_CHRONO
 	struct timespec t;
 	elapsedTime(t);
 	return timespec_to_double(t);
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 }
 
 double LoopTimer::elapsedSimTime() {
 #ifdef USE_CHRONO
-	return update_counter_ * std::chrono::duration<double>(ns_update_interval_).count();
-#else  // USE_CHRONO
+	return update_counter_ *
+		   std::chrono::duration<double>(ns_update_interval_).count();
+#else	// USE_CHRONO
 	return update_counter_ * (1e-9 * ns_update_interval_);
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 }
 
 #ifndef USE_CHRONO
-void LoopTimer::loopTime(timespec& t) {
-	t = t_loop_;
-}
+void LoopTimer::loopTime(timespec& t) { t = t_loop_; }
 
 void LoopTimer::elapsedTime(timespec& t) {
 	struct timespec t_now;
 	getCurrentTime(t_now);
 	t = t_now - t_start_;
 }
-#endif  // USE_CHRONO
-
+#endif	// USE_CHRONO
 
 void LoopTimer::run(void (*userCallback)(void)) {
 #ifdef USE_CHRONO
 	initializeTimer(ns_update_interval_.count());
-#else  // USE_CHRONO
+#else	// USE_CHRONO
 	initializeTimer(ns_update_interval_);
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
 
 	running_ = true;
 	while (running_) {
@@ -159,9 +158,7 @@ void LoopTimer::run(void (*userCallback)(void)) {
 	}
 }
 
-void LoopTimer::stop() {
-	running_ = false;
-}
+void LoopTimer::stop() { running_ = false; }
 
 // static void LoopTimer::setThreadHighPriority(){
 //     pid_t pid = getpid();
@@ -195,7 +192,7 @@ void LoopTimer::stop() {
 // }
 
 #ifndef USE_CHRONO
-inline void LoopTimer::getCurrentTime(timespec &t_ret) {
+inline void LoopTimer::getCurrentTime(timespec& t_ret) {
 #ifdef __APPLE__
 	static double ratio = 0.0;
 	if (!ratio) {
@@ -206,22 +203,25 @@ inline void LoopTimer::getCurrentTime(timespec &t_ret) {
 	}
 	uint64_t t_nsecs = mach_absolute_time() * ratio;
 	t_ret.tv_sec = 0;
-	while (t_nsecs >= 1000000000){
+	while (t_nsecs >= 1000000000) {
 		t_nsecs -= 1000000000;
 		t_ret.tv_sec++;
 	}
 	t_ret.tv_nsec = static_cast<long>(t_nsecs);
-#else  // __APPLE__
+#else	// __APPLE__
 	clock_gettime(CLOCK_MONOTONIC, &t_ret);
-#endif  // __APPLE__
+#endif	// __APPLE__
 }
 
-inline void LoopTimer::nanoSleepUntil(const timespec &t_next, const timespec &t_now) {
+inline void LoopTimer::nanoSleepUntil(const timespec& t_next,
+									  const timespec& t_now) {
 #ifdef __APPLE__
 	timespec t_sleep = t_next - t_now;
 	nanosleep(&t_sleep, NULL);
-#else  // __APPLE__
+#else	// __APPLE__
 	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t_next_, NULL);
-#endif  // __APPLE__
+#endif	// __APPLE__
 }
-#endif  // USE_CHRONO
+#endif	// USE_CHRONO
+
+}  // namespace Sai2Common

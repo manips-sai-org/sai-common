@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 
 	thread second_thread(second_program);
 
-	LoopTimer timer(0.5);
+	Sai2Common::LoopTimer timer(0.5);
 	timer.initializeTimer(0.2*1e9);
 
 	while(!stopRunning) {
@@ -130,7 +130,7 @@ void second_program() {
 	redis_client_2.addToReceiveGroup(VECTOR_KEY, robot_q);
 	redis_client_2.addToReceiveGroup(MATRIX_KEY, robot_M);
 
-	LoopTimer timer(1.0);
+	Sai2Common::LoopTimer timer(1.0);
 	timer.initializeTimer(0.5*1e9);	
 	
 	int counter = 0;

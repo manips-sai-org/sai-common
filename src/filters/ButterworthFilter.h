@@ -10,6 +10,7 @@
 #include <iostream>
 #include <stdexcept>
 
+namespace Sai2Common {
 class ButterworthFilter {
 public:
 	/**
@@ -78,5 +79,7 @@ private:
 	double _normalized_cutoff;
 	double _pre_warp_cutoff;
 };
+
+}  // namespace Sai2Common
 
 #endif	// SAI2_COMMON_BUTTERWORTH_FILTER_H_

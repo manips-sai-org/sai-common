@@ -2,29 +2,67 @@
 
 #include <iostream>
 
-namespace Logging {
+namespace Sai2Common {
 
-Logger::Logger(long interval, std::string fname)
-	: _log_interval_(interval),
-	  _logname(fname),
+Logger::Logger(const std::string fname)
+	: _logname(fname),
 	  _f_is_logging(false),
-	  _max_log_time_us(0),
-	  _num_vars_to_log(0) {
+	  _max_log_time(0.0),
+	  _num_eigen_vars_to_log(0),
+	  _num_double_vars_to_log(0),
+	  _num_int_vars_to_log(0),
+	  _num_bool_vars_to_log(0) {
 	// create log file
 	_logfile.open(fname, std::ios::out);
-	_header = "timestamp, ";
 }
 
-Logger::Logger(long interval)
-	: _log_interval_(interval),
-	  _logname(""),
-	  _f_is_logging(false),
-	  _max_log_time_us(0),
-	  _num_vars_to_log(0) {
-	_header = "timestamp, ";
+bool Logger::addToLog(const double& var, const std::string var_name) {
+	if (_f_is_logging) {
+		return false;
+	}
+	_double_vars_to_log.push_back(&var);
+	_num_double_vars_to_log++;
+	if (!var_name.empty()) {
+		_double_header += var_name + ", ";
+	} else {
+		_double_header +=
+			"double_var" + std::to_string(_double_vars_to_log.size()) + ", ";
+	}
+	return true;
 }
 
-bool Logger::newFileStart(std::string fname) {
+bool Logger::addToLog(const int& var, const std::string var_name) {
+	if (_f_is_logging) {
+		return false;
+	}
+	_int_vars_to_log.push_back(&var);
+	_num_int_vars_to_log++;
+	if (!var_name.empty()) {
+		_int_header += var_name + ", ";
+	} else {
+		_int_header +=
+			"int_var" + std::to_string(_int_vars_to_log.size()) + ", ";
+	}
+	return true;
+}
+
+bool Logger::addToLog(const bool& var, const std::string var_name) {
+	if (_f_is_logging) {
+		return false;
+	}
+	_bool_vars_to_log.push_back(&var);
+	_num_bool_vars_to_log++;
+	if (!var_name.empty()) {
+		_bool_header += var_name + ", ";
+	} else {
+		_bool_header +=
+			"bool_var" + std::to_string(_bool_vars_to_log.size()) + ", ";
+	}
+	return true;
+}
+
+bool Logger::newFileStart(const std::string fname,
+						  const double logging_frequency) {
 	// do not overwrite old file
 	if (fname.compare(_logname) == 0) {
 		std::cerr << "Log file name requested matches existing file. "
@@ -35,27 +73,36 @@ bool Logger::newFileStart(std::string fname) {
 	if (_f_is_logging) {
 		stop();
 	}
+	_logname = fname;
 	_logfile.open(fname, std::ios::out);
-	fname = _logname;
-	return start();
+	return start(logging_frequency);
 }
 
 // start logging
-bool Logger::start() {
-	// save start time
-	_t_start = system_clock::now();
+bool Logger::start(const double logging_frequency) {
+	// set timer frequency
+	_timer.setLoopFrequency(logging_frequency);
 
 	// set logging to true
 	_f_is_logging = true;
 
 	// complete header line
-	_logfile << _header << "\n";
+	_logfile << "time, " << _eigen_header << _double_header << _int_header
+			 << _bool_header << "\n";
 
 	// calculate max log time to keep log under 2GB
-	if (_num_vars_to_log > 0) {
-		_max_log_time_us = _log_interval_ * 2e9 / (_num_vars_to_log * 7 + 10);
+	if (_num_eigen_vars_to_log > 0 || _num_double_vars_to_log > 0 ||
+		_num_int_vars_to_log > 0 || _num_bool_vars_to_log > 0) {
+		// assuming 1 written character is 1 Byte and each floating point number
+		// will be written with around 10 characters, each int with around 7 and
+		// each bool with 3 (including the space and comma). This is most likely
+		// overestimated
+		uint bytes_per_line =
+			10 * (_num_eigen_vars_to_log + _num_double_vars_to_log) +
+			7 * _num_int_vars_to_log + 3 * _num_bool_vars_to_log;
+		_max_log_time = 2e9 / (logging_frequency * bytes_per_line);
 	} else {
-		_max_log_time_us = 3600 * 1e6;	// 1 hour
+		_max_log_time = 3600.0;	 // 1 hour
 	}
 
 	// start logging thread by move assignment
@@ -71,38 +118,42 @@ void Logger::stop() {
 	// join thread
 	_log_thread.join();
 
+	// stop timer
+	_timer.stop();
+
 	// close file
 	_logfile.close();
 }
 
 void Logger::logWorker() {
-	system_clock::time_point curr_time;
-	system_clock::time_point last_time = system_clock::now();
+	_timer.initializeTimer();
 	while (_f_is_logging) {
-		usleep(_log_interval_ / 2);
-		curr_time = system_clock::now();
-		auto time_diff =
-			std::chrono::duration_cast<microseconds>(curr_time - last_time);
-		if (_log_interval_ > 0 &&
-			time_diff >= microseconds(static_cast<uint>(_log_interval_))) {
-			microseconds t_elapsed =
-				std::chrono::duration_cast<microseconds>(curr_time - _t_start);
-			_logfile << t_elapsed.count();
-			for (auto iter : _vars_to_log) {
-				_logfile << ", ";
-				iter->print(_logfile);
-			}
-			_logfile << "\n";
+		_timer.waitForNextLoop();
+		_logfile << _timer.elapsedTime() << ", ";
+		for (auto iter : _eigen_vars_to_log) {
+			_logfile << ", ";
+			iter->print(_logfile);
+		}
+		for (auto iter : _double_vars_to_log) {
+			_logfile << ", " << *iter;
+		}
+		for (auto iter : _int_vars_to_log) {
+			_logfile << ", " << *iter;
+		}
+		for (auto iter : _bool_vars_to_log) {
+			_logfile << ", " << *iter;
+		}
+		_logfile << "\n";
 
-			// log stop on max time limit
-			if (t_elapsed.count() > _max_log_time_us) {
-				std::cerr << "Logging stopped due to time limit" << std::endl;
-				break;
-			}
-			last_time = curr_time;
+		// log stop on max time limit
+		if (_timer.elapsedTime() > _max_log_time) {
+			std::cerr << "Logging stopped due to time limit" << std::endl;
+			_f_is_logging = false;
+			_timer.stop();
+			break;
 		}
 	}
 	_logfile.flush();
 }
 
-}  // namespace Logging
+}  // namespace Sai2Common

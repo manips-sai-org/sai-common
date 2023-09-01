@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 //------------------------------------------------------------------------------
 void simulation(std::shared_ptr<Sai2Simulation::Sai2Simulation> sim) {
 	// create a loop timer
-	LoopTimer timer(1.0/sim->timestep());
+	Sai2Common::LoopTimer timer(1.0/sim->timestep());
 	timer.initializeTimer(0.5*1e9); // 0.5 s pause before starting loop
 
 	fSimulationRunning = true;

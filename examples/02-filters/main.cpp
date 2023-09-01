@@ -21,8 +21,8 @@ int main(int argc, char** argv) {
 
 	// create the filters
 	double sampling_freq = 1000.0;
-	ButterworthFilter filter1(2.5, sampling_freq); // create using actual cutoff and sampling time
-	ButterworthFilter filter2(0.006);
+	Sai2Common::ButterworthFilter filter1(2.5, sampling_freq); // create using actual cutoff and sampling time
+	Sai2Common::ButterworthFilter filter2(0.006);
 
 	// create the signal
 	double t = 0.0;
