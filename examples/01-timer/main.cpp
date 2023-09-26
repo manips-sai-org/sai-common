@@ -19,8 +19,7 @@ int main(int argc, char** argv) {
 	thread thread2(run2);
 
 	// create a loop timer
-	Sai2Common::LoopTimer timer(50.0); // 50Hz timer
-	timer.initializeTimer(1e6); // 1ms pause before starting loop
+	Sai2Common::LoopTimer timer(50.0, 1e6); // 50Hz timer, 1ms pause before starting loop
 
 	// run for 1.5 seconds
 	while (timer.elapsedTime() < 1.5) {
@@ -44,8 +43,7 @@ int main(int argc, char** argv) {
 //------------------------------------------------------------------------------
 void run2() {
 	// create a loop timer
-	Sai2Common::LoopTimer timer(5.0);
-	timer.initializeTimer(0.5*1e9); // 0.5 s pause before starting loop
+	Sai2Common::LoopTimer timer(5.0, 0.5*1e9);
 
 	while (timer.elapsedTime() < 3.0) {
 		// wait the correct amount of time

@@ -8,6 +8,7 @@
 #include <Eigen/Dense>
 #include <thread>
 #include <vector>
+#include <memory>
 #include <timer/LoopTimer.h>
 
 namespace Sai2Common {
@@ -208,7 +209,7 @@ private:
 	std::thread _log_thread;
 
 	// internal timer for logging
-	LoopTimer _timer;
+	std::shared_ptr<LoopTimer> _timer;
 
 	// thread function for logging. Note that we are not using mutexes here, so
 	// there might be weirdness

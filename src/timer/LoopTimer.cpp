@@ -38,9 +38,12 @@ static inline double timespec_to_double(const timespec& t) {
 
 }  // namespace
 
-LoopTimer::LoopTimer(double frequency) { setLoopFrequency(frequency); }
+LoopTimer::LoopTimer(double frequency, unsigned int initial_wait_nanoseconds) { 
+	resetLoopFrequency(frequency);
+	reinitializeTimer(initial_wait_nanoseconds);
+}
 
-void LoopTimer::setLoopFrequency(double frequency) {
+void LoopTimer::resetLoopFrequency(double frequency) {
 #ifdef USE_CHRONO
 	ns_update_interval_ =
 		std::chrono::nanoseconds(static_cast<unsigned int>(1e9 / frequency));
@@ -49,7 +52,7 @@ void LoopTimer::setLoopFrequency(double frequency) {
 #endif	// USE_CHRONO
 }
 
-void LoopTimer::initializeTimer(unsigned int initial_wait_nanoseconds) {
+void LoopTimer::reinitializeTimer(unsigned int initial_wait_nanoseconds) {
 	update_counter_ = 0;
 #ifdef USE_CHRONO
 	auto ns_initial_wait = std::chrono::nanoseconds(initial_wait_nanoseconds);
@@ -162,9 +165,9 @@ void LoopTimer::elapsedTime(timespec& t) {
 
 void LoopTimer::run(void (*userCallback)(void)) {
 #ifdef USE_CHRONO
-	initializeTimer(ns_update_interval_.count());
+	reinitializeTimer(ns_update_interval_.count());
 #else	// USE_CHRONO
-	initializeTimer(ns_update_interval_);
+	reinitializeTimer(ns_update_interval_);
 #endif	// USE_CHRONO
 
 	running_ = true;
