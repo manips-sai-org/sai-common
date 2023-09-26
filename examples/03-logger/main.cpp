@@ -44,7 +44,6 @@ int main(int argc, char** argv) {
 
 	// create a loop timer
 	Sai2Common::LoopTimer timer(1000.0);
-	timer.initializeTimer();
 
 	// run for 2 seconds
 	while (timer.elapsedTime() < 2.0) {
@@ -64,7 +63,7 @@ int main(int argc, char** argv) {
 	logger.newFileStart("log2_at_300_Hz.csv", 300.0);
 
 	// reinitialize timer
-	timer.initializeTimer();
+	timer.reinitializeTimer();
 
 	// run for 2 seconds
 	while (timer.elapsedTime() < 2.0) {

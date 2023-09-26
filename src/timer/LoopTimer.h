@@ -30,22 +30,26 @@ namespace Sai2Common {
  */
 class LoopTimer {
 public:
-	LoopTimer() {}
-	LoopTimer(double frequency);
+	LoopTimer(double frequency, unsigned int initial_wait_nanoseconds = 0);
 
-	virtual ~LoopTimer() {}
+	~LoopTimer() = default;
+
+	// disallow default, copy and assign
+	LoopTimer() = delete;
+	LoopTimer(const LoopTimer&) = delete;
+	LoopTimer& operator=(const LoopTimer&) = delete;
 
 	/** \brief Set the loop frequency
 	 * \param frequency The loop frequency that will be used for
 	 * LoopTimer::run()
 	 */
-	void setLoopFrequency(double frequency);
+	void resetLoopFrequency(double frequency);
 
 	/** \brief Initialize the timing loop, if using your own while loop. call
 	 * before waitForLoop. \param initial_wait_nanoseconds The delay before
 	 * waitForNextLoop will return the first time
 	 */
-	void initializeTimer(unsigned int initial_wait_nanoseconds = 0);
+	void reinitializeTimer(unsigned int initial_wait_nanoseconds = 0);
 
 	/** \brief Wait for next loop. Use in your while loop. Not needed if using
 	 * LoopTimer::run(). \return true if a wait was required, and false if no

@@ -14,6 +14,7 @@ Logger::Logger(const std::string fname)
 	  _num_bool_vars_to_log(0) {
 	// create log file
 	_logfile.open(fname, std::ios::out);
+	_timer = std::make_shared<LoopTimer>(1000.0);
 }
 
 bool Logger::addToLog(const double& var, const std::string var_name) {
@@ -81,7 +82,7 @@ bool Logger::newFileStart(const std::string fname,
 // start logging
 bool Logger::start(const double logging_frequency) {
 	// set timer frequency
-	_timer.setLoopFrequency(logging_frequency);
+	_timer->resetLoopFrequency(logging_frequency);
 
 	// set logging to true
 	_f_is_logging = true;
@@ -119,17 +120,17 @@ void Logger::stop() {
 	_log_thread.join();
 
 	// stop timer
-	_timer.stop();
+	_timer->stop();
 
 	// close file
 	_logfile.close();
 }
 
 void Logger::logWorker() {
-	_timer.initializeTimer();
+	_timer->reinitializeTimer();
 	while (_f_is_logging) {
-		_timer.waitForNextLoop();
-		_logfile << _timer.elapsedTime() << ", ";
+		_timer->waitForNextLoop();
+		_logfile << _timer->elapsedTime() << ", ";
 		for (auto iter : _eigen_vars_to_log) {
 			_logfile << ", ";
 			iter->print(_logfile);
@@ -146,10 +147,10 @@ void Logger::logWorker() {
 		_logfile << "\n";
 
 		// log stop on max time limit
-		if (_timer.elapsedTime() > _max_log_time) {
+		if (_timer->elapsedTime() > _max_log_time) {
 			std::cerr << "Logging stopped due to time limit" << std::endl;
 			_f_is_logging = false;
-			_timer.stop();
+			_timer->stop();
 			break;
 		}
 	}
