@@ -52,6 +52,8 @@ public:
 	 */
 	Eigen::VectorXd update(const Eigen::VectorXd& raw_input);
 
+	double getNormalizedCutoffFreq() const { return _normalized_cutoff; }
+
 private:
 	/**
 	 * @brief Set the Cutoff Frequency of the filter.
