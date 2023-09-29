@@ -242,6 +242,38 @@ void RedisClient::createNewSendGroup(const std::string& group_name) {
 	_objects_to_send_sizes[group_name] = vector<pair<int, int>>();
 }
 
+void RedisClient::deleteSendGroup(const std::string& group_name) {
+	if (!sendGroupExists(group_name)) {
+		cout << "send group does not exist with this name " << group_name
+			 << ". Cannot delete it" << endl;
+		return;
+	}
+
+	_send_group_names.erase(std::remove(_send_group_names.begin(),
+										_send_group_names.end(), group_name),
+							_send_group_names.end());
+	_keys_to_send.erase(group_name);
+	_objects_to_send.erase(group_name);
+	_objects_to_send_types.erase(group_name);
+	_objects_to_send_sizes.erase(group_name);
+}
+
+void RedisClient::deleteReceiveGroup(const std::string& group_name) {
+	if (!receiveGroupExists(group_name)) {
+		cout << "receive group does not exist with this name " << group_name
+			 << ". Cannot delete it" << endl;
+		return;
+	}
+
+	_receive_group_names.erase(
+		std::remove(_receive_group_names.begin(), _receive_group_names.end(),
+					group_name),
+		_receive_group_names.end());
+	_keys_to_receive.erase(group_name);
+	_objects_to_receive.erase(group_name);
+	_objects_to_receive_types.erase(group_name);
+}
+
 void RedisClient::addToReceiveGroup(const std::string& key, double& object,
 									const std::string& group_name) {
 	if (!receiveGroupExists(group_name)) {
@@ -250,6 +282,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, double& object,
 			"receive");
 	}
 
+	setDouble(key, object);
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(DOUBLE_NUMBER);
@@ -263,6 +296,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, std::string& object,
 			"receive");
 	}
 
+	set(key, object);
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(STRING);
@@ -276,6 +310,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, int& object,
 			"receive");
 	}
 
+	setInt(key, object);
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(INT_NUMBER);

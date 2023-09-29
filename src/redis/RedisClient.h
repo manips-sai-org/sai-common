@@ -1,8 +1,9 @@
 /**
  * RedisClient.h
  *
- * Author: Toki Migimatsu
- *         Shameek Ganguly
+ * Author: 	Toki Migimatsu
+ *       	Shameek Ganguly
+ *			Mikael Jorda
  * Created: April 2017
  */
 
@@ -173,6 +174,20 @@ public:
 	 * @param group_number index of the receive group to create
 	 */
 	void createNewReceiveGroup(const std::string& group_name);
+
+	/**
+	 * @brief delete a send group by name
+	 * 
+	 * @param group_name 
+	 */
+	void deleteSendGroup(const std::string& group_name);
+
+	/**
+	 * @brief delete a receive group by name
+	 * 
+	 * @param group_name 
+	 */
+	void deleteReceiveGroup(const std::string& group_name);
 
 	/**
 	 * @brief Adds an object to be received in the given group. We can set up
@@ -407,6 +422,7 @@ void RedisClient::addToReceiveGroup(
 			"receive");
 	}
 
+	setEigen(key, object);
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(object.data());
 	_objects_to_receive_types[group_name].push_back(EIGEN_OBJECT);
