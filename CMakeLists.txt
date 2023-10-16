@@ -3,7 +3,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 PROJECT (SAI2-COMMON)
 SET (PROJECT_VERSION 0.1.0) #major version is zero for now since api will certainly change in future
 
-SET(CMAKE_CXX_FLAGS "-std=c++11 -I/usr/include -I/usr/local/include")
+if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
+	SET(CMAKE_CXX_FLAGS "-std=c++11 -I/usr/include -I/usr/local/include -fPIC")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES Darwin)
+	SET(CMAKE_CXX_FLAGS "-std=c++11 -I/usr/include -I/usr/local/include -I/opt/homebrew/include -fPIC")
+endif ()
 
 # set default build to release with debug info. mimic'ed from RBDL project.
 IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
