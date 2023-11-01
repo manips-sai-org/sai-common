@@ -145,6 +145,9 @@ private:
 #endif	// USE_CHRONO
 
 	unsigned long long update_counter_ = 0;
+
+	unsigned long long overtime_loops_counter_ = 0;
+	double average_overtime_ = 0.0;
 };
 
 }  // namespace Sai2Common

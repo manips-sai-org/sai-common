@@ -59,6 +59,8 @@ void LoopTimer::reinitializeTimer(unsigned int initial_wait_nanoseconds) {
 	t_next_ = std::chrono::high_resolution_clock::now() + ns_initial_wait;
 	t_start_ = t_next_;
 	t_loop_ = t_start_ - t_start_;
+	overtime_loops_counter_ = 0;
+	average_overtime_ = 0.0;
 	running_ = true;
 #else	// USE_CHRONO
 	// initialize time
@@ -78,11 +80,25 @@ bool LoopTimer::waitForNextLoop() {
 	t_curr_ = std::chrono::high_resolution_clock::now();
 	if (t_curr_ < t_next_) {
 		std::this_thread::sleep_for(t_next_ - t_curr_);
+		t_curr_ = std::chrono::high_resolution_clock::now();
 		slept = true;
+		t_loop_ = t_curr_ - t_start_;
+		t_next_ += ns_update_interval_;
+	} else {
+		// calculate overtime
+		auto t_overtime = t_curr_ - t_next_;
+		++overtime_loops_counter_;
+		average_overtime_ += (std::chrono::duration<double>(t_overtime).count() -
+							  average_overtime_) /
+							 overtime_loops_counter_;
+		// std::cout << "LoopTimer. Overtime of "
+		// 		  << std::chrono::duration<double>(t_overtime).count()
+		// 		  << " on loop " << update_counter_ << "." << std::endl;
+		t_curr_ = std::chrono::high_resolution_clock::now();
+		t_loop_ = t_curr_ - t_start_;
+		t_next_ = t_curr_ + ns_update_interval_;
+		// t_next_ += ns_update_interval_;
 	}
-	t_curr_ = std::chrono::high_resolution_clock::now();
-	t_loop_ = t_curr_ - t_start_;
-	t_next_ += ns_update_interval_;
 	update_counter_++;
 	return slept;
 #else	// USE_CHRONO
@@ -150,6 +166,8 @@ void LoopTimer::printInfoPostRun() {
     std::cout << "Timer Sim time		: " << elapsedSimTime() << " seconds\n";
     std::cout << "Timer Loop updates	: " << elapsedCycles() << "\n";
     std::cout << "Timer Loop frequency	: " << elapsedCycles()/elapsedTime() << "Hz\n";
+    std::cout << "Overtime loops    	: " << overtime_loops_counter_ << "\n";
+    std::cout << "Average overtime  	: " << average_overtime_ << "\n";
 }
 #endif	// USE_CHRONO
 
