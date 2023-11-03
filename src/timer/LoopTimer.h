@@ -5,23 +5,10 @@
 
 #include <signal.h>
 
+#include <chrono>
 #include <iostream>
 #include <string>
-
-#define USE_CHRONO
-
-#ifdef USE_CHRONO
-#include <chrono>
 #include <thread>
-#else  // USE_CHRONO
-
-#include <time.h>
-#include <unistd.h>
-#ifdef __APPLE__
-#include <mach/mach_time.h>
-#endif
-
-#endif	// USE_CHRONO
 
 namespace Sai2Common {
 
@@ -62,9 +49,6 @@ public:
 	/** \brief Number of full loops completed since calling run. */
 	unsigned long long elapsedCycles();
 
-	/** \brief Time when waitForNextLoop was last called */
-	double loopTime();
-
 	/** \brief Elapsed computer time since calling initializeTimer() or run() in
 	 * seconds. */
 	double elapsedTime();
@@ -78,31 +62,26 @@ public:
 	 * of the loop and makes the function waitForNextLoop return false if:
 	 * 1 - the latest loop overtime is higher than max_time_ms
 	 * 2 - the average loop overtime is higher than max_average_time_ms
-	 * 3 - the percentage of loops with overtime is higher than percentage_allowed
+	 * 3 - the percentage of loops with overtime is higher than
+	 * percentage_allowed
 	 *
-	 * @param max_overtime_ms                     maximum overtime allowed for a single loop in milliseconds
-	 * @param max_average_overtime_ms             maximum average overtime allowed for all loops in milliseconds
-	 * @param percentage_overtime_loops_allowed   maximum percentage of loops allowed to have overtime (between 0 and 100)
-	 * @param print_warning                       whether to print a warning when one of the overtime monitor conditions is triggered (will slow down the program and worsen the overtimes)
+	 * @param max_overtime_ms                     maximum overtime allowed for a
+	 * single loop in milliseconds
+	 * @param max_average_overtime_ms             maximum average overtime
+	 * allowed for all loops in milliseconds
+	 * @param percentage_overtime_loops_allowed   maximum percentage of loops
+	 * allowed to have overtime (between 0 and 100)
+	 * @param print_warning                       whether to print a warning
+	 * when one of the overtime monitor conditions is triggered (will slow down
+	 * the program and worsen the overtimes)
 	 */
-	void enableOvertimeMonitoring(const double max_overtime_ms,
-								  const double max_average_overtime_ms,
-								  const double percentage_overtime_loops_allowed,
-								  const bool print_warning = false);
+	void enableOvertimeMonitoring(
+		const double max_overtime_ms, const double max_average_overtime_ms,
+		const double percentage_overtime_loops_allowed,
+		const bool print_warning = false);
 
-#ifdef USE_CHRONO
 	/** \brief Print the loop frequency and the average loop time. */
 	void printInfoPostRun();
-#endif
-
-#ifndef USE_CHRONO
-	/** \brief Time when waitForNextLoop was last called */
-	void loopTime(timespec& t);
-
-	/** \brief Elapsed time since calling initializeTimer() or run() in seconds.
-	 */
-	void elapsedTime(timespec& t);
-#endif	// USE_CHRONO
 
 	/** \brief Run a loop that calls the user_callback(). Blocking function.
 	 * \param userCallback A function to call every loop.
@@ -126,7 +105,7 @@ public:
 
 	/** \brief Set the thread to a priority of -19. Priority range is -20
 	 * (highest) to 19 (lowest) */
-	// static void setThreadHighPriority();
+	static void setThreadHighPriority();
 
 	/** \brief Set the thread to real time (FIFO). Thread cannot be preempted.
 	 *  Set priority as 49 (kernel and interrupts are 50).
@@ -136,33 +115,16 @@ public:
 	// static void setThreadRealTime(const int MAX_SAFE_STACK = 8*1024);
 
 private:
-#ifndef USE_CHRONO
-	inline void getCurrentTime(timespec& t_ret);
-
-	inline void nanoSleepUntil(const timespec& t_next, const timespec& t_now);
-#endif	// !USE_CHRONO
-
 	static void printWarning(const std::string& message) {
 		std::cout << "WARNING. LoopTimer. " << message << std::endl;
 	}
 
 	volatile bool running_ = false;
 
-#ifdef USE_CHRONO
 	std::chrono::high_resolution_clock::time_point t_next_;
 	std::chrono::high_resolution_clock::time_point t_curr_;
 	std::chrono::high_resolution_clock::time_point t_start_;
-	std::chrono::high_resolution_clock::time_point t_end_;
-	std::chrono::high_resolution_clock::duration t_loop_;
-	std::chrono::high_resolution_clock::duration t_tmp_;
 	std::chrono::nanoseconds ns_update_interval_;
-#else	// USE_CHRONO
-	struct timespec t_next_;
-	struct timespec t_curr_;
-	struct timespec t_start_;
-	struct timespec t_loop_;
-	unsigned int ns_update_interval_ = 1e9 / 1000;	// 1000 Hz
-#endif	// USE_CHRONO
 
 	unsigned long long update_counter_ = 0;
 
@@ -174,7 +136,6 @@ private:
 	double overtime_monitor_average_threshold_ms_ = 0.0;
 	double overtime_monitor_percentage_allowed_ = 0.0;
 	bool overtime_monitor_print_warning_ = false;
-
 };
 
 }  // namespace Sai2Common

@@ -1,42 +1,8 @@
 #include "LoopTimer.h"
 
+#include <unistd.h>
+
 namespace Sai2Common {
-
-namespace {
-#ifndef USE_CHRONO
-// Helper timespec functions
-static inline timespec operator-(const timespec& a, const timespec& b) {
-	timespec dt;
-	if (a.tv_nsec - b.tv_nsec < 0) {
-		dt.tv_sec = a.tv_sec - b.tv_sec - 1;
-		dt.tv_nsec = a.tv_nsec - b.tv_nsec + 1e9;
-	} else {
-		dt.tv_sec = a.tv_sec - b.tv_sec;
-		dt.tv_nsec = a.tv_nsec - b.tv_nsec;
-	}
-	return dt;
-}
-
-static inline bool operator<(const timespec& lhs, const timespec& rhs) {
-	if (lhs.tv_sec == rhs.tv_sec) return lhs.tv_nsec < rhs.tv_nsec;
-	return lhs.tv_sec < rhs.tv_sec;
-}
-
-static inline timespec& operator+=(timespec& t, unsigned int nsecs) {
-	while (nsecs >= 1e9) {
-		t.tv_sec++;
-		nsecs -= 1e9;
-	}
-	t.tv_nsec += nsecs;
-	return t;
-}
-
-static inline double timespec_to_double(const timespec& t) {
-	return t.tv_sec + 1e-9 * static_cast<double>(t.tv_nsec);
-}
-#endif	// USE_CHRONO
-
-}  // namespace
 
 LoopTimer::LoopTimer(double frequency, unsigned int initial_wait_nanoseconds) {
 	resetLoopFrequency(frequency);
@@ -44,46 +10,29 @@ LoopTimer::LoopTimer(double frequency, unsigned int initial_wait_nanoseconds) {
 }
 
 void LoopTimer::resetLoopFrequency(double frequency) {
-#ifdef USE_CHRONO
 	ns_update_interval_ =
 		std::chrono::nanoseconds(static_cast<unsigned int>(1e9 / frequency));
-#else	// USE_CHRONO
-	ns_update_interval_ = 1e9 / frequency;
-#endif	// USE_CHRONO
 }
 
 void LoopTimer::reinitializeTimer(unsigned int initial_wait_nanoseconds) {
 	update_counter_ = 0;
-#ifdef USE_CHRONO
 	auto ns_initial_wait = std::chrono::nanoseconds(initial_wait_nanoseconds);
-	t_next_ = std::chrono::high_resolution_clock::now() + ns_initial_wait;
-	t_start_ = t_next_;
-	t_loop_ = t_start_ - t_start_;
+	t_curr_ = std::chrono::high_resolution_clock::now();
+	t_start_ = t_curr_ + ns_initial_wait;
+	t_next_ = t_start_;
 	overtime_loops_counter_ = 0;
 	average_overtime_ms_ = 0.0;
 	running_ = true;
-#else	// USE_CHRONO
-	// initialize time
-	getCurrentTime(t_next_);
-
-	// calculate next shot. carry over nanoseconds into seconds.
-	t_next_ += initial_wait_nanoseconds;
-	t_start_ = t_next_;
-	// TODO os x
-	// http://stackoverflow.com/questions/11338899/are-there-any-well-behaved-posix-interval-timers
-#endif	// USE_CHRONO
 }
 
 bool LoopTimer::waitForNextLoop() {
-#ifdef USE_CHRONO
 	update_counter_++;
 	bool return_val = true;
 	t_curr_ = std::chrono::high_resolution_clock::now();
 
 	if (t_curr_ < t_next_) {
-		std::this_thread::sleep_for(t_next_ - t_curr_);
 		t_curr_ = std::chrono::high_resolution_clock::now();
-		t_loop_ = t_curr_ - t_start_;
+		std::this_thread::sleep_for(t_next_ - t_curr_);
 		t_next_ += ns_update_interval_;
 	} else {
 		// calculate overtime
@@ -94,7 +43,7 @@ bool LoopTimer::waitForNextLoop() {
 			(t_overtime_ms - average_overtime_ms_) / overtime_loops_counter_;
 
 		// if monitor activated and conditions satisfied, throw an error
-		if (overtime_monitor_enabled_ && update_counter_ > 1) {
+		if (overtime_monitor_enabled_) {
 			if (t_overtime_ms > overtime_monitor_threshold_ms_) {
 				return_val = false;
 				if (overtime_monitor_print_warning_) {
@@ -106,98 +55,54 @@ bool LoopTimer::waitForNextLoop() {
 						<< " ms" << std::endl;
 				}
 			}
-			if (update_counter_ > 100) {
-				if (average_overtime_ms_ >
-					overtime_monitor_average_threshold_ms_) {
-					return_val = false;
-					if (overtime_monitor_print_warning_) {
-						std::cout << "LoopTimer. Average overtime over the "
-									 "allowed threshold "
-									 "detected. Current average overtime: "
-								  << average_overtime_ms_ << " ms, threshold: "
-								  << overtime_monitor_average_threshold_ms_
-								  << " ms" << std::endl;
-					}
-				}
-				if ((double)overtime_loops_counter_ / update_counter_ * 100.0 >
-					overtime_monitor_percentage_allowed_) {
-					return_val = false;
-					if (overtime_monitor_print_warning_) {
-						std::cout << "LoopTimer. Percentage of overtime over "
-									 "the allowed "
-									 "threshold detected. Current percentage: "
-								  << (double)overtime_loops_counter_ /
-										 update_counter_ * 100.0
-								  << " %, threshold: "
-								  << overtime_monitor_percentage_allowed_
-								  << " %" << std::endl;
-					}
+			if (average_overtime_ms_ > overtime_monitor_average_threshold_ms_) {
+				return_val = false;
+				if (overtime_monitor_print_warning_) {
+					std::cout << "LoopTimer. Average overtime over the "
+								 "allowed threshold "
+								 "detected. Current average overtime: "
+							  << average_overtime_ms_ << " ms, threshold: "
+							  << overtime_monitor_average_threshold_ms_ << " ms"
+							  << std::endl;
 				}
 			}
+			if ((double)overtime_loops_counter_ / update_counter_ * 100.0 >
+				overtime_monitor_percentage_allowed_) {
+				return_val = false;
+				if (overtime_monitor_print_warning_) {
+					std::cout << "LoopTimer. Percentage of overtime over "
+								 "the allowed "
+								 "threshold detected. Current percentage: "
+							  << (double)overtime_loops_counter_ /
+									 update_counter_ * 100.0
+							  << " %, threshold: "
+							  << overtime_monitor_percentage_allowed_ << " %"
+							  << std::endl;
+				}
+			}
+		} else {
+			return_val = false;
 		}
-
 		t_curr_ = std::chrono::high_resolution_clock::now();
-		t_loop_ = t_curr_ - t_start_;
 		t_next_ = t_curr_ + ns_update_interval_;
 	}
 	return return_val;
-#else	// USE_CHRONO
-	// grab the time
-	getCurrentTime(t_curr_);
-
-	// wait until next shot if necessary (this check is redundant for linux)
-	bool slept = false;
-	if (t_curr_ < t_next_) {
-		nanoSleepUntil(t_next_, t_curr_);
-		slept = true;
-	}
-
-	// calculate dt
-	t_loop_ = t_curr_ - t_start_;
-
-	// calculate next shot
-	t_next_ += ns_update_interval_;
-
-	// increment loop counter
-	++update_counter_;
-
-	return slept;
-#endif	// USE_CHRONO
 }
 
 unsigned long long LoopTimer::elapsedCycles() { return update_counter_; }
 
-double LoopTimer::loopTime() {
-#ifdef USE_CHRONO
-	return std::chrono::duration<double>(t_loop_).count();
-#else	// USE_CHRONO
-	return timespec_to_double(t_loop_);
-#endif	// USE_CHRONO
-}
-
 double LoopTimer::elapsedTime() {
-#ifdef USE_CHRONO
 	return std::chrono::duration<double>(t_next_ - t_start_).count();
-#else	// USE_CHRONO
-	struct timespec t;
-	elapsedTime(t);
-	return timespec_to_double(t);
-#endif	// USE_CHRONO
 }
 
 double LoopTimer::elapsedSimTime() {
-#ifdef USE_CHRONO
 	return elapsedCycles() *
 		   std::chrono::duration<double>(ns_update_interval_).count();
-#else	// USE_CHRONO
-	return update_counter_ * (1e-9 * ns_update_interval_);
-#endif	// USE_CHRONO
 }
 
-void LoopTimer::enableOvertimeMonitoring(const double max_overtime_ms,
-										 const double max_average_overtime_ms,
-										 const double percentage_overtime_loops_allowed,
-										 const bool print_warning) {
+void LoopTimer::enableOvertimeMonitoring(
+	const double max_overtime_ms, const double max_average_overtime_ms,
+	const double percentage_overtime_loops_allowed, const bool print_warning) {
 	overtime_monitor_enabled_ = true;
 	overtime_monitor_threshold_ms_ = max_overtime_ms;
 	overtime_monitor_average_threshold_ms_ = max_average_overtime_ms;
@@ -205,7 +110,6 @@ void LoopTimer::enableOvertimeMonitoring(const double max_overtime_ms,
 	overtime_monitor_print_warning_ = print_warning;
 }
 
-#ifdef USE_CHRONO
 void LoopTimer::printInfoPostRun() {
 	std::cout << "Elapsed time                         : " << elapsedTime()
 			  << " s\n";
@@ -223,24 +127,9 @@ void LoopTimer::printInfoPostRun() {
 	std::cout << "Average overtime on overtime ticks   : "
 			  << average_overtime_ms_ << " ms\n";
 }
-#endif	// USE_CHRONO
-
-#ifndef USE_CHRONO
-void LoopTimer::loopTime(timespec& t) { t = t_loop_; }
-
-void LoopTimer::elapsedTime(timespec& t) {
-	struct timespec t_now;
-	getCurrentTime(t_now);
-	t = t_now - t_start_;
-}
-#endif	// USE_CHRONO
 
 void LoopTimer::run(void (*userCallback)(void)) {
-#ifdef USE_CHRONO
 	reinitializeTimer(ns_update_interval_.count());
-#else	// USE_CHRONO
-	reinitializeTimer(ns_update_interval_);
-#endif	// USE_CHRONO
 
 	running_ = true;
 	while (running_) {
@@ -251,13 +140,15 @@ void LoopTimer::run(void (*userCallback)(void)) {
 
 void LoopTimer::stop() { running_ = false; }
 
-// static void LoopTimer::setThreadHighPriority(){
-//     pid_t pid = getpid();
-//     int priority_status = setpriority(PRIO_PROCESS, pid, -19);
-//     if (priority_status){
-//         printWarning("setThreadHighPriority. Failed to set priority.");
-//     }
-// }
+void LoopTimer::setThreadHighPriority() {
+	pid_t pid = getpid();
+	int priority_status = setpriority(PRIO_PROCESS, pid, -19);
+	if (priority_status) {
+		printWarning(
+			"setThreadHighPriority. Failed to set priority. You may need to "
+			"run as root.");
+	}
+}
 
 // static void LoopTimer::setThreadRealTime(const int MAX_SAFE_STACK = 8*1024) {
 //     // Declare ourself as a real time task, priority 49.
@@ -281,38 +172,5 @@ void LoopTimer::stop() { running_ = false; }
 //     unsigned char dummy[MAX_SAFE_STACK];
 //     memset(dummy, 0, MAX_SAFE_STACK);
 // }
-
-#ifndef USE_CHRONO
-inline void LoopTimer::getCurrentTime(timespec& t_ret) {
-#ifdef __APPLE__
-	static double ratio = 0.0;
-	if (!ratio) {
-		mach_timebase_info_data_t info;
-		if (mach_timebase_info(&info) == KERN_SUCCESS) {
-			ratio = info.numer * info.denom;
-		}
-	}
-	uint64_t t_nsecs = mach_absolute_time() * ratio;
-	t_ret.tv_sec = 0;
-	while (t_nsecs >= 1000000000) {
-		t_nsecs -= 1000000000;
-		t_ret.tv_sec++;
-	}
-	t_ret.tv_nsec = static_cast<long>(t_nsecs);
-#else	// __APPLE__
-	clock_gettime(CLOCK_MONOTONIC, &t_ret);
-#endif	// __APPLE__
-}
-
-inline void LoopTimer::nanoSleepUntil(const timespec& t_next,
-									  const timespec& t_now) {
-#ifdef __APPLE__
-	timespec t_sleep = t_next - t_now;
-	nanosleep(&t_sleep, NULL);
-#else	// __APPLE__
-	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t_next_, NULL);
-#endif	// __APPLE__
-}
-#endif	// USE_CHRONO
 
 }  // namespace Sai2Common
