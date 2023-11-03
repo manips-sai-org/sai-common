@@ -11,7 +11,8 @@ void run2();
 
 int main(int argc, char** argv) {
 	cout << endl
-		 << "This example runs 2 threads with one timer each at different frequencies."
+		 << "This example runs 2 threads with one timer each at different "
+			"frequencies."
 		 << endl
 		 << endl;
 
@@ -19,14 +20,17 @@ int main(int argc, char** argv) {
 	thread thread2(run2);
 
 	// create a loop timer
-	Sai2Common::LoopTimer timer(50.0, 1e6); // 50Hz timer, 1ms pause before starting loop
+	Sai2Common::LoopTimer timer(
+		50.0, 1e6);	 // 50Hz timer, 1ms pause before starting loop
+	timer.setThreadHighPriority();
 
 	// run for 1.5 seconds
 	while (timer.elapsedTime() < 1.5) {
 		// wait the correct amount of time
 		timer.waitForNextLoop();
 
-		std::cout << "Main thread at " << timer.elapsedTime() << " seconds." << std::endl;
+		std::cout << "Main thread at " << timer.elapsedTime() << " seconds."
+				  << std::endl;
 	}
 	timer.stop();
 
@@ -43,13 +47,14 @@ int main(int argc, char** argv) {
 //------------------------------------------------------------------------------
 void run2() {
 	// create a loop timer
-	Sai2Common::LoopTimer timer(5.0, 0.5*1e9);
+	Sai2Common::LoopTimer timer(5.0, 0.5 * 1e9);
 
 	while (timer.elapsedTime() < 3.0) {
 		// wait the correct amount of time
 		timer.waitForNextLoop();
 
-		std::cout << "Second thread at " << timer.elapsedTime() << " seconds." << std::endl;
+		std::cout << "Second thread at " << timer.elapsedTime() << " seconds."
+				  << std::endl;
 	}
 
 	timer.printInfoPostRun();
