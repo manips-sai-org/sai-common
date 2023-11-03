@@ -32,9 +32,6 @@ endif ()
 # hiredis
 find_library(HIREDIS_LIBRARY hiredis)
 
-# set include directories
-SET (SAI2-COMMON_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src)
-
 # include Redis
 SET(REDIS_SOURCE ${PROJECT_SOURCE_DIR}/src/redis/RedisClient.cpp)
 
@@ -70,6 +67,9 @@ SET (SAI2-COMMON_LIBRARIES sai2-common
 # 
 # export package
 # 
+
+# set include directories
+SET (SAI2-COMMON_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src)
 
 # export package for use from the build tree
 EXPORT (TARGETS sai2-common FILE ${PROJECT_BINARY_DIR}/SAI2-COMMONTargets.cmake)

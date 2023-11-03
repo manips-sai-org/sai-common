@@ -38,7 +38,7 @@ static inline double timespec_to_double(const timespec& t) {
 
 }  // namespace
 
-LoopTimer::LoopTimer(double frequency, unsigned int initial_wait_nanoseconds) { 
+LoopTimer::LoopTimer(double frequency, unsigned int initial_wait_nanoseconds) {
 	resetLoopFrequency(frequency);
 	reinitializeTimer(initial_wait_nanoseconds);
 }
@@ -59,6 +59,8 @@ void LoopTimer::reinitializeTimer(unsigned int initial_wait_nanoseconds) {
 	t_next_ = std::chrono::high_resolution_clock::now() + ns_initial_wait;
 	t_start_ = t_next_;
 	t_loop_ = t_start_ - t_start_;
+	overtime_loops_counter_ = 0;
+	average_overtime_ms_ = 0.0;
 	running_ = true;
 #else	// USE_CHRONO
 	// initialize time
@@ -74,17 +76,71 @@ void LoopTimer::reinitializeTimer(unsigned int initial_wait_nanoseconds) {
 
 bool LoopTimer::waitForNextLoop() {
 #ifdef USE_CHRONO
-	bool slept = false;
+	update_counter_++;
+	bool return_val = true;
 	t_curr_ = std::chrono::high_resolution_clock::now();
+
 	if (t_curr_ < t_next_) {
 		std::this_thread::sleep_for(t_next_ - t_curr_);
-		slept = true;
+		t_curr_ = std::chrono::high_resolution_clock::now();
+		t_loop_ = t_curr_ - t_start_;
+		t_next_ += ns_update_interval_;
+	} else {
+		// calculate overtime
+		auto t_overtime_ms =
+			std::chrono::duration<double>(t_curr_ - t_next_).count() * 1e3;
+		++overtime_loops_counter_;
+		average_overtime_ms_ +=
+			(t_overtime_ms - average_overtime_ms_) / overtime_loops_counter_;
+
+		// if monitor activated and conditions satisfied, throw an error
+		if (overtime_monitor_enabled_ && update_counter_ > 1) {
+			if (t_overtime_ms > overtime_monitor_threshold_ms_) {
+				return_val = false;
+				if (overtime_monitor_print_warning_) {
+					std::cout
+						<< "LoopTimer. Overtime over the allowed threshold "
+						   "detected. Current overtime: "
+						<< t_overtime_ms
+						<< " ms, threshold: " << overtime_monitor_threshold_ms_
+						<< " ms" << std::endl;
+				}
+			}
+			if (update_counter_ > 100) {
+				if (average_overtime_ms_ >
+					overtime_monitor_average_threshold_ms_) {
+					return_val = false;
+					if (overtime_monitor_print_warning_) {
+						std::cout << "LoopTimer. Average overtime over the "
+									 "allowed threshold "
+									 "detected. Current average overtime: "
+								  << average_overtime_ms_ << " ms, threshold: "
+								  << overtime_monitor_average_threshold_ms_
+								  << " ms" << std::endl;
+					}
+				}
+				if ((double)overtime_loops_counter_ / update_counter_ * 100.0 >
+					overtime_monitor_percentage_allowed_) {
+					return_val = false;
+					if (overtime_monitor_print_warning_) {
+						std::cout << "LoopTimer. Percentage of overtime over "
+									 "the allowed "
+									 "threshold detected. Current percentage: "
+								  << (double)overtime_loops_counter_ /
+										 update_counter_ * 100.0
+								  << " %, threshold: "
+								  << overtime_monitor_percentage_allowed_
+								  << " %" << std::endl;
+					}
+				}
+			}
+		}
+
+		t_curr_ = std::chrono::high_resolution_clock::now();
+		t_loop_ = t_curr_ - t_start_;
+		t_next_ = t_curr_ + ns_update_interval_;
 	}
-	t_curr_ = std::chrono::high_resolution_clock::now();
-	t_loop_ = t_curr_ - t_start_;
-	t_next_ += ns_update_interval_;
-	update_counter_++;
-	return slept;
+	return return_val;
 #else	// USE_CHRONO
 	// grab the time
 	getCurrentTime(t_curr_);
@@ -109,9 +165,7 @@ bool LoopTimer::waitForNextLoop() {
 #endif	// USE_CHRONO
 }
 
-unsigned long long LoopTimer::elapsedCycles() { 
-	return update_counter_ == 0 ? 0 : update_counter_ - 1;
-}
+unsigned long long LoopTimer::elapsedCycles() { return update_counter_; }
 
 double LoopTimer::loopTime() {
 #ifdef USE_CHRONO
@@ -123,11 +177,7 @@ double LoopTimer::loopTime() {
 
 double LoopTimer::elapsedTime() {
 #ifdef USE_CHRONO
-	if(!running_){
-		return std::chrono::duration<double>(t_end_ - t_start_).count();
-	}
-	t_tmp_ = std::chrono::high_resolution_clock::now() - t_start_;
-	return std::chrono::duration<double>(t_tmp_).count();
+	return std::chrono::duration<double>(t_next_ - t_start_).count();
 #else	// USE_CHRONO
 	struct timespec t;
 	elapsedTime(t);
@@ -144,12 +194,34 @@ double LoopTimer::elapsedSimTime() {
 #endif	// USE_CHRONO
 }
 
+void LoopTimer::enableOvertimeMonitoring(const double max_overtime_ms,
+										 const double max_average_overtime_ms,
+										 const double percentage_overtime_loops_allowed,
+										 const bool print_warning) {
+	overtime_monitor_enabled_ = true;
+	overtime_monitor_threshold_ms_ = max_overtime_ms;
+	overtime_monitor_average_threshold_ms_ = max_average_overtime_ms;
+	overtime_monitor_percentage_allowed_ = percentage_overtime_loops_allowed;
+	overtime_monitor_print_warning_ = print_warning;
+}
+
 #ifdef USE_CHRONO
 void LoopTimer::printInfoPostRun() {
-    std::cout << "Timer Run time		: " << elapsedTime() << " seconds\n";
-    std::cout << "Timer Sim time		: " << elapsedSimTime() << " seconds\n";
-    std::cout << "Timer Loop updates	: " << elapsedCycles() << "\n";
-    std::cout << "Timer Loop frequency	: " << elapsedCycles()/elapsedTime() << "Hz\n";
+	std::cout << "Elapsed time                         : " << elapsedTime()
+			  << " s\n";
+	std::cout << "Time that should have been elapsed   : " << elapsedSimTime()
+			  << " s\n";
+	std::cout << "Elapsed timer cycles                 : " << elapsedCycles()
+			  << "\n";
+	std::cout << "Actual running frequency             : "
+			  << elapsedCycles() / elapsedTime() << "Hz\n";
+	std::cout << "Number of overtime ticks             : "
+			  << overtime_loops_counter_ << "\n";
+	std::cout << "Percentage of overtime ticks         : "
+			  << (double)overtime_loops_counter_ / elapsedCycles() * 100.0
+			  << " %\n";
+	std::cout << "Average overtime on overtime ticks   : "
+			  << average_overtime_ms_ << " ms\n";
 }
 #endif	// USE_CHRONO
 
@@ -177,10 +249,7 @@ void LoopTimer::run(void (*userCallback)(void)) {
 	}
 }
 
-void LoopTimer::stop() {
-	t_end_ = std::chrono::high_resolution_clock::now();
-	running_ = false;
-}
+void LoopTimer::stop() { running_ = false; }
 
 // static void LoopTimer::setThreadHighPriority(){
 //     pid_t pid = getpid();
