@@ -1,5 +1,6 @@
 #include "LoopTimer.h"
 
+#include <sys/resource.h>
 #include <unistd.h>
 
 namespace Sai2Common {
