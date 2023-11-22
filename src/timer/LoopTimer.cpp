@@ -120,12 +120,12 @@ void LoopTimer::printInfoPostRun() {
 			  << "\n";
 	std::cout << "Actual running frequency             : "
 			  << elapsedCycles() / elapsedTime() << "Hz\n";
-	std::cout << "Number of overtime ticks             : "
+	std::cout << "Number of overtime cycles            : "
 			  << overtime_loops_counter_ << "\n";
-	std::cout << "Percentage of overtime ticks         : "
+	std::cout << "Percentage of overtime cycles        : "
 			  << (double)overtime_loops_counter_ / elapsedCycles() * 100.0
 			  << " %\n";
-	std::cout << "Average overtime on overtime ticks   : "
+	std::cout << "Average overtime on overtime cycles  : "
 			  << average_overtime_ms_ << " ms\n";
 }
 
