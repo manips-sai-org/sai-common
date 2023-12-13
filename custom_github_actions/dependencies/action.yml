@@ -1,0 +1,15 @@
+name: 'Setup Sai2 dependencies'
+description: 'setup sai2 dependencies'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies library and prepare dependency folder
+      shell: bash
+      run: |
+        mkdir ../dep
+        sudo apt-get update
+        sudo apt-get install libeigen3-dev libtinyxml2-dev libgtest-dev
+        sudo apt-get install libasound2-dev libusb-1.0.0-dev freeglut3-dev xorg-dev libglew-dev
+        sudo apt-get install libglfw3-dev libopenal-dev
+        sudo apt-get install redis libhiredis-dev libjsoncpp-dev
