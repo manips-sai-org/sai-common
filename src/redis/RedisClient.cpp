@@ -324,7 +324,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, bool& object,
 			"receive");
 	}
 
-	setInt(key, object);
+	setBool(key, object);
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(BOOL);
