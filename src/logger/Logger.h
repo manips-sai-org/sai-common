@@ -82,6 +82,8 @@ public:
 	 */
 	Logger(const std::string fname);
 
+	~Logger();
+
 	// disallow default, copy and assign constructor
 	Logger() = delete;
 	Logger(const Logger&) = delete;

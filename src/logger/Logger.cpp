@@ -17,6 +17,12 @@ Logger::Logger(const std::string fname)
 	_timer = std::make_shared<LoopTimer>(1000.0);
 }
 
+Logger::~Logger() {
+	if (_f_is_logging) {
+		stop();
+	}
+}
+
 bool Logger::addToLog(const double& var, const std::string var_name) {
 	if (_f_is_logging) {
 		return false;
@@ -81,6 +87,11 @@ bool Logger::newFileStart(const std::string fname,
 
 // start logging
 bool Logger::start(const double logging_frequency) {
+	if(_f_is_logging) {
+		std::cerr << "Trying to start Logger that is already running." << std::endl;
+		return false;
+	}
+
 	// set timer frequency
 	_timer->resetLoopFrequency(logging_frequency);
 
@@ -88,7 +99,7 @@ bool Logger::start(const double logging_frequency) {
 	_f_is_logging = true;
 
 	// complete header line
-	_logfile << "time, " << _eigen_header << _double_header << _int_header
+	_logfile << "logger thread time, " << _eigen_header << _double_header << _int_header
 			 << _bool_header << "\n";
 
 	// calculate max log time to keep log under 2GB
@@ -130,7 +141,7 @@ void Logger::logWorker() {
 	_timer->reinitializeTimer();
 	while (_f_is_logging) {
 		_timer->waitForNextLoop();
-		_logfile << _timer->elapsedTime() << ", ";
+		_logfile << _timer->elapsedTime();
 		for (auto iter : _eigen_vars_to_log) {
 			_logfile << ", ";
 			iter->print(_logfile);
