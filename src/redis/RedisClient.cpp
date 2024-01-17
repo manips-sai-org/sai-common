@@ -316,6 +316,20 @@ void RedisClient::addToReceiveGroup(const std::string& key, int& object,
 	_objects_to_receive_types[group_name].push_back(INT_NUMBER);
 }
 
+void RedisClient::addToReceiveGroup(const std::string& key, bool& object,
+									const std::string& group_name) {
+	if (!receiveGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Receive group with that name not found, cannot add object to "
+			"receive");
+	}
+
+	setBool(key, object);
+	_keys_to_receive[group_name].push_back(key);
+	_objects_to_receive[group_name].push_back(&object);
+	_objects_to_receive_types[group_name].push_back(BOOL);
+}
+
 void RedisClient::addToSendGroup(const std::string& key, const double& object,
 								 const std::string& group_name) {
 	if (!sendGroupExists(group_name)) {
@@ -356,6 +370,19 @@ void RedisClient::addToSendGroup(const std::string& key, const int& object,
 	_objects_to_send_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
+void RedisClient::addToSendGroup(const std::string& key, const bool& object,
+								 const std::string& group_name) {
+	if (!sendGroupExists(group_name)) {
+		throw std::runtime_error(
+			"Send group with that name not found, cannot add object to send");
+	}
+
+	_keys_to_send[group_name].push_back(key);
+	_objects_to_send[group_name].push_back(&object);
+	_objects_to_send_types[group_name].push_back(BOOL);
+	_objects_to_send_sizes[group_name].push_back(std::make_pair(0, 0));
+}
+
 void RedisClient::receiveAllFromGroup(const std::string& group_name) {
 	if (!receiveGroupExists(group_name)) {
 		throw std::runtime_error(
@@ -379,6 +406,12 @@ void RedisClient::receiveAllFromGroup(const std::string& group_name) {
 				int* tmp_pointer =
 					(int*)_objects_to_receive.at(group_name).at(i);
 				*tmp_pointer = stoi(return_values[i]);
+			} break;
+
+			case BOOL: {
+				bool* tmp_pointer =
+					(bool*)_objects_to_receive.at(group_name).at(i);
+				*tmp_pointer = (bool)stoi(return_values[i]);
 			} break;
 
 			case STRING: {
@@ -431,6 +464,11 @@ void RedisClient::sendAllFromGroup(const std::string& group_name) {
 			case INT_NUMBER: {
 				int* tmp_pointer = (int*)_objects_to_send.at(group_name).at(i);
 				encoded_value = std::to_string(*tmp_pointer);
+			} break;
+
+			case BOOL: {
+				bool* tmp_pointer = (bool*)_objects_to_send.at(group_name).at(i);
+				encoded_value = *tmp_pointer ? "1" : "0";
 			} break;
 
 			case STRING: {

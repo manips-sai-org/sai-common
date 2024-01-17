@@ -83,6 +83,17 @@ public:
 	inline int getInt(const std::string& key) { return std::stoi(get(key)); }
 
 	/**
+	 * @brief Perform Redis command: GET key and returns as a bool (converting
+	 * through an int first)
+	 *
+	 * @param key
+	 * @return value converted to a bool
+	 */
+	inline bool getBool(const std::string& key) {
+		return (bool)std::stoi(get(key));
+	}
+
+	/**
 	 * @brief Perform Redis command: GET key and returns as a matrix or vector
 	 * from Eigen library
 	 *
@@ -121,6 +132,17 @@ public:
 	 */
 	inline void setInt(const std::string& key, const int& value) {
 		set(key, std::to_string(value));
+	}
+
+	/**
+	 * @brief Perform Redis command: SET key value, with the value converted
+	 * from a bool to "0" or "1"
+	 *
+	 * @param key    Key to set in Redis.
+	 * @param value  bool value for key.
+	 */
+	inline void setBool(const std::string& key, const bool& value) {
+		value ? set(key, "1") : set(key, "0");
 	}
 
 	/**
@@ -177,15 +199,15 @@ public:
 
 	/**
 	 * @brief delete a send group by name
-	 * 
-	 * @param group_name 
+	 *
+	 * @param group_name
 	 */
 	void deleteSendGroup(const std::string& group_name);
 
 	/**
 	 * @brief delete a receive group by name
-	 * 
-	 * @param group_name 
+	 *
+	 * @param group_name
 	 */
 	void deleteReceiveGroup(const std::string& group_name);
 
@@ -205,6 +227,8 @@ public:
 	void addToReceiveGroup(const std::string& key, std::string& object,
 						   const std::string& group_name = "default");
 	void addToReceiveGroup(const std::string& key, int& object,
+						   const std::string& group_name = "default");
+	void addToReceiveGroup(const std::string& key, bool& object,
 						   const std::string& group_name = "default");
 	template <typename _Scalar, int _Rows, int _Cols, int _Options,
 			  int _MaxRows, int _MaxCols>
@@ -229,6 +253,8 @@ public:
 	void addToSendGroup(const std::string& key, const std::string& object,
 						const std::string& group_name = "default");
 	void addToSendGroup(const std::string& key, const int& object,
+						const std::string& group_name = "default");
+	void addToSendGroup(const std::string& key, const bool& object,
 						const std::string& group_name = "default");
 	template <typename _Scalar, int _Rows, int _Cols, int _Options,
 			  int _MaxRows, int _MaxCols>
@@ -260,6 +286,7 @@ private:
 	enum RedisSupportedTypes {
 		INT_NUMBER,
 		DOUBLE_NUMBER,
+		BOOL,
 		STRING,
 		EIGEN_OBJECT,
 	};
