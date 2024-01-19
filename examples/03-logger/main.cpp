@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 	double double_to_log2 = 0.0;
 
 	// setup logger
-	Sai2Common::Logger logger("log1_at_100_Hz.csv");
+	Sai2Common::Logger logger("log1_at_100_Hz", false);
 	logger.addToLog(vec2d_to_log, "vec2d");
 	logger.addToLog(vec3d_to_log, "vec3d");
 	logger.addToLog(mat3d_to_log, "mat3d");
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 
 	// stop logger and restart with new file name
 	logger.stop();
-	logger.newFileStart("log2_at_300_Hz.csv", 300.0);
+	logger.newFileStart("log2_at_300_Hz", 300.0);
 
 	// reinitialize timer
 	timer.reinitializeTimer();

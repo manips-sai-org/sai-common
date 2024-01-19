@@ -80,7 +80,7 @@ public:
 	 * 
 	 * @param fname 
 	 */
-	Logger(const std::string fname);
+	Logger(const std::string fname, const bool _add_timestamp_to_filename = true);
 
 	~Logger();
 
@@ -191,12 +191,6 @@ private:
 	// state
 	bool _f_is_logging;
 
-	// // start time
-	// system_clock::time_point _t_start;
-
-	// // log interval in microseconds
-	// unsigned int _log_interval_us;
-
 	// maximum allowed log time in seconds
 	unsigned long long _num_bytes_per_line;
 	double _max_log_time;
@@ -206,6 +200,7 @@ private:
 
 	// log file name
 	std::string _logname;
+	bool _add_timestamp_to_filename;
 
 	// thread
 	std::thread _log_thread;
