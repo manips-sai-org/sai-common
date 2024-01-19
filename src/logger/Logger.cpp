@@ -4,16 +4,33 @@
 
 namespace Sai2Common {
 
-Logger::Logger(const std::string fname)
+namespace {
+std::string getTimestamp() {
+	// Get the current time
+	std::chrono::system_clock::time_point now =
+		std::chrono::system_clock::now();
+	std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
+
+	// Format the time as a string
+	std::tm tmInfo;
+	gmtime_r(&currentTime, &tmInfo);  // Use gmtime for UTC time
+
+	char buffer[100];  // Buffer to hold the formatted time
+	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d__%H:%M:%S", &tmInfo);
+
+	return std::string(buffer);
+}
+}  // namespace
+
+Logger::Logger(const std::string fname, const bool add_timestamp_to_filename)
 	: _logname(fname),
 	  _f_is_logging(false),
 	  _max_log_time(0.0),
 	  _num_eigen_vars_to_log(0),
 	  _num_double_vars_to_log(0),
 	  _num_int_vars_to_log(0),
-	  _num_bool_vars_to_log(0) {
-	// create log file
-	_logfile.open(fname, std::ios::out);
+	  _num_bool_vars_to_log(0),
+	  _add_timestamp_to_filename(add_timestamp_to_filename) {
 	_timer = std::make_shared<LoopTimer>(1000.0);
 }
 
@@ -71,7 +88,7 @@ bool Logger::addToLog(const bool& var, const std::string var_name) {
 bool Logger::newFileStart(const std::string fname,
 						  const double logging_frequency) {
 	// do not overwrite old file
-	if (fname.compare(_logname) == 0) {
+	if (fname.compare(_logname) == 0 && !_add_timestamp_to_filename) {
 		std::cerr << "Log file name requested matches existing file. "
 					 "Disregarding request."
 				  << std::endl;
@@ -81,16 +98,28 @@ bool Logger::newFileStart(const std::string fname,
 		stop();
 	}
 	_logname = fname;
-	_logfile.open(fname, std::ios::out);
+	std::string log_file_name = _add_timestamp_to_filename
+									? _logname + "__" + getTimestamp()
+									: _logname;
+	log_file_name += ".csv";
+	_logfile.open(log_file_name, std::ios::out);
 	return start(logging_frequency);
 }
 
 // start logging
 bool Logger::start(const double logging_frequency) {
-	if(_f_is_logging) {
-		std::cerr << "Trying to start Logger that is already running." << std::endl;
+	if (_f_is_logging) {
+		std::cerr << "Trying to start Logger that is already running."
+				  << std::endl;
 		return false;
 	}
+
+	// open file
+	std::string log_file_name = _add_timestamp_to_filename
+									? _logname + "__" + getTimestamp()
+									: _logname;
+	log_file_name += ".csv";
+	_logfile.open(log_file_name, std::ios::out);
 
 	// set timer frequency
 	_timer->resetLoopFrequency(logging_frequency);
@@ -99,8 +128,8 @@ bool Logger::start(const double logging_frequency) {
 	_f_is_logging = true;
 
 	// complete header line
-	_logfile << "logger thread time, " << _eigen_header << _double_header << _int_header
-			 << _bool_header << "\n";
+	_logfile << "logger thread time, " << _eigen_header << _double_header
+			 << _int_header << _bool_header << "\n";
 
 	// calculate max log time to keep log under 2GB
 	if (_num_eigen_vars_to_log > 0 || _num_double_vars_to_log > 0 ||
