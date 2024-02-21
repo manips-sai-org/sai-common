@@ -128,7 +128,7 @@ bool Logger::start(const double logging_frequency) {
 	_f_is_logging = true;
 
 	// complete header line
-	_logfile << "logger thread time, " << _eigen_header << _double_header
+	_logfile << "time, " << _eigen_header << _double_header
 			 << _int_header << _bool_header << "\n";
 
 	// calculate max log time to keep log under 2GB
