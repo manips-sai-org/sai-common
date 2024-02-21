@@ -107,10 +107,10 @@ public:
 		_num_eigen_vars_to_log += var.size();
 		for (uint i = 0; i < var.size(); i++) {
 			if (!var_name.empty()) {
-				_eigen_header += var_name + "_" + std::to_string(i) + ", ";
+				_eigen_header += var_name + "__" + std::to_string(i) + ", ";
 			} else {
 				_eigen_header += "var" + std::to_string(_eigen_vars_to_log.size()) +
-						   "_" + std::to_string(i) + ", ";
+						   "__" + std::to_string(i) + ", ";
 			}
 		}
 		return true;
