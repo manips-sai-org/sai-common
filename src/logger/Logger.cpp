@@ -5,20 +5,22 @@
 namespace Sai2Common {
 
 namespace {
-std::string getTimestamp() {
+std::string getTimestamp(bool add_microseconds = false) {
 	// Get the current time
 	std::chrono::system_clock::time_point now =
 		std::chrono::system_clock::now();
 	std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
 
-	// Format the time as a string
-	std::tm tmInfo;
-	gmtime_r(&currentTime, &tmInfo);  // Use gmtime for UTC time
-
-	char buffer[100];  // Buffer to hold the formatted time
-	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d__%H:%M:%S", &tmInfo);
-
-	return std::string(buffer);
+	std::ostringstream oss;
+	oss << std::put_time(std::localtime(&currentTime), "%Y-%m-%d__%H:%M:%S");
+	if (add_microseconds) {
+		auto microseconds =
+			std::chrono::duration_cast<std::chrono::microseconds>(
+				now.time_since_epoch()) %
+			std::chrono::seconds(1);
+		oss << "." << std::setfill('0') << std::setw(6) << microseconds.count();
+	}
+	return oss.str();
 }
 }  // namespace
 
@@ -128,7 +130,7 @@ bool Logger::start(const double logging_frequency) {
 	_f_is_logging = true;
 
 	// complete header line
-	_logfile << "time, " << _eigen_header << _double_header
+	_logfile << "time, timestamp, " << _eigen_header << _double_header
 			 << _int_header << _bool_header << "\n";
 
 	// calculate max log time to keep log under 2GB
@@ -153,6 +155,9 @@ bool Logger::start(const double logging_frequency) {
 }
 
 void Logger::stop() {
+	if (!_f_is_logging) {
+		return;
+	}
 	// set logging false
 	_f_is_logging = false;
 
@@ -171,6 +176,7 @@ void Logger::logWorker() {
 	while (_f_is_logging) {
 		_timer->waitForNextLoop();
 		_logfile << _timer->elapsedTime();
+		_logfile << ", " << getTimestamp(true);
 		for (auto iter : _eigen_vars_to_log) {
 			_logfile << ", ";
 			iter->print(_logfile);
