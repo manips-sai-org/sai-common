@@ -49,7 +49,8 @@ bool LoopTimer::waitForNextLoop() {
 				return_val = false;
 				if (overtime_monitor_print_warning_) {
 					std::cout
-						<< "LoopTimer. Overtime over the allowed threshold "
+						<< "LoopTimer " << timer_name_
+						<< ". Overtime over the allowed threshold "
 						   "detected. Current overtime: "
 						<< t_overtime_ms
 						<< " ms, threshold: " << overtime_monitor_threshold_ms_
@@ -59,7 +60,8 @@ bool LoopTimer::waitForNextLoop() {
 			if (average_overtime_ms_ > overtime_monitor_average_threshold_ms_) {
 				return_val = false;
 				if (overtime_monitor_print_warning_) {
-					std::cout << "LoopTimer. Average overtime over the "
+					std::cout << "LoopTimer " << timer_name_
+							  << ". Average overtime over the "
 								 "allowed threshold "
 								 "detected. Current average overtime: "
 							  << average_overtime_ms_ << " ms, threshold: "
@@ -71,7 +73,8 @@ bool LoopTimer::waitForNextLoop() {
 				overtime_monitor_percentage_allowed_) {
 				return_val = false;
 				if (overtime_monitor_print_warning_) {
-					std::cout << "LoopTimer. Percentage of overtime over "
+					std::cout << "LoopTimer " << timer_name_
+							  << ". Percentage of overtime over "
 								 "the allowed "
 								 "threshold detected. Current percentage: "
 							  << (double)overtime_loops_counter_ /
@@ -112,6 +115,7 @@ void LoopTimer::enableOvertimeMonitoring(
 }
 
 void LoopTimer::printInfoPostRun() {
+	std::cout << "LoopTimer statistics for " << timer_name_ << ":\n";
 	std::cout << "Elapsed time                         : " << elapsedTime()
 			  << " s\n";
 	std::cout << "Time that should have been elapsed   : " << elapsedSimTime()

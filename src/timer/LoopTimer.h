@@ -26,6 +26,8 @@ public:
 	LoopTimer(const LoopTimer&) = delete;
 	LoopTimer& operator=(const LoopTimer&) = delete;
 
+	void setTimerName(const std::string& name) { timer_name_ = name; }
+
 	/** \brief Set the loop frequency
 	 * \param frequency The loop frequency that will be used for
 	 * LoopTimer::run()
@@ -118,6 +120,8 @@ private:
 	static void printWarning(const std::string& message) {
 		std::cout << "WARNING. LoopTimer. " << message << std::endl;
 	}
+
+	std::string timer_name_ = "LoopTimer";
 
 	volatile bool running_ = false;
 
