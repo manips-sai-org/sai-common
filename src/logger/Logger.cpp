@@ -1,5 +1,6 @@
 #include "Logger.h"
 
+#include <iomanip>
 #include <iostream>
 
 namespace Sai2Common {
