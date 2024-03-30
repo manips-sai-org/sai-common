@@ -30,6 +30,5 @@
 
 # Build directories
 build/
-bin/
-build_rel/
-build_dbg/
+
+.DS_Store
