@@ -31,14 +31,19 @@ bool LoopTimer::waitForNextLoop() {
 	bool return_val = true;
 	t_curr_ = std::chrono::high_resolution_clock::now();
 
+	// update average loop time
+	const double loop_wait_time_ms =
+		std::chrono::duration<double>(t_next_ - t_curr_).count() * 1e3;
+	average_wait_time_ms_ +=
+		(loop_wait_time_ms - average_wait_time_ms_) / update_counter_;
+
 	if (t_curr_ < t_next_) {
 		t_curr_ = std::chrono::high_resolution_clock::now();
 		std::this_thread::sleep_for(t_next_ - t_curr_);
 		t_next_ += ns_update_interval_;
 	} else {
 		// calculate overtime
-		auto t_overtime_ms =
-			std::chrono::duration<double>(t_curr_ - t_next_).count() * 1e3;
+		const double t_overtime_ms = -loop_wait_time_ms;
 		++overtime_loops_counter_;
 		average_overtime_ms_ +=
 			(t_overtime_ms - average_overtime_ms_) / overtime_loops_counter_;
@@ -126,6 +131,8 @@ void LoopTimer::printInfoPostRun() {
 			  << 1e9 / ns_update_interval_.count() << " Hz\n";
 	std::cout << "Actual running frequency             : "
 			  << elapsedCycles() / elapsedTime() << " Hz\n";
+	std::cout << "Average loop wait time               : "
+			  << average_wait_time_ms_ << " ms\n";
 	std::cout << "Number of overtime cycles            : "
 			  << overtime_loops_counter_ << "\n";
 	std::cout << "Percentage of overtime cycles        : "

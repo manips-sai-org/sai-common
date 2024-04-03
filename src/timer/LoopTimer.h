@@ -140,6 +140,8 @@ private:
 	double overtime_monitor_average_threshold_ms_ = 0.0;
 	double overtime_monitor_percentage_allowed_ = 0.0;
 	bool overtime_monitor_print_warning_ = false;
+
+	double average_wait_time_ms_ = 0.0;
 };
 
 }  // namespace Sai2Common
