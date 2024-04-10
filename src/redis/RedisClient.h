@@ -65,6 +65,14 @@ public:
 	std::string get(const std::string& key);
 
 	/**
+	 * @brief Perform Redis command: GET key and returns string and length 
+	 * 
+	 * @param key 
+	 * @return std::pair<char*, size_t> 
+	 */
+	std::pair<char*, size_t> getPair(const std::string& key);
+
+	/**
 	 * @brief Perform Redis command: GET key and returns as a double
 	 *
 	 * @param key
@@ -105,12 +113,36 @@ public:
 	}
 
 	/**
+	 * @brief Performs Redis command: GET key and returns as a vector of 
+	 * unsigned char 
+	 * 
+	 * @param key 
+	 * @return std::vector<unsigned char> 
+	 */
+	inline std::vector<unsigned char> getBinary(const std::string& key) {
+		std::pair<char*, size_t> pair_data = getPair(key);
+		std::vector<unsigned char> vec(pair_data.first, pair_data.first + pair_data.second);
+		return vec;
+		// size_t data_len = data.size();
+		// return std::vector<unsigned char>(data, data + data_len);
+	}
+
+	/**
 	 * @brief Perform Redis command: SET key value.
 	 *
 	 * @param key    Key to set in Redis.
 	 * @param value  string value for key.
 	 */
 	void set(const std::string& key, const std::string& value);
+
+	/**
+	 * @brief Perform Redis command: SET key value, with the value converted
+	 * from a vector of unsigned char
+	 * 
+	 * @param key 
+	 * @param binary 
+	 */
+	void set(const std::string& key, const std::vector<unsigned char>& value);
 
 	/**
 	 * @brief Perform Redis command: SET key value, with the value converted

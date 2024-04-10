@@ -73,6 +73,22 @@ std::string RedisClient::get(const std::string& key) {
 	return reply->str;
 }
 
+std::pair<char*, size_t> RedisClient::getPair(const std::string& key) {
+	// Call GET command
+	auto reply = command("GET %s", key.c_str());
+
+	// Check for errors
+	if (!reply || reply->type == REDIS_REPLY_ERROR ||
+		reply->type == REDIS_REPLY_NIL)
+		throw std::runtime_error("RedisClient: GET '" + key + "' failed.");
+	if (reply->type != REDIS_REPLY_STRING)
+		throw std::runtime_error("RedisClient: GET '" + key +
+								 "' returned non-string value.");
+
+	// Return value
+	return std::make_pair(reply->str, reply->len);
+}
+
 void RedisClient::set(const std::string& key, const std::string& value) {
 	// Call SET command
 	auto reply = command("SET %s %s", key.c_str(), value.c_str());
@@ -80,6 +96,16 @@ void RedisClient::set(const std::string& key, const std::string& value) {
 	// Check for errors
 	if (!reply || reply->type == REDIS_REPLY_ERROR)
 		throw std::runtime_error("RedisClient: SET '" + key + "' '" + value +
+								 "' failed.");
+}
+
+void RedisClient::set(const std::string& key, const std::vector<unsigned char>& value) {
+	// Call SET command
+	auto reply = command("SET %s %b", key.c_str(), value.data(), value.size());
+
+	// Check for errors
+	if (!reply || reply->type == REDIS_REPLY_ERROR)
+		throw std::runtime_error("RedisClient: SET '" + key + "' '" + "binary data" +
 								 "' failed.");
 }
 
