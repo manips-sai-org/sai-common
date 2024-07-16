@@ -120,7 +120,8 @@ void LoopTimer::enableOvertimeMonitoring(
 }
 
 void LoopTimer::printInfoPostRun() {
-	std::cout << "LoopTimer statistics for " << timer_name_ << ":\n";
+	std::cout << "---------- LoopTimer statistics for " << timer_name_
+			  << ": ----------\n";
 	std::cout << "Elapsed time                         : " << elapsedTime()
 			  << " s\n";
 	std::cout << "Time that should have been elapsed   : " << elapsedSimTime()
@@ -140,6 +141,7 @@ void LoopTimer::printInfoPostRun() {
 			  << " %\n";
 	std::cout << "Average overtime on overtime cycles  : "
 			  << average_overtime_ms_ << " ms\n";
+	std::cout << std::endl;
 }
 
 void LoopTimer::run(void (*userCallback)(void)) {

@@ -270,6 +270,7 @@ public:
 	 * @param group_number
 	 */
 	void receiveAllFromGroup(const std::string& group_name = "default");
+	void receiveAllFromGroup(const std::vector<std::string>& group_names);
 
 	/**
 	 * @brief update the redis database with all the objects of that group set
@@ -278,6 +279,7 @@ public:
 	 * @param group_number
 	 */
 	void sendAllFromGroup(const std::string& group_name = "default");
+	void sendAllFromGroup(const std::vector<std::string>& group_names);
 
 private:
 	/**
