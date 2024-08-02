@@ -8,7 +8,7 @@ cd docs
 doxygen
 ```
 
-It can also be accessed online [Here](https://manips-sai-org.github.io/sai2-common/html/index.html)
+It can also be accessed online [Here](https://manips-sai-org.github.io/sai2-common/)
 
 ### Project description:
 The Sai2-Common library implements a set of utility functionalities to simplify robot simulation and control using SAI. This includes the following modules:

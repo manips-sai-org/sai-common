@@ -11,14 +11,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    # - name: Checkout repository
-      # uses: actions/checkout@v2
-
-    # - name: Generate documentation
-    #   shell: bash
-    #   run: |
-    #     sudo apt-get install doxygen
-
     - name: Generate Doxygen documentation
       shell: bash
       run: |
@@ -31,4 +23,4 @@ runs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ inputs.github-token }}
-        publish_dir: ./docs
+        publish_dir: ./docs/html
