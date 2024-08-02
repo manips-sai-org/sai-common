@@ -73,6 +73,11 @@ $(function() {
 <div class="title">Sai2Common::ButterworthFilter Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Implements a digital second order Butterworth filter for an Eigen::VectorXd type object.  
+ <a href="classSai2Common_1_1ButterworthFilter.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="ButterworthFilter_8h_source.html">ButterworthFilter.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -94,11 +99,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a40d353f70251254c218109c439cd2df6"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1ButterworthFilter.html#a40d353f70251254c218109c439cd2df6">update</a> (const Eigen::VectorXd &amp;raw_input)</td></tr>
 <tr class="memdesc:a40d353f70251254c218109c439cd2df6"><td class="mdescLeft">&#160;</td><td class="mdescRight">filter the new input value and return the filtered value. Each coefficient if filtered independently  <a href="classSai2Common_1_1ButterworthFilter.html#a40d353f70251254c218109c439cd2df6">More...</a><br /></td></tr>
 <tr class="separator:a40d353f70251254c218109c439cd2df6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12bfa291afc79df9200beb80e322d193"><td class="memItemLeft" align="right" valign="top"><a id="a12bfa291afc79df9200beb80e322d193"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>getNormalizedCutoffFreq</b> () const</td></tr>
+<tr class="memitem:a12bfa291afc79df9200beb80e322d193"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1ButterworthFilter.html#a12bfa291afc79df9200beb80e322d193">getNormalizedCutoffFreq</a> () const</td></tr>
+<tr class="memdesc:a12bfa291afc79df9200beb80e322d193"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the normalized cutoff frequency of the filter.  <a href="classSai2Common_1_1ButterworthFilter.html#a12bfa291afc79df9200beb80e322d193">More...</a><br /></td></tr>
 <tr class="separator:a12bfa291afc79df9200beb80e322d193"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Implements a digital second order Butterworth filter for an Eigen::VectorXd type object. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aed6f2631c0b4793f5d66a1548807248d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aed6f2631c0b4793f5d66a1548807248d">&#9670;&nbsp;</a></span>ButterworthFilter() <span class="overload">[1/2]</span></h2>
 
@@ -171,6 +178,34 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>getNormalizedCutoff
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a12bfa291afc79df9200beb80e322d193"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12bfa291afc79df9200beb80e322d193">&#9670;&nbsp;</a></span>getNormalizedCutoffFreq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Sai2Common::ButterworthFilter::getNormalizedCutoffFreq </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the normalized cutoff frequency of the filter. </p>
+<dl class="section return"><dt>Returns</dt><dd>The normalized cutoff frequency of the filter (should be strictly between 0 and 0.5) </dd></dl>
+
+</div>
+</div>
 <a id="a2288a19b7b00b970677531fdbafa950c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2288a19b7b00b970677531fdbafa950c">&#9670;&nbsp;</a></span>initializeFilter()</h2>
 

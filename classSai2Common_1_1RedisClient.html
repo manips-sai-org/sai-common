@@ -73,6 +73,11 @@ $(function() {
 <div class="title">Sai2Common::RedisClient Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>A C++ wrapper for the Redis key-value store based on hiredis with convenience functions for common Redis commands and getting/setting Eigen objects, double, int and bool types.  
+ <a href="classSai2Common_1_1RedisClient.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="RedisClient_8h_source.html">RedisClient.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -119,19 +124,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3237de0e916f79ec8e97d9a59b3a67ad"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a3237de0e916f79ec8e97d9a59b3a67ad">exists</a> (const std::string &amp;key)</td></tr>
 <tr class="separator:a3237de0e916f79ec8e97d9a59b3a67ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ca025ecf35be23702ddc9cecd3186b0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a0ca025ecf35be23702ddc9cecd3186b0">createNewSendGroup</a> (const std::string &amp;group_name)</td></tr>
-<tr class="memdesc:a0ca025ecf35be23702ddc9cecd3186b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a New Send Group indexed by an int (group 0 is created by default)  <a href="classSai2Common_1_1RedisClient.html#a0ca025ecf35be23702ddc9cecd3186b0">More...</a><br /></td></tr>
+<tr class="memdesc:a0ca025ecf35be23702ddc9cecd3186b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a New Send Group indexed by a group name (a group called "default" is created by default)  <a href="classSai2Common_1_1RedisClient.html#a0ca025ecf35be23702ddc9cecd3186b0">More...</a><br /></td></tr>
 <tr class="separator:a0ca025ecf35be23702ddc9cecd3186b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40baab80c4590593f1e0f3d33d99020d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a40baab80c4590593f1e0f3d33d99020d">createNewReceiveGroup</a> (const std::string &amp;group_name)</td></tr>
-<tr class="memdesc:a40baab80c4590593f1e0f3d33d99020d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a New Receive Group indexed by an int (group 0 is created by default)  <a href="classSai2Common_1_1RedisClient.html#a40baab80c4590593f1e0f3d33d99020d">More...</a><br /></td></tr>
+<tr class="memdesc:a40baab80c4590593f1e0f3d33d99020d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a New Receive Group indexed by indexed by a group name (a group called "default" is created by default)  <a href="classSai2Common_1_1RedisClient.html#a40baab80c4590593f1e0f3d33d99020d">More...</a><br /></td></tr>
 <tr class="separator:a40baab80c4590593f1e0f3d33d99020d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a171b4453b8d35926bd35f708cfa68348"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a171b4453b8d35926bd35f708cfa68348">deleteSendGroup</a> (const std::string &amp;group_name)</td></tr>
-<tr class="memdesc:a171b4453b8d35926bd35f708cfa68348"><td class="mdescLeft">&#160;</td><td class="mdescRight">delete a send group by name  <a href="classSai2Common_1_1RedisClient.html#a171b4453b8d35926bd35f708cfa68348">More...</a><br /></td></tr>
+<tr class="memdesc:a171b4453b8d35926bd35f708cfa68348"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete a send group by name.  <a href="classSai2Common_1_1RedisClient.html#a171b4453b8d35926bd35f708cfa68348">More...</a><br /></td></tr>
 <tr class="separator:a171b4453b8d35926bd35f708cfa68348"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b54d41636d212eab74a8eb3d5893fae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a7b54d41636d212eab74a8eb3d5893fae">deleteReceiveGroup</a> (const std::string &amp;group_name)</td></tr>
-<tr class="memdesc:a7b54d41636d212eab74a8eb3d5893fae"><td class="mdescLeft">&#160;</td><td class="mdescRight">delete a receive group by name  <a href="classSai2Common_1_1RedisClient.html#a7b54d41636d212eab74a8eb3d5893fae">More...</a><br /></td></tr>
+<tr class="memdesc:a7b54d41636d212eab74a8eb3d5893fae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delete a receive group by name.  <a href="classSai2Common_1_1RedisClient.html#a7b54d41636d212eab74a8eb3d5893fae">More...</a><br /></td></tr>
 <tr class="separator:a7b54d41636d212eab74a8eb3d5893fae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a723e21696243db04a409ee4c6781ad5c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a723e21696243db04a409ee4c6781ad5c">addToReceiveGroup</a> (const std::string &amp;key, double &amp;object, const std::string &amp;group_name=&quot;default&quot;)</td></tr>
-<tr class="memdesc:a723e21696243db04a409ee4c6781ad5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an object to be received in the given group. We can set up strings, doulbes, ints and Eigen objects to be received that way.  <a href="classSai2Common_1_1RedisClient.html#a723e21696243db04a409ee4c6781ad5c">More...</a><br /></td></tr>
+<tr class="memdesc:a723e21696243db04a409ee4c6781ad5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an object to be received in the given group. We can set up strings, doubles, ints, bools, and Eigen objects to be received that way.  <a href="classSai2Common_1_1RedisClient.html#a723e21696243db04a409ee4c6781ad5c">More...</a><br /></td></tr>
 <tr class="separator:a723e21696243db04a409ee4c6781ad5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75ebe6d0cc8e136a4593d150dd58768f"><td class="memItemLeft" align="right" valign="top"><a id="a75ebe6d0cc8e136a4593d150dd58768f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>addToReceiveGroup</b> (const std::string &amp;key, std::string &amp;object, const std::string &amp;group_name=&quot;default&quot;)</td></tr>
@@ -147,7 +152,7 @@ template&lt;typename _Scalar , int _Rows, int _Cols, int _Options, int _MaxRows,
 <tr class="memitem:a5a6f6927dec754497ba762fb463abae2"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>addToReceiveGroup</b> (const std::string &amp;key, Eigen::Matrix&lt; _Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols &gt; &amp;object, const std::string &amp;group_name=&quot;default&quot;)</td></tr>
 <tr class="separator:a5a6f6927dec754497ba762fb463abae2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebd43cf130346ad498c688c432dcc43e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#aebd43cf130346ad498c688c432dcc43e">addToSendGroup</a> (const std::string &amp;key, const double &amp;object, const std::string &amp;group_name=&quot;default&quot;)</td></tr>
-<tr class="memdesc:aebd43cf130346ad498c688c432dcc43e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an object to be sent in the given group. We can set up strings, doulbes, ints and Eigen objects to be sent that way.  <a href="classSai2Common_1_1RedisClient.html#aebd43cf130346ad498c688c432dcc43e">More...</a><br /></td></tr>
+<tr class="memdesc:aebd43cf130346ad498c688c432dcc43e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an object to be sent in the given group. We can set up strings, doubles, ints, bools and Eigen objects to be sent that way.  <a href="classSai2Common_1_1RedisClient.html#aebd43cf130346ad498c688c432dcc43e">More...</a><br /></td></tr>
 <tr class="separator:aebd43cf130346ad498c688c432dcc43e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32113349810c495491ad30ab49d04a42"><td class="memItemLeft" align="right" valign="top"><a id="a32113349810c495491ad30ab49d04a42"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>addToSendGroup</b> (const std::string &amp;key, const std::string &amp;object, const std::string &amp;group_name=&quot;default&quot;)</td></tr>
@@ -163,19 +168,21 @@ template&lt;typename _Scalar , int _Rows, int _Cols, int _Options, int _MaxRows,
 <tr class="memitem:a1cc6b9cdea529d143ec0e73aab229c90"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>addToSendGroup</b> (const std::string &amp;key, const Eigen::Matrix&lt; _Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols &gt; &amp;object, const std::string &amp;group_name=&quot;default&quot;)</td></tr>
 <tr class="separator:a1cc6b9cdea529d143ec0e73aab229c90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a122e9b4b33c571ec465b8a6f0e293a93"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a122e9b4b33c571ec465b8a6f0e293a93">receiveAllFromGroup</a> (const std::string &amp;group_name=&quot;default&quot;)</td></tr>
-<tr class="memdesc:a122e9b4b33c571ec465b8a6f0e293a93"><td class="mdescLeft">&#160;</td><td class="mdescRight">update all objects of that group set up via the addToReceiveGroup with the values from the redis database  <a href="classSai2Common_1_1RedisClient.html#a122e9b4b33c571ec465b8a6f0e293a93">More...</a><br /></td></tr>
+<tr class="memdesc:a122e9b4b33c571ec465b8a6f0e293a93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull from redis all the values for the objects of that group that were set up via the addToReceiveGroup(goup_name) function.  <a href="classSai2Common_1_1RedisClient.html#a122e9b4b33c571ec465b8a6f0e293a93">More...</a><br /></td></tr>
 <tr class="separator:a122e9b4b33c571ec465b8a6f0e293a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13f09178a150d00361d122190f4f88ce"><td class="memItemLeft" align="right" valign="top"><a id="a13f09178a150d00361d122190f4f88ce"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>receiveAllFromGroup</b> (const std::vector&lt; std::string &gt; &amp;group_names)</td></tr>
+<tr class="memitem:a13f09178a150d00361d122190f4f88ce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a13f09178a150d00361d122190f4f88ce">receiveAllFromGroup</a> (const std::vector&lt; std::string &gt; &amp;group_names)</td></tr>
+<tr class="memdesc:a13f09178a150d00361d122190f4f88ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs the receiveAllFromGroup function for multiple groups with a single redis call.  <a href="classSai2Common_1_1RedisClient.html#a13f09178a150d00361d122190f4f88ce">More...</a><br /></td></tr>
 <tr class="separator:a13f09178a150d00361d122190f4f88ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36c342b197022e6c70654760fcd3ef59"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#a36c342b197022e6c70654760fcd3ef59">sendAllFromGroup</a> (const std::string &amp;group_name=&quot;default&quot;)</td></tr>
-<tr class="memdesc:a36c342b197022e6c70654760fcd3ef59"><td class="mdescLeft">&#160;</td><td class="mdescRight">update the redis database with all the objects of that group set up by the addToSendGroup  <a href="classSai2Common_1_1RedisClient.html#a36c342b197022e6c70654760fcd3ef59">More...</a><br /></td></tr>
+<tr class="memdesc:a36c342b197022e6c70654760fcd3ef59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push to redis all the values of the objects of that group that were set up via the addToSendGroup(group_name) function.  <a href="classSai2Common_1_1RedisClient.html#a36c342b197022e6c70654760fcd3ef59">More...</a><br /></td></tr>
 <tr class="separator:a36c342b197022e6c70654760fcd3ef59"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5da0edb051bb9adc042760eac6ea083"><td class="memItemLeft" align="right" valign="top"><a id="af5da0edb051bb9adc042760eac6ea083"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> (const std::vector&lt; std::string &gt; &amp;group_names)</td></tr>
+<tr class="memitem:af5da0edb051bb9adc042760eac6ea083"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1RedisClient.html#af5da0edb051bb9adc042760eac6ea083">sendAllFromGroup</a> (const std::vector&lt; std::string &gt; &amp;group_names)</td></tr>
+<tr class="memdesc:af5da0edb051bb9adc042760eac6ea083"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs the sendAllFromGroup function for multiple groups with a single redis call.  <a href="classSai2Common_1_1RedisClient.html#af5da0edb051bb9adc042760eac6ea083">More...</a><br /></td></tr>
 <tr class="separator:af5da0edb051bb9adc042760eac6ea083"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A C++ wrapper for the Redis key-value store based on hiredis with convenience functions for common Redis commands and getting/setting Eigen objects, double, int and bool types. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a723e21696243db04a409ee4c6781ad5c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a723e21696243db04a409ee4c6781ad5c">&#9670;&nbsp;</a></span>addToReceiveGroup()</h2>
 
@@ -208,12 +215,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>Adds an object to be received in the given group. We can set up strings, doulbes, ints and Eigen objects to be received that way. </p>
+<p>Adds an object to be received in the given group. We can set up strings, doubles, ints, bools, and Eigen objects to be received that way. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">key</td><td>The redis key of the object </td></tr>
-    <tr><td class="paramname">object</td><td>The object reference to populate with the value in the database corresponding to the key each time the receiveAllFromGroup function is called with that group number </td></tr>
-    <tr><td class="paramname">group_number</td><td>Group number to which to add the object to reveive (0 by default) </td></tr>
+    <tr><td class="paramname">object</td><td>The object reference to populate with the value in the database corresponding to the key each time the receiveAllFromGroup(group_name) function is called with that group name </td></tr>
+    <tr><td class="paramname">group_name</td><td>Group name to which to add the object to reveive ("default" by default) </td></tr>
   </table>
   </dd>
 </dl>
@@ -252,12 +259,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>Adds an object to be sent in the given group. We can set up strings, doulbes, ints and Eigen objects to be sent that way. </p>
+<p>Adds an object to be sent in the given group. We can set up strings, doubles, ints, bools and Eigen objects to be sent that way. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">key</td><td>The redis key of the object </td></tr>
-    <tr><td class="paramname">object</td><td>The object reference to send to the database for the given key each time the sendAllFromGroup function is called with that group number </td></tr>
-    <tr><td class="paramname">group_number</td><td>Group number to which to add the object to send (0 by default) </td></tr>
+    <tr><td class="paramname">object</td><td>The object reference to send to the database for the given key each time the sendAllFromGroup(group_name) function is called with that group name </td></tr>
+    <tr><td class="paramname">group_name</td><td>Group name to which to add the object to send ("default" by default) </td></tr>
   </table>
   </dd>
 </dl>
@@ -324,11 +331,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>Create a New Receive Group indexed by an int (group 0 is created by default) </p>
-<p>Areceive group is a group of keys and references to objects to be populated by the value from the redis database each time the receiveAllFromGroup function is called</p>
+<p>Create a New Receive Group indexed by indexed by a group name (a group called "default" is created by default) </p>
+<p>A receive group is a group of keys and references to objects to be populated by the value from the redis database each time the receiveAllFromGroup(group_name) function is called</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group_number</td><td>index of the receive group to create </td></tr>
+    <tr><td class="paramname">group_name</td><td>name of the send group to create </td></tr>
   </table>
   </dd>
 </dl>
@@ -351,11 +358,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>Create a New Send Group indexed by an int (group 0 is created by default) </p>
-<p>A send group is a group of keys and object reference to send to the redis database as a batch (single redis call) each time the sendAllFromGroup(group_number) function is called</p>
+<p>Create a New Send Group indexed by a group name (a group called "default" is created by default) </p>
+<p>A send group is a group of keys and object reference to send to the redis database as a batch (single redis call using mset) each time the sendAllFromGroup(group_name) function is called</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group_number</td><td>index of the send group to create </td></tr>
+    <tr><td class="paramname">group_name</td><td>name of the send group to create </td></tr>
   </table>
   </dd>
 </dl>
@@ -404,10 +411,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>delete a receive group by name </p>
+<p>Delete a receive group by name. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group_name</td><td></td></tr>
+    <tr><td class="paramname">group_name</td><td>name of the receive group to delete </td></tr>
   </table>
   </dd>
 </dl>
@@ -430,10 +437,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>delete a send group by name </p>
+<p>Delete a send group by name. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group_name</td><td></td></tr>
+    <tr><td class="paramname">group_name</td><td>name of the send group to delete </td></tr>
   </table>
   </dd>
 </dl>
@@ -485,7 +492,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
 <p>Perform Redis command: GET key and returns as a string. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">key</td><td>Key to get from Redis (entry must be String type). </td></tr>
+    <tr><td class="paramname">key</td><td>redis key as a string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -520,7 +527,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
 <p>Perform Redis command: GET key and returns as a bool (converting through an int first) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">key</td><td></td></tr>
+    <tr><td class="paramname">key</td><td>redis key as a string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -555,7 +562,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
 <p>Perform Redis command: GET key and returns as a double. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">key</td><td></td></tr>
+    <tr><td class="paramname">key</td><td>redis key as a string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -590,7 +597,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
 <p>Perform Redis command: GET key and returns as a matrix or vector from Eigen library. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">key</td><td></td></tr>
+    <tr><td class="paramname">key</td><td>redis key as a string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -625,7 +632,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
 <p>Perform Redis command: GET key and returns as an int. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">key</td><td></td></tr>
+    <tr><td class="paramname">key</td><td>redis key as a string. </td></tr>
   </table>
   </dd>
 </dl>
@@ -654,7 +661,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
 </div>
 </div>
 <a id="a122e9b4b33c571ec465b8a6f0e293a93"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a122e9b4b33c571ec465b8a6f0e293a93">&#9670;&nbsp;</a></span>receiveAllFromGroup()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a122e9b4b33c571ec465b8a6f0e293a93">&#9670;&nbsp;</a></span>receiveAllFromGroup() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -669,10 +676,36 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>update all objects of that group set up via the addToReceiveGroup with the values from the redis database </p>
+<p>Pull from redis all the values for the objects of that group that were set up via the addToReceiveGroup(goup_name) function. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group_number</td><td></td></tr>
+    <tr><td class="paramname">group_name</td><td>name of the group that contains the objects to update </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a13f09178a150d00361d122190f4f88ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13f09178a150d00361d122190f4f88ce">&#9670;&nbsp;</a></span>receiveAllFromGroup() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Sai2Common::RedisClient::receiveAllFromGroup </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>group_names</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Performs the receiveAllFromGroup function for multiple groups with a single redis call. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">group_names</td><td>vector of group names to receive </td></tr>
   </table>
   </dd>
 </dl>
@@ -680,7 +713,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
 </div>
 </div>
 <a id="a36c342b197022e6c70654760fcd3ef59"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a36c342b197022e6c70654760fcd3ef59">&#9670;&nbsp;</a></span>sendAllFromGroup()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a36c342b197022e6c70654760fcd3ef59">&#9670;&nbsp;</a></span>sendAllFromGroup() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -695,10 +728,36 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sendAllFromGroup</b> 
       </table>
 </div><div class="memdoc">
 
-<p>update the redis database with all the objects of that group set up by the addToSendGroup </p>
+<p>Push to redis all the values of the objects of that group that were set up via the addToSendGroup(group_name) function. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">group_number</td><td></td></tr>
+    <tr><td class="paramname">group_name</td><td>name of the group that contains the objects to send </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="af5da0edb051bb9adc042760eac6ea083"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5da0edb051bb9adc042760eac6ea083">&#9670;&nbsp;</a></span>sendAllFromGroup() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Sai2Common::RedisClient::sendAllFromGroup </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>group_names</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Performs the sendAllFromGroup function for multiple groups with a single redis call. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">group_names</td><td>vector of group names to send </td></tr>
   </table>
   </dd>
 </dl>

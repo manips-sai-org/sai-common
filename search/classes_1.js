@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['eigenvector_50',['EigenVector',['../classSai2Common_1_1EigenVector.html',1,'Sai2Common']]]
+  ['logger_47',['Logger',['../classSai2Common_1_1Logger.html',1,'Sai2Common']]],
+  ['looptimer_48',['LoopTimer',['../classSai2Common_1_1LoopTimer.html',1,'Sai2Common']]]
 ];

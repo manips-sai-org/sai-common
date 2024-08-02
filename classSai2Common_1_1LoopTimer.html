@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>This class implements a precise timer to run a loop at a specified frequency, and provide monitoring options for the loop runtimes. There are 2 ways of using it: 1 - Explicitly implement a while loop and call <a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe" title="Wait for next loop. Use in your while loop. Not needed if using LoopTimer::run(). If overtine monitor...">waitForNextLoop()</a> in it (ideally at the start of the loop) that will wait for the correct amount of time to reach the desired frequency 2 - Use the <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> function, which will run a loop calling a user defined callback function at the specified frequency.  
+<p>This class implements a precise timer to run a loop at a specified frequency, and provide monitoring options for the loop runtimes.  
  <a href="classSai2Common_1_1LoopTimer.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="LoopTimer_8h_source.html">LoopTimer.h</a>&gt;</code></p>
@@ -114,7 +114,7 @@ unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="
 <tr class="memdesc:ae49149367785b91814424884461bd8d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Elapsed "simulation" time since the timer started. This corresponds to the theoretical time that should have been elapsed if the loop was running at the desired frequency, and is computed from the number of epapsed cycles and the frequency of the loop.  <a href="classSai2Common_1_1LoopTimer.html#ae49149367785b91814424884461bd8d4">More...</a><br /></td></tr>
 <tr class="separator:ae49149367785b91814424884461bd8d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad3444aceee17ca39e92808876cc9074a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#ad3444aceee17ca39e92808876cc9074a">enableOvertimeMonitoring</a> (const double max_overtime_ms, const double max_average_overtime_ms, const double percentage_overtime_loops_allowed, const bool print_warning=false)</td></tr>
-<tr class="memdesc:ad3444aceee17ca39e92808876cc9074a"><td class="mdescLeft">&#160;</td><td class="mdescRight">enables overtime monitoring. Allows a monitoring of the overtime of the loop and makes the function waitForNextLoop return false if: 1 - the latest loop overtime is higher than max_time_ms 2 - the average loop overtime is higher than max_average_time_ms 3 - the percentage of loops with overtime is higher than percentage_allowed  <a href="classSai2Common_1_1LoopTimer.html#ad3444aceee17ca39e92808876cc9074a">More...</a><br /></td></tr>
+<tr class="memdesc:ad3444aceee17ca39e92808876cc9074a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enables overtime monitoring. Allows a monitoring of the overtime of the loop and makes the function waitForNextLoop return false if: 1 - the latest loop overtime is higher than max_time_ms 2 - the average loop overtime is higher than max_average_time_ms 3 - the percentage of loops with overtime is higher than percentage_allowed.  <a href="classSai2Common_1_1LoopTimer.html#ad3444aceee17ca39e92808876cc9074a">More...</a><br /></td></tr>
 <tr class="separator:ad3444aceee17ca39e92808876cc9074a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a629d84781d791d854bff4709c1d12c60"><td class="memItemLeft" align="right" valign="top"><a id="a629d84781d791d854bff4709c1d12c60"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#a629d84781d791d854bff4709c1d12c60">printInfoPostRun</a> ()</td></tr>
@@ -138,7 +138,10 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <tr class="separator:a4e9e9e753896659303b20afced912914"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This class implements a precise timer to run a loop at a specified frequency, and provide monitoring options for the loop runtimes. There are 2 ways of using it: 1 - Explicitly implement a while loop and call <a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe" title="Wait for next loop. Use in your while loop. Not needed if using LoopTimer::run(). If overtine monitor...">waitForNextLoop()</a> in it (ideally at the start of the loop) that will wait for the correct amount of time to reach the desired frequency 2 - Use the <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> function, which will run a loop calling a user defined callback function at the specified frequency. </p>
+<div class="textblock"><p>This class implements a precise timer to run a loop at a specified frequency, and provide monitoring options for the loop runtimes. </p>
+<p>There are 2 ways of using the <a class="el" href="classSai2Common_1_1LoopTimer.html" title="This class implements a precise timer to run a loop at a specified frequency, and provide monitoring ...">LoopTimer</a> class:</p>
+<p>1 - Explicitly implement a while loop and call <a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe" title="Wait for next loop. Use in your while loop. Not needed if using LoopTimer::run(). If overtine monitor...">waitForNextLoop()</a> in it (ideally at the start of the loop) that will wait for the correct amount of time to reach the desired frequency</p>
+<p>2 - Use the <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> function, which will run a loop calling a user defined callback function at the specified frequency </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="afb854cdb5228ea3f5ba3613510389e41"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afb854cdb5228ea3f5ba3613510389e41">&#9670;&nbsp;</a></span>LoopTimer()</h2>
@@ -256,7 +259,7 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
       </table>
 </div><div class="memdoc">
 
-<p>enables overtime monitoring. Allows a monitoring of the overtime of the loop and makes the function waitForNextLoop return false if: 1 - the latest loop overtime is higher than max_time_ms 2 - the average loop overtime is higher than max_average_time_ms 3 - the percentage of loops with overtime is higher than percentage_allowed </p>
+<p>Enables overtime monitoring. Allows a monitoring of the overtime of the loop and makes the function waitForNextLoop return false if: 1 - the latest loop overtime is higher than max_time_ms 2 - the average loop overtime is higher than max_average_time_ms 3 - the percentage of loops with overtime is higher than percentage_allowed. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">max_overtime_ms</td><td>maximum overtime allowed for a single loop in milliseconds </td></tr>
