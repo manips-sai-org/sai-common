@@ -1,6 +1,15 @@
 ## Project name: sai2-common (version: 0.1.0)
 Note: This project uses Semantic Versioning (http://semver.org/).
 
+### Documentation
+The documentation can be generated locally with doxygen:
+```
+cd docs
+doxygen
+```
+
+It can also be accessed online [Here](https://manips-sai-org.github.io/sai2-common/html/index.html)
+
 ### Project description:
 The Sai2-Common library implements a set of utility functionalities to simplify robot simulation and control using SAI. This includes the following modules:
 
