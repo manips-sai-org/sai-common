@@ -30,5 +30,6 @@
 
 # Build directories
 build/
+docs/html/
 
 .DS_Store
