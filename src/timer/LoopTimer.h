@@ -13,13 +13,15 @@ namespace Sai2Common {
 /**
  * @brief This class implements a precise timer to run a loop at a specified
  * frequency, and provide monitoring options for the loop runtimes.
- * There are 2 ways of using it:
+ *
+ * @details There are 2 ways of using the LoopTimer class:
+ * 
  * 1 - Explicitly implement a while loop and call waitForNextLoop() in it
  * (ideally at the start of the loop) that will wait for the correct amount of
- * time to reach the desired frequency 2 - Use the run() function, which will
- * run a loop calling a user defined callback function at the specified
- * frequency
- *
+ * time to reach the desired frequency
+ * 
+ * 2 - Use the run() function, which will run a loop calling a user defined
+ * callback function at the specified frequency
  */
 class LoopTimer {
 public:
@@ -104,7 +106,7 @@ public:
 	double elapsedSimTime();
 
 	/**
-	 * @brief enables overtime monitoring. Allows a monitoring of the overtime
+	 * @brief Enables overtime monitoring. Allows a monitoring of the overtime
 	 * of the loop and makes the function waitForNextLoop return false if:
 	 * 1 - the latest loop overtime is higher than max_time_ms
 	 * 2 - the average loop overtime is higher than max_average_time_ms
@@ -164,7 +166,7 @@ public:
 
 	/**
 	 * @brief Set the Ctrl C Handler object (untested)
-	 * 
+	 *
 	 * @param userCallback A function to call when the user presses ctrl-c.
 	 */
 	static void setCtrlCHandler(void (*userCallback)(int)) {
@@ -178,7 +180,7 @@ public:
 	/**
 	 * @brief Set the thread to a priority of -19. Priority range is -20
 	 * (highest) to 19 (lowest). Untested.
-	 * 
+	 *
 	 */
 	static void setThreadHighPriority();
 
