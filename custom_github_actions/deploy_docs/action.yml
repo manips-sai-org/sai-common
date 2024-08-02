@@ -24,6 +24,7 @@ runs:
       run: |
         sudo apt-get install doxygen
         cd ./docs
+        echo "" > .nojekyll
         doxygen ${{ inputs.config-file }}
 
     - name: Deploy to GitHub Pages
