@@ -68,6 +68,11 @@ $(function() {
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md__home_runner_work_sai2_common_sai2_common_README"></a>Note: This project uses Semantic Versioning (<a href="http://semver.org/">http://semver.org/</a>).</p>
 <h2><a class="anchor" id="autotoc_md1"></a>
+Documentation</h2>
+<p>The documentation can be generated locally with doxygen: </p><div class="fragment"><div class="line">cd docs</div>
+<div class="line">doxygen</div>
+</div><!-- fragment --><p>It can also be accessed online <a href="https://manips-sai-org.github.io/sai2-common/html/index.html">Here</a></p>
+<h2><a class="anchor" id="autotoc_md2"></a>
 Project description:</h2>
 <p>The Sai2-Common library implements a set of utility functionalities to simplify robot simulation and control using SAI. This includes the following modules:</p>
 <ul>
@@ -77,7 +82,7 @@ Project description:</h2>
 <li><b>timer</b> module: to implement a timer and regulate the rate of a control loop</li>
 <li><b>uiforce</b> module: to apply a force with the mouse when using sai2</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md2"></a>
+<h2><a class="anchor" id="autotoc_md3"></a>
 3rdParty dependencies (* = installation required):</h2>
 <p>sudo apt install libhiredis-dev libjsoncpp-dev</p>
 <ul>
@@ -85,31 +90,31 @@ Project description:</h2>
 <li>Hiredis*: Redis minimalist client [brew, apt-get]</li>
 <li>JsonCpp*: JSON serialization [brew, apt-get]</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md3"></a>
+<h2><a class="anchor" id="autotoc_md4"></a>
 SAI library dependencies:</h2>
 <ul>
 <li>sai2-simulation: Articulated rigid-body physics simulation [private at <a href="https://github.com/manips-sai/sai2-simulation">https://github.com/manips-sai/sai2-simulation</a>, contact <a href="#" onclick="location.href='mai'+'lto:'+'sha'+'me'+'ekg'+'@s'+'tan'+'fo'+'rd.'+'ed'+'u'; return false;">shame<span style="display: none;">.nosp@m.</span>ekg@<span style="display: none;">.nosp@m.</span>stanf<span style="display: none;">.nosp@m.</span>ord.<span style="display: none;">.nosp@m.</span>edu</a>]</li>
 <li>sai2-model: Articulated rigid-body model [<a href="https://github.com/manips-sai-org/sai2-model">https://github.com/manips-sai-org/sai2-model</a>]</li>
 <li>sai2-graphics: To display simulation [<a href="https://github.com/manips-sai-org/sai2-graphics">https://github.com/manips-sai-org/sai2-graphics</a>]</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h2><a class="anchor" id="autotoc_md5"></a>
 Installation instructions:</h2>
 <div class="fragment"><div class="line">mkdir build</div>
 <div class="line">cd build</div>
 <div class="line">cmake .. &amp;&amp; make -j4</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md5"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md6"></a>
 Uninstallation instructions:</h2>
 <ol type="1">
 <li>rm -r build</li>
 <li>rm -r ~/.cmake/packages/SAI2-COMMON</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md7"></a>
 Getting started:</h2>
 <p>Take a look at sample applications under examples/. You can run them from build/examples/&lt;x-example&gt;/.</p>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
 License:</h2>
 <p>Currently pending licensing. PLEASE DO NOT DISTRIBUTE.</p>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md9"></a>
 Project contributors:</h2>
 <ul>
 <li>Gerald Brantner</li>
@@ -118,7 +123,7 @@ Project contributors:</h2>
 <li>Shameek Ganguly</li>
 <li>Toki Migimatsu</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md9"></a>
+<h2><a class="anchor" id="autotoc_md10"></a>
 For questions, contact:</h2>
 <p><a href="#" onclick="location.href='mai'+'lto:'+'man'+'ip'+'s.s'+'ai'+'@gm'+'ai'+'l.c'+'om'; return false;">manip<span style="display: none;">.nosp@m.</span>s.sa<span style="display: none;">.nosp@m.</span>i@gma<span style="display: none;">.nosp@m.</span>il.c<span style="display: none;">.nosp@m.</span>om</a> <br  />
  <a href="#" onclick="location.href='mai'+'lto:'+'mjo'+'rd'+'a@s'+'ta'+'nfo'+'rd'+'.ed'+'u'; return false;">mjord<span style="display: none;">.nosp@m.</span>a@st<span style="display: none;">.nosp@m.</span>anfor<span style="display: none;">.nosp@m.</span>d.ed<span style="display: none;">.nosp@m.</span>u</a> <br  />
