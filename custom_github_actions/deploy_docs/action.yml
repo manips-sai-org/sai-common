@@ -5,8 +5,8 @@ inputs:
     description: 'Path to the Doxyfile'
     required: true
     default: 'Doxyfile'
-  token:
-    description: 'GitHub token to enable control of github pages'
+  github-token:
+    description: 'GitHub token'
     required: true
 runs:
   using: 'composite'
@@ -22,11 +22,12 @@ runs:
     - name: Generate Doxygen documentation
       shell: bash
       run: |
+        sudo apt-get install doxygen
         cd ./docs
         doxygen ${{ inputs.config-file }}
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ inputs.github-token }}
         publish_dir: ./docs
