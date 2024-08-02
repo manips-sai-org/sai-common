@@ -75,15 +75,15 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Accurately time a loop to set frequency.  
+<p>This class implements a precise timer to run a loop at a specified frequency, and provide monitoring options for the loop runtimes. There are 2 ways of using it: 1 - Explicitly implement a while loop and call <a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe" title="Wait for next loop. Use in your while loop. Not needed if using LoopTimer::run(). If overtine monitor...">waitForNextLoop()</a> in it (ideally at the start of the loop) that will wait for the correct amount of time to reach the desired frequency 2 - Use the <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> function, which will run a loop calling a user defined callback function at the specified frequency.  
  <a href="classSai2Common_1_1LoopTimer.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="LoopTimer_8h_source.html">LoopTimer.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:afb854cdb5228ea3f5ba3613510389e41"><td class="memItemLeft" align="right" valign="top"><a id="afb854cdb5228ea3f5ba3613510389e41"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>LoopTimer</b> (double frequency, unsigned int initial_wait_nanoseconds=0)</td></tr>
+<tr class="memitem:afb854cdb5228ea3f5ba3613510389e41"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#afb854cdb5228ea3f5ba3613510389e41">LoopTimer</a> (double frequency, unsigned int initial_wait_nanoseconds=0)</td></tr>
+<tr class="memdesc:afb854cdb5228ea3f5ba3613510389e41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new Loop Timer with the specified frequency and initial wait time before starting the first loop.  <a href="classSai2Common_1_1LoopTimer.html#afb854cdb5228ea3f5ba3613510389e41">More...</a><br /></td></tr>
 <tr class="separator:afb854cdb5228ea3f5ba3613510389e41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b2e06f37a8b78aeccd3a8a3d69c446b"><td class="memItemLeft" align="right" valign="top"><a id="a6b2e06f37a8b78aeccd3a8a3d69c446b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>LoopTimer</b> (const <a class="el" href="classSai2Common_1_1LoopTimer.html">LoopTimer</a> &amp;)=delete</td></tr>
@@ -98,52 +98,126 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setTimerName</b> (con
 <tr class="memdesc:a2d0371cb486f60bf1e641f278b3b13ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the loop frequency.  <a href="classSai2Common_1_1LoopTimer.html#a2d0371cb486f60bf1e641f278b3b13ee">More...</a><br /></td></tr>
 <tr class="separator:a2d0371cb486f60bf1e641f278b3b13ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a905806e1b66674f0fb36db99477c3432"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#a905806e1b66674f0fb36db99477c3432">reinitializeTimer</a> (unsigned int initial_wait_nanoseconds=0)</td></tr>
-<tr class="memdesc:a905806e1b66674f0fb36db99477c3432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the timing loop, if using your own while loop. call before waitForLoop.  <a href="classSai2Common_1_1LoopTimer.html#a905806e1b66674f0fb36db99477c3432">More...</a><br /></td></tr>
+<tr class="memdesc:a905806e1b66674f0fb36db99477c3432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reinitialize the timer.  <a href="classSai2Common_1_1LoopTimer.html#a905806e1b66674f0fb36db99477c3432">More...</a><br /></td></tr>
 <tr class="separator:a905806e1b66674f0fb36db99477c3432"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af6df3d12449c8611d90529d41c3a0efe"><td class="memItemLeft" align="right" valign="top"><a id="af6df3d12449c8611d90529d41c3a0efe"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe">waitForNextLoop</a> ()</td></tr>
-<tr class="memdesc:af6df3d12449c8611d90529d41c3a0efe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for next loop. Use in your while loop. Not needed if using <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">LoopTimer::run()</a>. If overtine monitoring is enabled, this function will return false in case the overtime monitoring conditions are not satisfied and true otherwise. If no overtime monitoring is enabled, this will return true if the timer waited and false otherwise. <br /></td></tr>
+<tr class="memitem:af6df3d12449c8611d90529d41c3a0efe"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe">waitForNextLoop</a> ()</td></tr>
+<tr class="memdesc:af6df3d12449c8611d90529d41c3a0efe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for next loop. Use in your while loop. Not needed if using <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">LoopTimer::run()</a>. If overtine monitoring is enabled, this function will return false in case the overtime monitoring conditions are not satisfied and true otherwise. If no overtime monitoring is enabled, this will return true if the timer waited and false otherwise.  <a href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe">More...</a><br /></td></tr>
 <tr class="separator:af6df3d12449c8611d90529d41c3a0efe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1eb8eb3bb3db8b40cdf486bf78770b63"><td class="memItemLeft" align="right" valign="top"><a id="a1eb8eb3bb3db8b40cdf486bf78770b63"></a>
 unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#a1eb8eb3bb3db8b40cdf486bf78770b63">elapsedCycles</a> ()</td></tr>
-<tr class="memdesc:a1eb8eb3bb3db8b40cdf486bf78770b63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of full loops completed since calling run. <br /></td></tr>
+<tr class="memdesc:a1eb8eb3bb3db8b40cdf486bf78770b63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of full loops completed since calling run, or number of times the waitForNextLoop function was called. <br /></td></tr>
 <tr class="separator:a1eb8eb3bb3db8b40cdf486bf78770b63"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad488e0f6aff2ed2b00c1865f34ed24c6"><td class="memItemLeft" align="right" valign="top"><a id="ad488e0f6aff2ed2b00c1865f34ed24c6"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#ad488e0f6aff2ed2b00c1865f34ed24c6">elapsedTime</a> ()</td></tr>
-<tr class="memdesc:ad488e0f6aff2ed2b00c1865f34ed24c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Elapsed computer time since calling initializeTimer() or <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> in seconds. <br /></td></tr>
+<tr class="memitem:ad488e0f6aff2ed2b00c1865f34ed24c6"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#ad488e0f6aff2ed2b00c1865f34ed24c6">elapsedTime</a> ()</td></tr>
+<tr class="memdesc:ad488e0f6aff2ed2b00c1865f34ed24c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Elapsed real time (from computer cpu clock) since the timer started.  <a href="classSai2Common_1_1LoopTimer.html#ad488e0f6aff2ed2b00c1865f34ed24c6">More...</a><br /></td></tr>
 <tr class="separator:ad488e0f6aff2ed2b00c1865f34ed24c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae49149367785b91814424884461bd8d4"><td class="memItemLeft" align="right" valign="top"><a id="ae49149367785b91814424884461bd8d4"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#ae49149367785b91814424884461bd8d4">elapsedSimTime</a> ()</td></tr>
-<tr class="memdesc:ae49149367785b91814424884461bd8d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Elapsed simulation time since calling initializeTimer() or <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> in seconds. <br /></td></tr>
+<tr class="memitem:ae49149367785b91814424884461bd8d4"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#ae49149367785b91814424884461bd8d4">elapsedSimTime</a> ()</td></tr>
+<tr class="memdesc:ae49149367785b91814424884461bd8d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Elapsed "simulation" time since the timer started. This corresponds to the theoretical time that should have been elapsed if the loop was running at the desired frequency, and is computed from the number of epapsed cycles and the frequency of the loop.  <a href="classSai2Common_1_1LoopTimer.html#ae49149367785b91814424884461bd8d4">More...</a><br /></td></tr>
 <tr class="separator:ae49149367785b91814424884461bd8d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad3444aceee17ca39e92808876cc9074a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#ad3444aceee17ca39e92808876cc9074a">enableOvertimeMonitoring</a> (const double max_overtime_ms, const double max_average_overtime_ms, const double percentage_overtime_loops_allowed, const bool print_warning=false)</td></tr>
 <tr class="memdesc:ad3444aceee17ca39e92808876cc9074a"><td class="mdescLeft">&#160;</td><td class="mdescRight">enables overtime monitoring. Allows a monitoring of the overtime of the loop and makes the function waitForNextLoop return false if: 1 - the latest loop overtime is higher than max_time_ms 2 - the average loop overtime is higher than max_average_time_ms 3 - the percentage of loops with overtime is higher than percentage_allowed  <a href="classSai2Common_1_1LoopTimer.html#ad3444aceee17ca39e92808876cc9074a">More...</a><br /></td></tr>
 <tr class="separator:ad3444aceee17ca39e92808876cc9074a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a629d84781d791d854bff4709c1d12c60"><td class="memItemLeft" align="right" valign="top"><a id="a629d84781d791d854bff4709c1d12c60"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#a629d84781d791d854bff4709c1d12c60">printInfoPostRun</a> ()</td></tr>
-<tr class="memdesc:a629d84781d791d854bff4709c1d12c60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the loop frequency and the average loop time. <br /></td></tr>
+<tr class="memdesc:a629d84781d791d854bff4709c1d12c60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print a summary of the loop timer at the current time, or until the stip function was called. It will print info such as the desired running frequency, the actual one, the elapsed time and elapsed sim time, and some overtime monitoring info. <br /></td></tr>
 <tr class="separator:a629d84781d791d854bff4709c1d12c60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf2ad6c380cba45045c0efca7861bf0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f">run</a> (void(*userCallback)(void))</td></tr>
 <tr class="memdesc:abf2ad6c380cba45045c0efca7861bf0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run a loop that calls the user_callback(). Blocking function.  <a href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f">More...</a><br /></td></tr>
 <tr class="separator:abf2ad6c380cba45045c0efca7861bf0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af39e314f653a6e31da8bf87802ec4bde"><td class="memItemLeft" align="right" valign="top"><a id="af39e314f653a6e31da8bf87802ec4bde"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#af39e314f653a6e31da8bf87802ec4bde">stop</a> ()</td></tr>
-<tr class="memdesc:af39e314f653a6e31da8bf87802ec4bde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop the loop, started by <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a>. Use within callback, or from a seperate thread. <br /></td></tr>
+<tr class="memitem:af39e314f653a6e31da8bf87802ec4bde"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#af39e314f653a6e31da8bf87802ec4bde">stop</a> ()</td></tr>
+<tr class="memdesc:af39e314f653a6e31da8bf87802ec4bde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop the loop, started by <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a>. Use within callback, or from a seperate thread.  <a href="classSai2Common_1_1LoopTimer.html#af39e314f653a6e31da8bf87802ec4bde">More...</a><br /></td></tr>
 <tr class="separator:af39e314f653a6e31da8bf87802ec4bde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ac6485177a93d76aed91cac6a636f86a4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#ac6485177a93d76aed91cac6a636f86a4">setCtrlCHandler</a> (void(*userCallback)(int))</td></tr>
-<tr class="memdesc:ac6485177a93d76aed91cac6a636f86a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a ctr-c exit callback.  <a href="classSai2Common_1_1LoopTimer.html#ac6485177a93d76aed91cac6a636f86a4">More...</a><br /></td></tr>
+<tr class="memdesc:ac6485177a93d76aed91cac6a636f86a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the Ctrl C Handler object (untested)  <a href="classSai2Common_1_1LoopTimer.html#ac6485177a93d76aed91cac6a636f86a4">More...</a><br /></td></tr>
 <tr class="separator:ac6485177a93d76aed91cac6a636f86a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e9e9e753896659303b20afced912914"><td class="memItemLeft" align="right" valign="top"><a id="a4e9e9e753896659303b20afced912914"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSai2Common_1_1LoopTimer.html#a4e9e9e753896659303b20afced912914">setThreadHighPriority</a> ()</td></tr>
-<tr class="memdesc:a4e9e9e753896659303b20afced912914"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the thread to a priority of -19. Priority range is -20 (highest) to 19 (lowest) <br /></td></tr>
+<tr class="memdesc:a4e9e9e753896659303b20afced912914"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the thread to a priority of -19. Priority range is -20 (highest) to 19 (lowest). Untested. <br /></td></tr>
 <tr class="separator:a4e9e9e753896659303b20afced912914"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Accurately time a loop to set frequency. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+<div class="textblock"><p>This class implements a precise timer to run a loop at a specified frequency, and provide monitoring options for the loop runtimes. There are 2 ways of using it: 1 - Explicitly implement a while loop and call <a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe" title="Wait for next loop. Use in your while loop. Not needed if using LoopTimer::run(). If overtine monitor...">waitForNextLoop()</a> in it (ideally at the start of the loop) that will wait for the correct amount of time to reach the desired frequency 2 - Use the <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> function, which will run a loop calling a user defined callback function at the specified frequency. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="afb854cdb5228ea3f5ba3613510389e41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb854cdb5228ea3f5ba3613510389e41">&#9670;&nbsp;</a></span>LoopTimer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Sai2Common::LoopTimer::LoopTimer </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>frequency</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>initial_wait_nanoseconds</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Construct a new Loop Timer with the specified frequency and initial wait time before starting the first loop. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">frequency</td><td>The frequency in Hz </td></tr>
+    <tr><td class="paramname">initial_wait_nanoseconds</td><td>The initial wait time in nanoseconds before starting the first loop </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ae49149367785b91814424884461bd8d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae49149367785b91814424884461bd8d4">&#9670;&nbsp;</a></span>elapsedSimTime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Sai2Common::LoopTimer::elapsedSimTime </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Elapsed "simulation" time since the timer started. This corresponds to the theoretical time that should have been elapsed if the loop was running at the desired frequency, and is computed from the number of epapsed cycles and the frequency of the loop. </p>
+<dl class="section return"><dt>Returns</dt><dd>time in seconds </dd></dl>
+
+</div>
+</div>
+<a id="ad488e0f6aff2ed2b00c1865f34ed24c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad488e0f6aff2ed2b00c1865f34ed24c6">&#9670;&nbsp;</a></span>elapsedTime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Sai2Common::LoopTimer::elapsedTime </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Elapsed real time (from computer cpu clock) since the timer started. </p>
+<dl class="section return"><dt>Returns</dt><dd>time in seconds </dd></dl>
+
+</div>
+</div>
 <a id="ad3444aceee17ca39e92808876cc9074a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad3444aceee17ca39e92808876cc9074a">&#9670;&nbsp;</a></span>enableOvertimeMonitoring()</h2>
 
@@ -211,10 +285,10 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
       </table>
 </div><div class="memdoc">
 
-<p>Initialize the timing loop, if using your own while loop. call before waitForLoop. </p>
+<p>Reinitialize the timer. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">initial_wait_nanoseconds</td><td>The delay before waitForNextLoop will return the first time </td></tr>
+    <tr><td class="paramname">initial_wait_nanoseconds</td><td>The wait time in nanoseconds before the timer starts again </td></tr>
   </table>
   </dd>
 </dl>
@@ -240,7 +314,7 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <p>Set the loop frequency. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">frequency</td><td>The loop frequency that will be used for <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">LoopTimer::run()</a> </td></tr>
+    <tr><td class="paramname">frequency</td><td>The frequency in Hz </td></tr>
   </table>
   </dd>
 </dl>
@@ -266,7 +340,14 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <p>Run a loop that calls the user_callback(). Blocking function. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">userCallback</td><td>A function to call every loop. </td></tr>
+    <tr><td class="paramname">userCallback</td><td>A function to call every loop.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Starts a loop that calls the user_callback() function at the specified frequency. This is less tested than the other method of implementing explicitely the while loop and using the <a class="el" href="classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe" title="Wait for next loop. Use in your while loop. Not needed if using LoopTimer::run(). If overtine monitor...">waitForNextLoop()</a> function. This function is blocking and will only return when the <a class="el" href="classSai2Common_1_1LoopTimer.html#af39e314f653a6e31da8bf87802ec4bde" title="Stop the loop, started by run(). Use within callback, or from a seperate thread.">stop()</a> function is called.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">userCallback</td><td>the callback function to run at the specified frequency </td></tr>
   </table>
   </dd>
 </dl>
@@ -297,13 +378,64 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 </table>
 </div><div class="memdoc">
 
-<p>Add a ctr-c exit callback. </p>
+<p>Set the Ctrl C Handler object (untested) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">userCallback</td><td>A function to call when the user presses ctrl-c. </td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="af39e314f653a6e31da8bf87802ec4bde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af39e314f653a6e31da8bf87802ec4bde">&#9670;&nbsp;</a></span>stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Sai2Common::LoopTimer::stop </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Stop the loop, started by <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a>. Use within callback, or from a seperate thread. </p>
+<p>Stop the loop started by the <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> function. This function needs to be called from within the callback function, or from a separate thread if using the <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">run()</a> function. </p>
+
+</div>
+</div>
+<a id="af6df3d12449c8611d90529d41c3a0efe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6df3d12449c8611d90529d41c3a0efe">&#9670;&nbsp;</a></span>waitForNextLoop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Sai2Common::LoopTimer::waitForNextLoop </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Wait for next loop. Use in your while loop. Not needed if using <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">LoopTimer::run()</a>. If overtine monitoring is enabled, this function will return false in case the overtime monitoring conditions are not satisfied and true otherwise. If no overtime monitoring is enabled, this will return true if the timer waited and false otherwise. </p>
+<p>Wait for next loop. Use if a while loop is explicitely implemented in order to wait the correct amount of time. Not needed if using <a class="el" href="classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f" title="Run a loop that calls the user_callback(). Blocking function.">LoopTimer::run()</a>. If overtine monitoring is enabled, this function will return false in case the overtime monitoring conditions are not satisfied and true otherwise. If no overtime monitoring is enabled, this will return true if the timer waited and false otherwise.</p>
+<dl class="section return"><dt>Returns</dt><dd>true if the timer waited, or if overtime monitoring is enabled and the overtime conditions are satisfied </dd>
+<dd>
+false if the timer did not wait, or if overtime monitoring is enabled and the overtime conditions are not satisfied </dd></dl>
 
 </div>
 </div>
