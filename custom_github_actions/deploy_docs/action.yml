@@ -18,9 +18,10 @@ runs:
         cd ./docs
         echo "" > .nojekyll
         doxygen ${{ inputs.config-file }}
+        ln -s html/index.html index.html
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ inputs.github-token }}
-        publish_dir: ./docs/html
+        publish_dir: ./docs
