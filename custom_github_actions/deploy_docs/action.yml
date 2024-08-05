@@ -18,7 +18,7 @@ runs:
         cd ./docs
         echo "" > .nojekyll
         doxygen ${{ inputs.config-file }}
-        ln -s html/index.html index.html
+        echo '<meta http-equiv="REFRESH" content="0;URL=./html/index.html">' > index.html
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
