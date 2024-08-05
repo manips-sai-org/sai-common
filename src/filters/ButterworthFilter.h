@@ -11,6 +11,12 @@
 #include <stdexcept>
 
 namespace Sai2Common {
+
+/**
+ * @brief Implements a digital second order Butterworth filter for an
+ * Eigen::VectorXd type object
+ *
+ */
 class ButterworthFilter {
 public:
 	/**
@@ -29,7 +35,7 @@ public:
 	 * between 0 and sampling_rate/2)
 	 */
 	ButterworthFilter(const double cutoff_freq, const double sampling_rate)
-		: ButterworthFilter(cutoff_freq / sampling_rate){};
+		: ButterworthFilter(cutoff_freq / sampling_rate) {};
 
 	// disallow copy and assignement
 	ButterworthFilter(const ButterworthFilter&) = delete;
@@ -52,6 +58,12 @@ public:
 	 */
 	Eigen::VectorXd update(const Eigen::VectorXd& raw_input);
 
+	/**
+	 * @brief Returns the normalized cutoff frequency of the filter
+	 *
+	 * @return The normalized cutoff frequency of the filter (should be strictly
+	 * between 0 and 0.5)
+	 */
 	double getNormalizedCutoffFreq() const { return _normalized_cutoff; }
 
 private:

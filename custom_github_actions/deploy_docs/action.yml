@@ -1,0 +1,27 @@
+name: 'Generate and Publish Doxygen Docs'
+description: 'Action to generate and publish Doxygen documentation'
+inputs:
+  config-file:
+    description: 'Path to the Doxyfile'
+    required: true
+    default: 'Doxyfile'
+  github-token:
+    description: 'GitHub token'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate Doxygen documentation
+      shell: bash
+      run: |
+        sudo apt-get install doxygen
+        cd ./docs
+        echo "" > .nojekyll
+        doxygen ${{ inputs.config-file }}
+        echo '<meta http-equiv="REFRESH" content="0;URL=./html/index.html">' > index.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ inputs.github-token }}
+        publish_dir: ./docs

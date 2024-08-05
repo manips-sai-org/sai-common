@@ -13,7 +13,7 @@ std::string getTimestamp(bool add_microseconds = false) {
 	std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
 
 	std::ostringstream oss;
-	oss << std::put_time(std::localtime(&currentTime), "%Y-%m-%d__%H:%M:%S");
+	oss << std::put_time(std::localtime(&currentTime), "%Y-%m-%d__%H-%M-%S");
 	if (add_microseconds) {
 		auto microseconds =
 			std::chrono::duration_cast<std::chrono::microseconds>(

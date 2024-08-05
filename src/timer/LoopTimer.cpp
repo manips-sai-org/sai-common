@@ -154,8 +154,6 @@ void LoopTimer::run(void (*userCallback)(void)) {
 	}
 }
 
-void LoopTimer::stop() { running_ = false; }
-
 void LoopTimer::setThreadHighPriority() {
 	pid_t pid = getpid();
 	int priority_status = setpriority(PRIO_PROCESS, pid, -19);

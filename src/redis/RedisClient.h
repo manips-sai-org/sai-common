@@ -27,6 +27,7 @@ const int DEFAULT_PORT = 6379;
 static const std::string KEY_PREFIX = "sai2::";
 }  // namespace RedisServer
 
+// \cond
 struct redisReplyDeleter {
 	void operator()(redisReply* r) { freeReplyObject(r); }
 };
@@ -34,7 +35,14 @@ struct redisReplyDeleter {
 struct redisContextDeleter {
 	void operator()(redisContext* c) { redisFree(c); }
 };
+// \endcond
 
+/**
+ * @brief A C++ wrapper for the Redis key-value store based on hiredis with
+ * convenience functions for common Redis commands and getting/setting Eigen
+ * objects, double, int and bool types.
+ *
+ */
 class RedisClient {
 public:
 	/**
@@ -59,7 +67,7 @@ public:
 	/**
 	 * @brief Perform Redis command: GET key and returns as a string
 	 *
-	 * @param key  Key to get from Redis (entry must be String type).
+	 * @param key  redis key as a string.
 	 * @return     value as a string.
 	 */
 	std::string get(const std::string& key);
@@ -67,7 +75,7 @@ public:
 	/**
 	 * @brief Perform Redis command: GET key and returns as a double
 	 *
-	 * @param key
+	 * @param key  redis key as a string.
 	 * @return value converted to a double
 	 */
 	inline double getDouble(const std::string& key) {
@@ -77,7 +85,7 @@ public:
 	/**
 	 * @brief Perform Redis command: GET key and returns as an int
 	 *
-	 * @param key
+	 * @param key  redis key as a string.
 	 * @return value converted to an int
 	 */
 	inline int getInt(const std::string& key) { return std::stoi(get(key)); }
@@ -86,7 +94,7 @@ public:
 	 * @brief Perform Redis command: GET key and returns as a bool (converting
 	 * through an int first)
 	 *
-	 * @param key
+	 * @param key  redis key as a string.
 	 * @return value converted to a bool
 	 */
 	inline bool getBool(const std::string& key) {
@@ -97,7 +105,7 @@ public:
 	 * @brief Perform Redis command: GET key and returns as a matrix or vector
 	 * from Eigen library
 	 *
-	 * @param key
+	 * @param key  redis key as a string.
 	 * @return value converted to an Eigen object
 	 */
 	inline Eigen::MatrixXd getEigen(const std::string& key) {
@@ -174,53 +182,53 @@ public:
 	bool exists(const std::string& key);
 
 	/**
-	 * @brief Create a New Send Group indexed by an int (group 0 is created by
-	 * default)
+	 * @brief Create a New Send Group indexed by a group name (a group called
+	 * "default" is created by default)
 	 *
-	 * A send group is a group of keys and object reference to send to the redis
-	 * database as a batch (single redis call) each time the
-	 * sendAllFromGroup(group_number) function is called
+	 * @details A send group is a group of keys and object reference to send to
+	 * the redis database as a batch (single redis call using mset) each time
+	 * the sendAllFromGroup(group_name) function is called
 	 *
-	 * @param group_number index of the send group to create
+	 * @param group_name name of the send group to create
 	 */
 	void createNewSendGroup(const std::string& group_name);
 
 	/**
-	 * @brief Create a New Receive Group indexed by an int (group 0 is created
-	 * by default)
+	 * @brief Create a New Receive Group indexed by indexed by a group name (a
+	 * group called "default" is created by default)
 	 *
-	 * Areceive group is a group of keys and references to objects to be
-	 * populated by the value from the redis database each time the
-	 * receiveAllFromGroup function is called
+	 * @details A receive group is a group of keys and references to objects to
+	 * be populated by the value from the redis database each time the
+	 * receiveAllFromGroup(group_name) function is called
 	 *
-	 * @param group_number index of the receive group to create
+	 * @param group_name name of the send group to create
 	 */
 	void createNewReceiveGroup(const std::string& group_name);
 
 	/**
-	 * @brief delete a send group by name
+	 * @brief Delete a send group by name
 	 *
-	 * @param group_name
+	 * @param group_name name of the send group to delete
 	 */
 	void deleteSendGroup(const std::string& group_name);
 
 	/**
-	 * @brief delete a receive group by name
+	 * @brief Delete a receive group by name
 	 *
-	 * @param group_name
+	 * @param group_name name of the receive group to delete
 	 */
 	void deleteReceiveGroup(const std::string& group_name);
 
 	/**
 	 * @brief Adds an object to be received in the given group. We can set up
-	 * strings, doulbes, ints and Eigen objects to be received that way.
+	 * strings, doubles, ints, bools, and Eigen objects to be received that way.
 	 *
 	 * @param key The redis key of the object
 	 * @param object The object reference to populate with the value in the
-	 * database corresponding to the key each time the receiveAllFromGroup
-	 * function is called with that group number
-	 * @param group_number Group number to which to add the object to reveive (0
-	 * by default)
+	 * database corresponding to the key each time the
+	 * receiveAllFromGroup(group_name) function is called with that group name
+	 * @param group_name Group name to which to add the object to reveive
+	 * ("default" by default)
 	 */
 	void addToReceiveGroup(const std::string& key, double& object,
 						   const std::string& group_name = "default");
@@ -239,14 +247,14 @@ public:
 
 	/**
 	 * @brief Adds an object to be sent in the given group. We can set up
-	 * strings, doulbes, ints and Eigen objects to be sent that way.
+	 * strings, doubles, ints, bools and Eigen objects to be sent that way.
 	 *
 	 * @param key The redis key of the object
 	 * @param object The object reference to send to the database for the given
-	 * key each time the sendAllFromGroup function is called with that group
-	 * number
-	 * @param group_number Group number to which to add the object to send (0 by
-	 * default)
+	 * key each time the sendAllFromGroup(group_name) function is called with
+	 * that group name
+	 * @param group_name Group name to which to add the object to send
+	 * ("default" by default)
 	 */
 	void addToSendGroup(const std::string& key, const double& object,
 						const std::string& group_name = "default");
@@ -264,21 +272,35 @@ public:
 						const std::string& group_name = "default");
 
 	/**
-	 * @brief update all objects of that group set up via the addToReceiveGroup
-	 * with the values from the redis database
+	 * @brief Pull from redis all the values for the objects of that group that
+	 * were set up via the addToReceiveGroup(goup_name) function
 	 *
-	 * @param group_number
+	 * @param group_name name of the group that contains the objects to update
 	 */
 	void receiveAllFromGroup(const std::string& group_name = "default");
+
+	/**
+	 * @brief Performs the receiveAllFromGroup function for multiple groups with
+	 * a single redis call
+	 *
+	 * @param group_names vector of group names to receive
+	 */
 	void receiveAllFromGroup(const std::vector<std::string>& group_names);
 
 	/**
-	 * @brief update the redis database with all the objects of that group set
-	 * up by the addToSendGroup
+	 * @brief Push to redis all the values of the objects of that group that were set
+	 * up via the addToSendGroup(group_name) function
 	 *
-	 * @param group_number
+	 * @param group_name name of the group that contains the objects to send
 	 */
 	void sendAllFromGroup(const std::string& group_name = "default");
+
+	/**
+	 * @brief Performs the sendAllFromGroup function for multiple groups with a
+	 * single redis call
+	 * 
+	 * @param group_names vector of group names to send
+	 */
 	void sendAllFromGroup(const std::vector<std::string>& group_names);
 
 private:
