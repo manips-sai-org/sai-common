@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['receiveallfromgroup_28',['receiveAllFromGroup',['../classSai2Common_1_1RedisClient.html#a122e9b4b33c571ec465b8a6f0e293a93',1,'Sai2Common::RedisClient::receiveAllFromGroup(const std::string &amp;group_name=&quot;default&quot;)'],['../classSai2Common_1_1RedisClient.html#a13f09178a150d00361d122190f4f88ce',1,'Sai2Common::RedisClient::receiveAllFromGroup(const std::vector&lt; std::string &gt; &amp;group_names)']]],
-  ['redisclient_29',['RedisClient',['../classSai2Common_1_1RedisClient.html',1,'Sai2Common']]],
-  ['reinitializetimer_30',['reinitializeTimer',['../classSai2Common_1_1LoopTimer.html#a905806e1b66674f0fb36db99477c3432',1,'Sai2Common::LoopTimer']]],
-  ['resetloopfrequency_31',['resetLoopFrequency',['../classSai2Common_1_1LoopTimer.html#a2d0371cb486f60bf1e641f278b3b13ee',1,'Sai2Common::LoopTimer']]],
-  ['run_32',['run',['../classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f',1,'Sai2Common::LoopTimer']]]
+  ['ping_27',['ping',['../classSai2Common_1_1RedisClient.html#a29124aaa326d5c789998fc9607c4b418',1,'Sai2Common::RedisClient']]],
+  ['printinfopostrun_28',['printInfoPostRun',['../classSai2Common_1_1LoopTimer.html#a629d84781d791d854bff4709c1d12c60',1,'Sai2Common::LoopTimer']]]
 ];

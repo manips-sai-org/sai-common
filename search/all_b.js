@@ -1,14 +1,9 @@
 var searchData=
 [
-  ['sai2common_33',['Sai2Common',['../namespaceSai2Common.html',1,'']]],
-  ['sendallfromgroup_34',['sendAllFromGroup',['../classSai2Common_1_1RedisClient.html#a36c342b197022e6c70654760fcd3ef59',1,'Sai2Common::RedisClient::sendAllFromGroup(const std::string &amp;group_name=&quot;default&quot;)'],['../classSai2Common_1_1RedisClient.html#af5da0edb051bb9adc042760eac6ea083',1,'Sai2Common::RedisClient::sendAllFromGroup(const std::vector&lt; std::string &gt; &amp;group_names)']]],
-  ['set_35',['set',['../classSai2Common_1_1RedisClient.html#a892fb518e3dd0ce08dcd401943d3415d',1,'Sai2Common::RedisClient']]],
-  ['setbool_36',['setBool',['../classSai2Common_1_1RedisClient.html#a0ccc1032d396d0ba1bd741226a0b4146',1,'Sai2Common::RedisClient']]],
-  ['setctrlchandler_37',['setCtrlCHandler',['../classSai2Common_1_1LoopTimer.html#ac6485177a93d76aed91cac6a636f86a4',1,'Sai2Common::LoopTimer']]],
-  ['setdouble_38',['setDouble',['../classSai2Common_1_1RedisClient.html#ad6890570bba83a6162a1da3c5e144788',1,'Sai2Common::RedisClient']]],
-  ['seteigen_39',['setEigen',['../classSai2Common_1_1RedisClient.html#a4cb93e7a6700a95f462c549bb4e3da6d',1,'Sai2Common::RedisClient']]],
-  ['setint_40',['setInt',['../classSai2Common_1_1RedisClient.html#a89a3f2451487de23a8776edc50aaa209',1,'Sai2Common::RedisClient']]],
-  ['setthreadhighpriority_41',['setThreadHighPriority',['../classSai2Common_1_1LoopTimer.html#a4e9e9e753896659303b20afced912914',1,'Sai2Common::LoopTimer']]],
-  ['start_42',['start',['../classSai2Common_1_1Logger.html#aa0ba816f63a83517b4c7010fc7b8d8eb',1,'Sai2Common::Logger']]],
-  ['stop_43',['stop',['../classSai2Common_1_1Logger.html#aa452da96fa0da3534aeda2e2dbd97577',1,'Sai2Common::Logger::stop()'],['../classSai2Common_1_1LoopTimer.html#af39e314f653a6e31da8bf87802ec4bde',1,'Sai2Common::LoopTimer::stop()']]]
+  ['receiveallfromgroup_29',['receiveAllFromGroup',['../classSai2Common_1_1RedisClient.html#a122e9b4b33c571ec465b8a6f0e293a93',1,'Sai2Common::RedisClient::receiveAllFromGroup(const std::string &amp;group_name=&quot;default&quot;)'],['../classSai2Common_1_1RedisClient.html#a13f09178a150d00361d122190f4f88ce',1,'Sai2Common::RedisClient::receiveAllFromGroup(const std::vector&lt; std::string &gt; &amp;group_names)']]],
+  ['redis_20communication_20example_30',['Redis communication example',['../md_examples_04_redis_communication.html',1,'']]],
+  ['redisclient_31',['RedisClient',['../classSai2Common_1_1RedisClient.html',1,'Sai2Common']]],
+  ['reinitializetimer_32',['reinitializeTimer',['../classSai2Common_1_1LoopTimer.html#a905806e1b66674f0fb36db99477c3432',1,'Sai2Common::LoopTimer']]],
+  ['resetloopfrequency_33',['resetLoopFrequency',['../classSai2Common_1_1LoopTimer.html#a2d0371cb486f60bf1e641f278b3b13ee',1,'Sai2Common::LoopTimer']]],
+  ['run_34',['run',['../classSai2Common_1_1LoopTimer.html#abf2ad6c380cba45045c0efca7861bf0f',1,'Sai2Common::LoopTimer']]]
 ];
