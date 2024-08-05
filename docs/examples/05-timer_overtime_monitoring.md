@@ -1,0 +1,3 @@
+## Timer with overtime monitoring example
+
+This example runs a loop with a timer. The overtime monitoring is enabled, and the thread manually sleeps at various times to trigger the overtime monitoring. In this example, the print_warning flag of the overtime monitoring is set to true for details on which overtime type is triggered, but it is advised to leave it to false on any time critical application. 

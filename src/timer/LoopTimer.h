@@ -179,7 +179,7 @@ public:
 
 	/**
 	 * @brief Set the thread to a priority of -19. Priority range is -20
-	 * (highest) to 19 (lowest). Untested.
+	 * (highest) to 19 (lowest).
 	 *
 	 */
 	static void setThreadHighPriority();

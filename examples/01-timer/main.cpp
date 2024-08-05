@@ -56,7 +56,6 @@ void run2() {
 		std::cout << "Second thread at " << timer.elapsedTime() << " seconds."
 				  << std::endl;
 	}
-
-	timer.printInfoPostRun();
 	timer.stop();
+	timer.printInfoPostRun();
 }
