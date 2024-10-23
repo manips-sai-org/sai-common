@@ -15,6 +15,12 @@ using namespace std;
 
 namespace Sai2Common {
 
+RedisClient::RedisClient(const std::string& key_namespace_prefix) {
+		if(!key_namespace_prefix.empty()) {
+			_prefix = key_namespace_prefix + "::";
+		}
+	}
+
 void RedisClient::connect(const std::string& hostname, const int port,
 						  const struct timeval& timeout) {
 	// Connect to new server
@@ -58,15 +64,16 @@ void RedisClient::ping() {
 }
 
 std::string RedisClient::get(const std::string& key) {
+	const std::string key_with_prefix = _prefix + key;
 	// Call GET command
-	auto reply = command("GET %s", key.c_str());
+	auto reply = command("GET %s", key_with_prefix.c_str());
 
 	// Check for errors
 	if (!reply || reply->type == REDIS_REPLY_ERROR ||
 		reply->type == REDIS_REPLY_NIL)
-		throw std::runtime_error("RedisClient: GET '" + key + "' failed.");
+		throw std::runtime_error("RedisClient: GET '" + key_with_prefix + "' failed.");
 	if (reply->type != REDIS_REPLY_STRING)
-		throw std::runtime_error("RedisClient: GET '" + key +
+		throw std::runtime_error("RedisClient: GET '" + key_with_prefix +
 								 "' returned non-string value.");
 
 	// Return value
@@ -74,40 +81,43 @@ std::string RedisClient::get(const std::string& key) {
 }
 
 void RedisClient::set(const std::string& key, const std::string& value) {
+	const std::string key_with_prefix = _prefix + key;
 	// Call SET command
-	auto reply = command("SET %s %s", key.c_str(), value.c_str());
+	auto reply = command("SET %s %s", key_with_prefix.c_str(), value.c_str());
 
 	// Check for errors
 	if (!reply || reply->type == REDIS_REPLY_ERROR)
-		throw std::runtime_error("RedisClient: SET '" + key + "' '" + value +
+		throw std::runtime_error("RedisClient: SET '" + key_with_prefix + "' '" + value +
 								 "' failed.");
 }
 
 void RedisClient::del(const std::string& key) {
+	const std::string key_with_prefix = _prefix + key;
 	// Call DEL command
-	auto reply = command("DEL %s", key.c_str());
+	auto reply = command("DEL %s", key_with_prefix.c_str());
 
 	// Check for errors
 	if (!reply || reply->type == REDIS_REPLY_ERROR)
-		throw std::runtime_error("RedisClient: DEL '" + key + "' failed.");
+		throw std::runtime_error("RedisClient: DEL '" + key_with_prefix + "' failed.");
 }
 
 bool RedisClient::exists(const std::string& key) {
+	const std::string key_with_prefix = _prefix + key;
 	// Call GET command
-	auto reply = command("EXISTS %s", key.c_str());
+	auto reply = command("EXISTS %s", key_with_prefix.c_str());
 
 	// Check for errors
 	if (!reply || reply->type == REDIS_REPLY_ERROR ||
 		reply->type == REDIS_REPLY_NIL)
-		throw std::runtime_error("RedisClient: EXISTS '" + key + "' failed.");
+		throw std::runtime_error("RedisClient: EXISTS '" + key_with_prefix + "' failed.");
 	if (reply->type != REDIS_REPLY_INTEGER)
-		throw std::runtime_error("RedisClient: EXISTS '" + key +
+		throw std::runtime_error("RedisClient: EXISTS '" + key_with_prefix +
 								 "' returned non-integer value.");
 
 	bool return_value = (reply->integer == 1);
 
 	if (!return_value && (reply->integer != 0)) {
-		throw std::runtime_error("RedisClient: EXISTS '" + key +
+		throw std::runtime_error("RedisClient: EXISTS '" + key_with_prefix +
 								 "' returned unexpected value (not 0 or 1)");
 	}
 
@@ -118,27 +128,28 @@ std::vector<std::string> RedisClient::pipeget(
 	const std::vector<std::string>& keys) {
 	// Prepare key list
 	for (const auto& key : keys) {
-		redisAppendCommand(_context.get(), "GET %s", key.c_str());
+		const std::string key_with_prefix = _prefix + key;
+		redisAppendCommand(_context.get(), "GET %s", key_with_prefix.c_str());
 	}
 
 	// Collect values
 	std::vector<std::string> values;
-	for (size_t i = 0; i < keys.size(); i++) {
+	for (const auto& key : keys) {
+		const std::string key_with_prefix = _prefix + key;
 		redisReply* r;
 		if (redisGetReply(_context.get(), (void**)&r) == REDIS_ERR)
 			throw std::runtime_error(
-				"RedisClient: Pipeline GET command failed for key:" + keys[i] +
-				".");
+				"RedisClient: Pipeline GET command failed for key: " + key_with_prefix + ".");
 
 		std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 		if (reply->type != REDIS_REPLY_STRING)
 			throw std::runtime_error(
-				"RedisClient: Pipeline GET command returned non-string value "
-				"for key: " +
-				keys[i] + ".");
+				"RedisClient: Pipeline GET command returned non-string value for key: " +
+				key_with_prefix + ".");
 
 		values.push_back(reply->str);
 	}
+
 	return values;
 }
 
@@ -146,22 +157,22 @@ void RedisClient::pipeset(
 	const std::vector<std::pair<std::string, std::string>>& keyvals) {
 	// Prepare key list
 	for (const auto& keyval : keyvals) {
-		redisAppendCommand(_context.get(), "SET %s %s", keyval.first.c_str(),
+		const std::string key_with_prefix = _prefix + keyval.first;
+		redisAppendCommand(_context.get(), "SET %s %s", key_with_prefix.c_str(),
 						   keyval.second.c_str());
 	}
 
-	for (size_t i = 0; i < keyvals.size(); i++) {
+	for (const auto& keyval : keyvals) {
+		const std::string key_with_prefix = _prefix + keyval.first;
 		redisReply* r;
 		if (redisGetReply(_context.get(), (void**)&r) == REDIS_ERR)
 			throw std::runtime_error(
-				"RedisClient: Pipeline SET command failed for key: " +
-				keyvals[i].first + ".");
+				"RedisClient: Pipeline SET command failed for key: " + key_with_prefix + ".");
 
 		std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 		if (reply->type == REDIS_REPLY_ERROR)
 			throw std::runtime_error(
-				"RedisClient: Pipeline SET command failed for key: " +
-				keyvals[i].first + ".");
+				"RedisClient: Pipeline SET command failed for key: " + key_with_prefix + ".");
 	}
 }
 
@@ -169,8 +180,10 @@ std::vector<std::string> RedisClient::mget(
 	const std::vector<std::string>& keys) {
 	// Prepare key list
 	std::vector<const char*> argv = {"MGET"};
+	std::vector<std::string> prefixed_keys;
 	for (const auto& key : keys) {
-		argv.push_back(key.c_str());
+		prefixed_keys.push_back(_prefix + key);
+		argv.push_back(prefixed_keys.back().c_str());
 	}
 
 	// Call MGET command with variable argument formatting
@@ -198,8 +211,10 @@ void RedisClient::mset(
 	const std::vector<std::pair<std::string, std::string>>& keyvals) {
 	// Prepare key-value list
 	std::vector<const char*> argv = {"MSET"};
+	std::vector<std::string> prefixed_keys;
 	for (const auto& keyval : keyvals) {
-		argv.push_back(keyval.first.c_str());
+		prefixed_keys.push_back(_prefix + keyval.first);
+		argv.push_back(prefixed_keys.back().c_str());
 		argv.push_back(keyval.second.c_str());
 	}
 

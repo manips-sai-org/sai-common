@@ -14,12 +14,14 @@ using namespace Eigen;
 
 void second_program();
 
-const string STR_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-example::str_key";
-const string INT_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-example::int_key";
-const string BOOL_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-example::bool_key";
-const string DOUBLE_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-example::double_key";
-const string VECTOR_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-example::vector_key";
-const string MATRIX_KEY = Sai2Common::RedisServer::KEY_PREFIX + "sai2-common-example::matrix_key";
+const string STR_KEY = "str_key";
+const string INT_KEY = "int_key";
+const string BOOL_KEY = "bool_key";
+const string DOUBLE_KEY = "double_key";
+const string VECTOR_KEY = "vector_key";
+const string MATRIX_KEY = "matrix_key";
+
+const string prefix = "sai2-common-example";
 
 int main(int argc, char** argv) {
 	// example data that a robot would have
@@ -36,7 +38,7 @@ int main(int argc, char** argv) {
 	signal(SIGINT, &sighandler);
 
 	// make redis client
-	auto redis_client = Sai2Common::RedisClient();
+	Sai2Common::RedisClient redis_client(prefix);
 	redis_client.connect();
 
 	// set some values in redis database
@@ -110,7 +112,7 @@ int main(int argc, char** argv) {
 void second_program() {
 
 	// make second redis client connected to the same database
-	auto redis_client_2 = Sai2Common::RedisClient();
+	Sai2Common::RedisClient redis_client_2(prefix);
 	redis_client_2.connect();
 
 	cout << endl;
