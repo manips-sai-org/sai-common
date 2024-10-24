@@ -180,10 +180,12 @@ std::vector<std::string> RedisClient::mget(
 	const std::vector<std::string>& keys) {
 	// Prepare key list
 	std::vector<const char*> argv = {"MGET"};
-	std::vector<std::string> prefixed_keys;
+	std::vector<const std::string> prefixed_keys;
 	for (const auto& key : keys) {
 		prefixed_keys.push_back(_prefix + key);
-		argv.push_back(prefixed_keys.back().c_str());
+	}
+	for (const auto& key : prefixed_keys) {
+		argv.push_back(key.c_str());
 	}
 
 	// Call MGET command with variable argument formatting
@@ -214,8 +216,10 @@ void RedisClient::mset(
 	std::vector<std::string> prefixed_keys;
 	for (const auto& keyval : keyvals) {
 		prefixed_keys.push_back(_prefix + keyval.first);
-		argv.push_back(prefixed_keys.back().c_str());
-		argv.push_back(keyval.second.c_str());
+	}
+	for (size_t i = 0; i < keyvals.size(); i++) {
+		argv.push_back(prefixed_keys.at(i).c_str());
+		argv.push_back(keyvals.at(i).second.c_str());
 	}
 
 	// Call MSET command with variable argument formatting
