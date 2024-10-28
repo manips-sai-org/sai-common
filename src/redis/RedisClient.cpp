@@ -180,7 +180,7 @@ std::vector<std::string> RedisClient::mget(
 	const std::vector<std::string>& keys) {
 	// Prepare key list
 	std::vector<const char*> argv = {"MGET"};
-	std::vector<const std::string> prefixed_keys;
+	std::vector<std::string> prefixed_keys = {};
 	for (const auto& key : keys) {
 		prefixed_keys.push_back(_prefix + key);
 	}
@@ -213,7 +213,7 @@ void RedisClient::mset(
 	const std::vector<std::pair<std::string, std::string>>& keyvals) {
 	// Prepare key-value list
 	std::vector<const char*> argv = {"MSET"};
-	std::vector<std::string> prefixed_keys;
+	std::vector<std::string> prefixed_keys = {};
 	for (const auto& keyval : keyvals) {
 		prefixed_keys.push_back(_prefix + keyval.first);
 	}
