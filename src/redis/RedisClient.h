@@ -21,12 +21,6 @@
 
 namespace Sai2Common {
 
-namespace RedisServer {
-const std::string DEFAULT_IP = "127.0.0.1";
-const int DEFAULT_PORT = 6379;
-static const std::string KEY_PREFIX = "sai2::";
-}  // namespace RedisServer
-
 // \cond
 struct redisReplyDeleter {
 	void operator()(redisReply* r) { freeReplyObject(r); }
@@ -45,6 +39,13 @@ struct redisContextDeleter {
  */
 class RedisClient {
 public:
+
+	RedisClient() = default;
+	RedisClient(const RedisClient&) = delete;
+	RedisClient& operator=(const RedisClient&) = delete;
+
+	RedisClient(const std::string& key_namespace_prefix);
+
 	/**
 	 * @brief Connect to Redis server.
 	 *
@@ -428,6 +429,8 @@ private:
 		_objects_to_send_types;
 	std::map<std::string, std::vector<std::pair<int, int>>>
 		_objects_to_send_sizes;
+
+	std::string _prefix = "";
 };
 
 // Implementation must be part of header for compile time template
