@@ -38,6 +38,7 @@ endif()
 
 # hiredis
 find_library(HIREDIS_LIBRARY hiredis)
+find_path(HIREDIS_INCLUDE_DIR hiredis/hiredis.h REQUIRED)
 
 # include Redis
 set(REDIS_SOURCE ${PROJECT_SOURCE_DIR}/src/redis/RedisClient.cpp)
@@ -73,7 +74,7 @@ export(TARGETS sai2-common FILE ${PROJECT_BINARY_DIR}/SAI2-COMMONTargets.cmake)
 export(PACKAGE SAI2-COMMON)
 
 # configure package
-set(CONF_INCLUDE_DIRS ${SAI2-COMMON_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS})
+set(CONF_INCLUDE_DIRS ${SAI2-COMMON_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS} ${HIREDIS_INCLUDE_DIR})
 set(CONF_LIBRARIES ${SAI2-COMMON_LIBRARIES})
 
 # create package configuration and version files
