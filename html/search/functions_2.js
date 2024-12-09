@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['connect_60',['connect',['../classSai2Common_1_1RedisClient.html#a21562281be444256bf5d9ba6cdd44c06',1,'Sai2Common::RedisClient']]],
-  ['createnewreceivegroup_61',['createNewReceiveGroup',['../classSai2Common_1_1RedisClient.html#a40baab80c4590593f1e0f3d33d99020d',1,'Sai2Common::RedisClient']]],
-  ['createnewsendgroup_62',['createNewSendGroup',['../classSai2Common_1_1RedisClient.html#a0ca025ecf35be23702ddc9cecd3186b0',1,'Sai2Common::RedisClient']]]
+  ['connect_60',['connect',['../classSaiCommon_1_1RedisClient.html#aa564f2bacb23bdafb710831316906987',1,'SaiCommon::RedisClient']]],
+  ['createnewreceivegroup_61',['createNewReceiveGroup',['../classSaiCommon_1_1RedisClient.html#ac0603733c18315534c93ed5a0c047e45',1,'SaiCommon::RedisClient']]],
+  ['createnewsendgroup_62',['createNewSendGroup',['../classSaiCommon_1_1RedisClient.html#ade171ac7e9a6c622fbac981808a31be8',1,'SaiCommon::RedisClient']]]
 ];

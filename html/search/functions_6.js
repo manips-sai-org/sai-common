@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['initializefilter_77',['initializeFilter',['../classSai2Common_1_1ButterworthFilter.html#a2288a19b7b00b970677531fdbafa950c',1,'Sai2Common::ButterworthFilter']]]
+  ['initializefilter_77',['initializeFilter',['../classSaiCommon_1_1ButterworthFilter.html#ad938f698277d07ad7f0e2c27ca3c7026',1,'SaiCommon::ButterworthFilter']]]
 ];

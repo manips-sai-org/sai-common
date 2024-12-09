@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['logger_78',['Logger',['../classSai2Common_1_1Logger.html#ac5285e41ffc6a5f11afd7e421c58fb4f',1,'Sai2Common::Logger']]],
-  ['looptimer_79',['LoopTimer',['../classSai2Common_1_1LoopTimer.html#afb854cdb5228ea3f5ba3613510389e41',1,'Sai2Common::LoopTimer']]]
+  ['logger_78',['Logger',['../classSaiCommon_1_1Logger.html#aa8266058a82bbb1c1302d11781b705c0',1,'SaiCommon::Logger']]],
+  ['looptimer_79',['LoopTimer',['../classSaiCommon_1_1LoopTimer.html#a24713e4825ca143cb28281518627871c',1,'SaiCommon::LoopTimer']]]
 ];

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Sai2 Common: /home/runner/work/sai2-common/sai2-common/src/logger/Logger.h Source File</title>
+<title>Sai Common: /home/runner/work/sai-common/sai-common/src/logger/Logger.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Sai2 Common
+   <div id="projectname">Sai Common
    &#160;<span id="projectnumber">v1.0.0</span>
    </div>
   </td>
@@ -70,8 +70,8 @@ $(function() {
 <div class="title">Logger.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef SAI2COMMON_LOGGER_H</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define SAI2COMMON_LOGGER_H</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef SaiCommon_LOGGER_H</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define SaiCommon_LOGGER_H</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160; </div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;timer/LoopTimer.h&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
@@ -83,7 +83,7 @@ $(function() {
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;thread&gt;</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceSai2Common.html">Sai2Common</a> {</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespaceSaiCommon.html">SaiCommon</a> {</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">namespace </span>{</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
@@ -144,20 +144,20 @@ $(function() {
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">...</span></div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">*/</span></div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00100"></a><span class="lineno"><a class="line" href="classSai2Common_1_1Logger.html">  100</a></span>&#160;<span class="keyword">class </span><a class="code" href="classSai2Common_1_1Logger.html">Logger</a> {</div>
+<div class="line"><a name="l00100"></a><span class="lineno"><a class="line" href="classSaiCommon_1_1Logger.html">  100</a></span>&#160;<span class="keyword">class </span><a class="code" href="classSaiCommon_1_1Logger.html">Logger</a> {</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <a class="code" href="classSai2Common_1_1Logger.html">Logger</a>(<span class="keyword">const</span> std::string fname,</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <a class="code" href="classSaiCommon_1_1Logger.html">Logger</a>(<span class="keyword">const</span> std::string fname,</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;           <span class="keyword">const</span> <span class="keywordtype">bool</span> add_timestamp_to_filename = <span class="keyword">true</span>);</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160; </div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    ~<a class="code" href="classSai2Common_1_1Logger.html">Logger</a>();</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    ~<a class="code" href="classSaiCommon_1_1Logger.html">Logger</a>();</div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160; </div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="comment">// disallow default, copy and assign constructor</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <a class="code" href="classSai2Common_1_1Logger.html">Logger</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <a class="code" href="classSai2Common_1_1Logger.html">Logger</a>(<span class="keyword">const</span> <a class="code" href="classSai2Common_1_1Logger.html">Logger</a>&amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <a class="code" href="classSai2Common_1_1Logger.html">Logger</a>&amp; operator=(<span class="keyword">const</span> <a class="code" href="classSai2Common_1_1Logger.html">Logger</a>&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <a class="code" href="classSaiCommon_1_1Logger.html">Logger</a>() = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <a class="code" href="classSaiCommon_1_1Logger.html">Logger</a>(<span class="keyword">const</span> <a class="code" href="classSaiCommon_1_1Logger.html">Logger</a>&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <a class="code" href="classSaiCommon_1_1Logger.html">Logger</a>&amp; operator=(<span class="keyword">const</span> <a class="code" href="classSaiCommon_1_1Logger.html">Logger</a>&amp;) = <span class="keyword">delete</span>;</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160; </div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> Derived&gt;</div>
-<div class="line"><a name="l00135"></a><span class="lineno"><a class="line" href="classSai2Common_1_1Logger.html#a7ca44e2a0a5d7bed6e654e298480f9a2">  135</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSai2Common_1_1Logger.html#a7ca44e2a0a5d7bed6e654e298480f9a2">addToLog</a>(<span class="keyword">const</span> Eigen::MatrixBase&lt;Derived&gt;&amp; var,</div>
+<div class="line"><a name="l00135"></a><span class="lineno"><a class="line" href="classSaiCommon_1_1Logger.html#a8e009c0d72cde8fe0e6e9a4cd52b090d">  135</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSaiCommon_1_1Logger.html#a8e009c0d72cde8fe0e6e9a4cd52b090d">addToLog</a>(<span class="keyword">const</span> Eigen::MatrixBase&lt;Derived&gt;&amp; var,</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;                  <span class="keyword">const</span> std::string&amp; var_name = <span class="stringliteral">&quot;&quot;</span>) {</div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;        <span class="keywordflow">if</span> (_f_is_logging) {</div>
 <div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -177,18 +177,18 @@ $(function() {
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    }</div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160; </div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSai2Common_1_1Logger.html#a7ca44e2a0a5d7bed6e654e298480f9a2">addToLog</a>(<span class="keyword">const</span> <span class="keywordtype">double</span>&amp; var, <span class="keyword">const</span> std::string var_name = <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSaiCommon_1_1Logger.html#a8e009c0d72cde8fe0e6e9a4cd52b090d">addToLog</a>(<span class="keyword">const</span> <span class="keywordtype">double</span>&amp; var, <span class="keyword">const</span> std::string var_name = <span class="stringliteral">&quot;&quot;</span>);</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160; </div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSai2Common_1_1Logger.html#a7ca44e2a0a5d7bed6e654e298480f9a2">addToLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span>&amp; var, <span class="keyword">const</span> std::string var_name = <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSaiCommon_1_1Logger.html#a8e009c0d72cde8fe0e6e9a4cd52b090d">addToLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span>&amp; var, <span class="keyword">const</span> std::string var_name = <span class="stringliteral">&quot;&quot;</span>);</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160; </div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSai2Common_1_1Logger.html#a7ca44e2a0a5d7bed6e654e298480f9a2">addToLog</a>(<span class="keyword">const</span> <span class="keywordtype">bool</span>&amp; var, <span class="keyword">const</span> std::string var_name = <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSaiCommon_1_1Logger.html#a8e009c0d72cde8fe0e6e9a4cd52b090d">addToLog</a>(<span class="keyword">const</span> <span class="keywordtype">bool</span>&amp; var, <span class="keyword">const</span> std::string var_name = <span class="stringliteral">&quot;&quot;</span>);</div>
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160; </div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSai2Common_1_1Logger.html#a7ec8b31fd452fc177a91c879a58b20c6">newFileStart</a>(<span class="keyword">const</span> std::string fname,</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSaiCommon_1_1Logger.html#ad00f29aded93cf480ebf1e9969736d58">newFileStart</a>(<span class="keyword">const</span> std::string fname,</div>
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;                      <span class="keyword">const</span> <span class="keywordtype">double</span> logging_frequency = 100.0);</div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160; </div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSai2Common_1_1Logger.html#aa0ba816f63a83517b4c7010fc7b8d8eb">start</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> logging_frequency = 100.0);</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classSaiCommon_1_1Logger.html#a141be387e35cfdb5c807624f8b9ee94d">start</a>(<span class="keyword">const</span> <span class="keywordtype">double</span> logging_frequency = 100.0);</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classSai2Common_1_1Logger.html#aa452da96fa0da3534aeda2e2dbd97577">stop</a>();</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classSaiCommon_1_1Logger.html#a47e807c260ca22fa89b61c0844c45653">stop</a>();</div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160; </div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="comment">// vector of pointers to encapsulate Eigen vector objects that are</span></div>
@@ -235,15 +235,15 @@ $(function() {
 <div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="keywordtype">void</span> logWorker();</div>
 <div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;};</div>
 <div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160; </div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;}  <span class="comment">// namespace Sai2Common</span></div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;}  <span class="comment">// namespace SaiCommon</span></div>
 <div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160; </div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// SAI2COMMON_LOGGER_H</span></div>
-<div class="ttc" id="aclassSai2Common_1_1Logger_html"><div class="ttname"><a href="classSai2Common_1_1Logger.html">Sai2Common::Logger</a></div><div class="ttdoc">A class to log variables to a text file.</div><div class="ttdef"><b>Definition:</b> Logger.h:100</div></div>
-<div class="ttc" id="aclassSai2Common_1_1Logger_html_a7ca44e2a0a5d7bed6e654e298480f9a2"><div class="ttname"><a href="classSai2Common_1_1Logger.html#a7ca44e2a0a5d7bed6e654e298480f9a2">Sai2Common::Logger::addToLog</a></div><div class="ttdeci">bool addToLog(const Eigen::MatrixBase&lt; Derived &gt; &amp;var, const std::string &amp;var_name=&quot;&quot;)</div><div class="ttdoc">Add an eigen (vector or matrix) variable to log. Only fixed or dynamic size Eigen::Vector or Eigen::M...</div><div class="ttdef"><b>Definition:</b> Logger.h:135</div></div>
-<div class="ttc" id="aclassSai2Common_1_1Logger_html_a7ec8b31fd452fc177a91c879a58b20c6"><div class="ttname"><a href="classSai2Common_1_1Logger.html#a7ec8b31fd452fc177a91c879a58b20c6">Sai2Common::Logger::newFileStart</a></div><div class="ttdeci">bool newFileStart(const std::string fname, const double logging_frequency=100.0)</div><div class="ttdoc">Start logging on a new log file. If the filename is the same as before, does nothing....</div><div class="ttdef"><b>Definition:</b> Logger.cpp:91</div></div>
-<div class="ttc" id="aclassSai2Common_1_1Logger_html_aa0ba816f63a83517b4c7010fc7b8d8eb"><div class="ttname"><a href="classSai2Common_1_1Logger.html#aa0ba816f63a83517b4c7010fc7b8d8eb">Sai2Common::Logger::start</a></div><div class="ttdeci">bool start(const double logging_frequency=100.0)</div><div class="ttdoc">Start logging on the file given in the constructor.</div><div class="ttdef"><b>Definition:</b> Logger.cpp:113</div></div>
-<div class="ttc" id="aclassSai2Common_1_1Logger_html_aa452da96fa0da3534aeda2e2dbd97577"><div class="ttname"><a href="classSai2Common_1_1Logger.html#aa452da96fa0da3534aeda2e2dbd97577">Sai2Common::Logger::stop</a></div><div class="ttdeci">void stop()</div><div class="ttdoc">Stop logging and close the log file.</div><div class="ttdef"><b>Definition:</b> Logger.cpp:158</div></div>
-<div class="ttc" id="anamespaceSai2Common_html"><div class="ttname"><a href="namespaceSai2Common.html">Sai2Common</a></div><div class="ttdef"><b>Definition:</b> ButterworthFilter.cpp:6</div></div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// SaiCommon_LOGGER_H</span></div>
+<div class="ttc" id="aclassSaiCommon_1_1Logger_html"><div class="ttname"><a href="classSaiCommon_1_1Logger.html">SaiCommon::Logger</a></div><div class="ttdoc">A class to log variables to a text file.</div><div class="ttdef"><b>Definition:</b> Logger.h:100</div></div>
+<div class="ttc" id="aclassSaiCommon_1_1Logger_html_a141be387e35cfdb5c807624f8b9ee94d"><div class="ttname"><a href="classSaiCommon_1_1Logger.html#a141be387e35cfdb5c807624f8b9ee94d">SaiCommon::Logger::start</a></div><div class="ttdeci">bool start(const double logging_frequency=100.0)</div><div class="ttdoc">Start logging on the file given in the constructor.</div><div class="ttdef"><b>Definition:</b> Logger.cpp:113</div></div>
+<div class="ttc" id="aclassSaiCommon_1_1Logger_html_a47e807c260ca22fa89b61c0844c45653"><div class="ttname"><a href="classSaiCommon_1_1Logger.html#a47e807c260ca22fa89b61c0844c45653">SaiCommon::Logger::stop</a></div><div class="ttdeci">void stop()</div><div class="ttdoc">Stop logging and close the log file.</div><div class="ttdef"><b>Definition:</b> Logger.cpp:158</div></div>
+<div class="ttc" id="aclassSaiCommon_1_1Logger_html_a8e009c0d72cde8fe0e6e9a4cd52b090d"><div class="ttname"><a href="classSaiCommon_1_1Logger.html#a8e009c0d72cde8fe0e6e9a4cd52b090d">SaiCommon::Logger::addToLog</a></div><div class="ttdeci">bool addToLog(const Eigen::MatrixBase&lt; Derived &gt; &amp;var, const std::string &amp;var_name=&quot;&quot;)</div><div class="ttdoc">Add an eigen (vector or matrix) variable to log. Only fixed or dynamic size Eigen::Vector or Eigen::M...</div><div class="ttdef"><b>Definition:</b> Logger.h:135</div></div>
+<div class="ttc" id="aclassSaiCommon_1_1Logger_html_ad00f29aded93cf480ebf1e9969736d58"><div class="ttname"><a href="classSaiCommon_1_1Logger.html#ad00f29aded93cf480ebf1e9969736d58">SaiCommon::Logger::newFileStart</a></div><div class="ttdeci">bool newFileStart(const std::string fname, const double logging_frequency=100.0)</div><div class="ttdoc">Start logging on a new log file. If the filename is the same as before, does nothing....</div><div class="ttdef"><b>Definition:</b> Logger.cpp:91</div></div>
+<div class="ttc" id="anamespaceSaiCommon_html"><div class="ttname"><a href="namespaceSaiCommon.html">SaiCommon</a></div><div class="ttdef"><b>Definition:</b> ButterworthFilter.cpp:6</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

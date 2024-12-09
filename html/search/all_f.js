@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['waitfornextloop_50',['waitForNextLoop',['../classSai2Common_1_1LoopTimer.html#af6df3d12449c8611d90529d41c3a0efe',1,'Sai2Common::LoopTimer']]]
+  ['waitfornextloop_50',['waitForNextLoop',['../classSaiCommon_1_1LoopTimer.html#a5c33acfc3adf03d8f386d83f6d7824d7',1,'SaiCommon::LoopTimer']]]
 ];
