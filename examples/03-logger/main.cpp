@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 	double double_to_log2 = 0.0;
 
 	// setup logger
-	Sai2Common::Logger logger("log1_at_100_Hz", false);
+	SaiCommon::Logger logger("log1_at_100_Hz", false);
 	logger.addToLog(vec2d_to_log, "vec2d");
 	logger.addToLog(vec3d_to_log, "vec3d");
 	logger.addToLog(mat3d_to_log, "mat3d");
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	logger.start();
 
 	// create a loop timer
-	Sai2Common::LoopTimer timer(1000.0);
+	SaiCommon::LoopTimer timer(1000.0);
 
 	// run for 2 seconds
 	while (timer.elapsedTime() < 2.0) {

@@ -1,5 +1,5 @@
-name: 'Setup Sai2 dependencies'
-description: 'setup sai2 dependencies'
+name: 'Setup Sai dependencies'
+description: 'setup sai dependencies'
 
 runs:
   using: 'composite'

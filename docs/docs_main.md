@@ -1,6 +1,6 @@
-## Sai2-Common
+## Sai-Common
 
-Sai2-common contains a collection of utility classes to use with the other sai2 libraries. It provides the following:
+Sai-common contains a collection of utility classes to use with the other sai libraries. It provides the following:
 * Implementation of a butterworth filter for eigen objects
 * A c++ redis client based on hiredis to easily exchange data between programs (in particular eigen objects)
 * A logger class to log data to text files

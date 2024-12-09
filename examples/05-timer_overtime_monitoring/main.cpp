@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 		 << endl;
 
 	// create a loop timer
-	Sai2Common::LoopTimer timer(1000.0, 1e6);
+	SaiCommon::LoopTimer timer(1000.0, 1e6);
 	timer.enableOvertimeMonitoring(0.4, 0.1, 9, true);
 
 	// run for 2000 cycles

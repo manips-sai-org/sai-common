@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(SAI2-COMMON)
+project(SAI-COMMON)
 set(PROJECT_VERSION 0.1.0) # major version is zero for now since api will
                            # certainly change in future
 
@@ -57,32 +57,32 @@ include_directories(${PROJECT_SOURCE_DIR}/src ${EIGEN3_INCLUDE_DIR}
                     ${JSONCPP_INCLUDE_DIRS})
 
 # Create the library.
-add_library(sai2-common STATIC ${REDIS_SOURCE} ${TIMER_SOURCE} ${FILTER_SOURCE}
+add_library(sai-common STATIC ${REDIS_SOURCE} ${TIMER_SOURCE} ${FILTER_SOURCE}
                                ${LOGGER_SOURCE})
 
-set(SAI2-COMMON_LIBRARIES sai2-common ${JSONCPP_LIBRARY} ${HIREDIS_LIBRARY})
+set(SAI-COMMON_LIBRARIES sai-common ${JSONCPP_LIBRARY} ${HIREDIS_LIBRARY})
 
 #
 # export package
 #
 
 # set include directories
-set(SAI2-COMMON_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src)
+set(SAI-COMMON_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src)
 
 # export package for use from the build tree
-export(TARGETS sai2-common FILE ${PROJECT_BINARY_DIR}/SAI2-COMMONTargets.cmake)
-export(PACKAGE SAI2-COMMON)
+export(TARGETS sai-common FILE ${PROJECT_BINARY_DIR}/SAI-COMMONTargets.cmake)
+export(PACKAGE SAI-COMMON)
 
 # configure package
-set(CONF_INCLUDE_DIRS ${SAI2-COMMON_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS} ${HIREDIS_INCLUDE_DIR})
-set(CONF_LIBRARIES ${SAI2-COMMON_LIBRARIES})
+set(CONF_INCLUDE_DIRS ${SAI-COMMON_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS} ${HIREDIS_INCLUDE_DIR})
+set(CONF_LIBRARIES ${SAI-COMMON_LIBRARIES})
 
 # create package configuration and version files
-configure_file(SAI2-COMMONConfig.cmake.in
-               "${PROJECT_BINARY_DIR}/SAI2-COMMONConfig.cmake" @ONLY)
+configure_file(SAI-COMMONConfig.cmake.in
+               "${PROJECT_BINARY_DIR}/SAI-COMMONConfig.cmake" @ONLY)
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/SAI2-COMMONConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/SAI-COMMONConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion)
 

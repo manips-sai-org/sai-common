@@ -8,7 +8,7 @@
 #include <string>
 #include <thread>
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 /**
  * @brief This class implements a precise timer to run a loop at a specified
@@ -219,6 +219,6 @@ private:
 	double average_wait_time_ms_ = 0.0;
 };
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon
 
 #endif /* SAI_LOOPTIMER_H_ */

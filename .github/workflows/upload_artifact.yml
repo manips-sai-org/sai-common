@@ -17,10 +17,10 @@ jobs:
       - name: build-repo
         uses: ./.github/actions/build-repo
         with: 
-          token: ${{ secrets.SAI2_TOKEN }}
+          token: ${{ secrets.SAI_TOKEN }}
 
-      - name: Archive Sai2-common Artifact
+      - name: Archive Sai-common Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: sai2-common-artifact
-          path: build/libsai2-common.a
+          name: sai-common-artifact
+          path: build/libsai-common.a

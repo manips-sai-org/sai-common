@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 	thread thread2(run2);
 
 	// create a loop timer
-	Sai2Common::LoopTimer timer(
+	SaiCommon::LoopTimer timer(
 		50.0, 1e6);	 // 50Hz timer, 1ms pause before starting loop
 	timer.setThreadHighPriority();
 
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 //------------------------------------------------------------------------------
 void run2() {
 	// create a loop timer
-	Sai2Common::LoopTimer timer(5.0, 0.5 * 1e9);
+	SaiCommon::LoopTimer timer(5.0, 0.5 * 1e9);
 
 	while (timer.elapsedTime() < 3.0) {
 		// wait the correct amount of time

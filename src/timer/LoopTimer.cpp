@@ -3,7 +3,7 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 LoopTimer::LoopTimer(double frequency, unsigned int initial_wait_nanoseconds) {
 	resetLoopFrequency(frequency);
@@ -187,4 +187,4 @@ void LoopTimer::setThreadHighPriority() {
 //     memset(dummy, 0, MAX_SAFE_STACK);
 // }
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon

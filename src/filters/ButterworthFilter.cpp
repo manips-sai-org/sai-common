@@ -3,7 +3,7 @@
 
 #include "ButterworthFilter.h"
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 ButterworthFilter::ButterworthFilter(const double normalized_cutoff) {
 	_is_initialized = false;
@@ -83,4 +83,4 @@ Eigen::VectorXd ButterworthFilter::update(const Eigen::VectorXd& raw_input) {
 	return y;
 }
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon
