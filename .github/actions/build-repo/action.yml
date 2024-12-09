@@ -16,7 +16,7 @@ runs:
         sudo apt-get install libeigen3-dev libgtest-dev
         sudo apt-get install redis libhiredis-dev libjsoncpp-dev
 
-    - name: Build Sai2-common
+    - name: Build Sai-common
       shell: bash
       run: |
         export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:dep/*

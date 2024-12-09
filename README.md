@@ -1,8 +1,8 @@
-## Sai2-Common
-The Sai2-Common library implements a set of utility functionalities to simplify robot simulation and control using SAI.
+## Sai-Common
+The Sai-Common library implements a set of utility functionalities to simplify robot simulation and control using SAI.
 
 ### Documentation
-The documentation can also be accessed online at the following [link](https://manips-sai-org.github.io/sai2-common/)
+The documentation can also be accessed online at the following [link](https://manips-sai-org.github.io/sai-common/)
 
 It can also be generated locally with doxygen:
 ```
@@ -28,7 +28,7 @@ cmake .. && make -j4
 ### Uninstallation instructions: 
 
 1. rm -r build
-2. rm -r ~/.cmake/packages/SAI2-COMMON
+2. rm -r ~/.cmake/packages/SAI-COMMON
 
 ### Getting started:
 Take a look at sample applications under examples/.

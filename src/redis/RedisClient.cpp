@@ -13,7 +13,7 @@
 
 using namespace std;
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 RedisClient::RedisClient(const std::string& key_namespace_prefix) {
 		if(!key_namespace_prefix.empty()) {
@@ -646,4 +646,4 @@ Eigen::MatrixXd RedisClient::decodeEigenMatrix(const std::string& str) {
 	return decodeEigenMatrixWithDelimiters(str, ',', ']', ",[]", idx_row_end);
 }
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon

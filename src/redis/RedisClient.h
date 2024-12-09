@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 // \cond
 struct redisReplyDeleter {
@@ -501,6 +501,6 @@ void RedisClient::addToSendGroup(
 		std::make_pair(object.rows(), object.cols()));
 }
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon
 
 #endif	// REDIS_CLIENT_H

@@ -1,8 +1,8 @@
 // ButterworthFilter: Implements a digital second order Butterworth filter for
 // an Eigen::VectorXd type object
 
-#ifndef SAI2_COMMON_BUTTERWORTH_FILTER_H_
-#define SAI2_COMMON_BUTTERWORTH_FILTER_H_
+#ifndef SAI_COMMON_BUTTERWORTH_FILTER_H_
+#define SAI_COMMON_BUTTERWORTH_FILTER_H_
 
 #include <math.h>
 
@@ -10,7 +10,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 /**
  * @brief Implements a digital second order Butterworth filter for an
@@ -94,6 +94,6 @@ private:
 	double _pre_warp_cutoff;
 };
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon
 
-#endif	// SAI2_COMMON_BUTTERWORTH_FILTER_H_
+#endif	// SAI_COMMON_BUTTERWORTH_FILTER_H_

@@ -2,9 +2,9 @@
 
 using namespace std;
 
-namespace Sai2Common {
+namespace SaiCommon {
 namespace ChaiHapticDriverKeys {
-const string REDIS_KEY_PREFIX = "sai2::ChaiHapticDevice::device";
+const string REDIS_KEY_PREFIX = "sai::ChaiHapticDevice::device";
 
 const string MAX_STIFFNESS_KEY_SUFFIX = "::specifications::max_stiffness";
 const string MAX_DAMPING_KEY_SUFFIX = "::specifications::max_damping";
@@ -28,11 +28,11 @@ const string USE_GRIPPER_AS_SWITCH_KEY_SUFFIX =
 	"::parametrization::use_gripper_as_switch";
 const string SWITCH_PRESSED_KEY_SUFFIX = "::sensors::switch_pressed";
 
-const string HAPTIC_DEVICES_SWAP_KEY = "sai2::ChaiHapticDevice::swapDevices";
+const string HAPTIC_DEVICES_SWAP_KEY = "sai::ChaiHapticDevice::swapDevices";
 
 string createRedisKey(const string& key_suffix, int device_number) {
 	return REDIS_KEY_PREFIX + to_string(device_number) + key_suffix;
 }
 
 }  // namespace ChaiHapticDriverKeys
-}  // namespace Sai2Common
+}  // namespace SaiCommon

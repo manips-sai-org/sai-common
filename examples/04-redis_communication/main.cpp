@@ -21,7 +21,7 @@ const string DOUBLE_KEY = "double_key";
 const string VECTOR_KEY = "vector_key";
 const string MATRIX_KEY = "matrix_key";
 
-const string prefix = "sai2-common-example";
+const string prefix = "sai-common-example";
 
 int main(int argc, char** argv) {
 	// example data that a robot would have
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 	signal(SIGINT, &sighandler);
 
 	// make redis client
-	Sai2Common::RedisClient redis_client(prefix);
+	SaiCommon::RedisClient redis_client(prefix);
 	redis_client.connect();
 
 	// set some values in redis database
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 
 	thread second_thread(second_program);
 
-	Sai2Common::LoopTimer timer(2.0, 1e6);
+	SaiCommon::LoopTimer timer(2.0, 1e6);
 
 	while(!stopRunning) {
 		timer.waitForNextLoop();
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
 void second_program() {
 
 	// make second redis client connected to the same database
-	Sai2Common::RedisClient redis_client_2(prefix);
+	SaiCommon::RedisClient redis_client_2(prefix);
 	redis_client_2.connect();
 
 	cout << endl;
@@ -147,7 +147,7 @@ void second_program() {
 
 	message = "Thread 2 started !";
 
-	Sai2Common::LoopTimer timer(0.95, 1e6);
+	SaiCommon::LoopTimer timer(0.95, 1e6);
 
 	while(!stopRunning) {
 		timer.waitForNextLoop();

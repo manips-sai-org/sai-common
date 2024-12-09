@@ -1,5 +1,5 @@
-#ifndef SAI2COMMON_LOGGER_H
-#define SAI2COMMON_LOGGER_H
+#ifndef SaiCommon_LOGGER_H
+#define SaiCommon_LOGGER_H
 
 #include <timer/LoopTimer.h>
 #include <unistd.h>
@@ -11,7 +11,7 @@
 #include <thread>
 #include <vector>
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 namespace {
 
@@ -249,6 +249,6 @@ private:
 	void logWorker();
 };
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon
 
-#endif	// SAI2COMMON_LOGGER_H
+#endif	// SaiCommon_LOGGER_H

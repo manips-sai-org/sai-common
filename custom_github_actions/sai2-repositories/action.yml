@@ -1,5 +1,5 @@
-name: 'Setup sai2 repository for github actions'
-description: 'Clone, CMake, and download sai2 repository that has a simgle compile step'
+name: 'Setup sai repository for github actions'
+description: 'Clone, CMake, and download sai repository that has a simgle compile step'
 
 inputs:
   token:

@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <iostream>
 
-namespace Sai2Common {
+namespace SaiCommon {
 
 namespace {
 std::string getTimestamp(bool add_microseconds = false) {
@@ -204,4 +204,4 @@ void Logger::logWorker() {
 	_logfile.flush();
 }
 
-}  // namespace Sai2Common
+}  // namespace SaiCommon
