@@ -29,7 +29,7 @@ const string USE_GRIPPER_AS_SWITCH_KEY_SUFFIX =
 const string SWITCH_PRESSED_KEY_SUFFIX = "sensors::switch_pressed";
 const string DRIVER_RUNNING_KEY_SUFFIX = "driver_running";
 
-const string HAPTIC_DEVICES_SWAP_KEY = "ChaiHapticDevice::swapDevices";
+const string HAPTIC_DEVICES_SWAP_KEY = CHAI_REDIS_DRIVER_NAMESPACE + "::swap_devices";
 
 
 string createRedisKey(const string& key_suffix, int device_number) {
