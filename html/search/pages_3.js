@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['sai_2dcommon_102',['Sai-Common',['../index.html',1,'']]]
+  ['logger_20example_0',['Logger example',['../md_examples_203-logger.html',1,'']]]
 ];

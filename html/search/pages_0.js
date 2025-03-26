@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['filter_20example_99',['Filter example',['../md_examples_02_filters.html',1,'']]]
+  ['common_0',['Sai-Common',['../index.html',1,'']]],
+  ['communication_20example_1',['Redis communication example',['../md_examples_204-redis__communication.html',1,'']]]
 ];
