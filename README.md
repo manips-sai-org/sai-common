@@ -35,8 +35,7 @@ Take a look at sample applications under examples/.
 You can run them from build/examples/<x-example>/.
 More details on the examples [here](./docs/docs_main.md)
 
-### License:
-Currently pending licensing. PLEASE DO NOT DISTRIBUTE.
+### License
 
-### For questions, contact:
-mjorda@stanford.edu
+This software is distributed under the terms of the Stanford Academic Software License Agreement For SAI
+
