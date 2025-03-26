@@ -20,7 +20,7 @@ jobs:
           token: ${{ secrets.SAI_TOKEN }}
 
       - name: Archive Sai-common Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sai-common-artifact
           path: build/libsai-common.a
