@@ -4,7 +4,7 @@ using namespace std;
 
 namespace SaiCommon {
 namespace ChaiHapticDriverKeys {
-const string CHAI_REDIS_DRIVER_NAMESPACE = "chai_haptic_devices_driver";
+const string CHAI_REDIS_DRIVER_NAMESPACE = "sai::chai_haptic_devices_driver";
 
 const string MAX_STIFFNESS_KEY_SUFFIX = "specifications::max_stiffness";
 const string MAX_DAMPING_KEY_SUFFIX = "specifications::max_damping";
