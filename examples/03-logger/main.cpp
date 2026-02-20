@@ -7,7 +7,8 @@
 using namespace std;
 using namespace Eigen;
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 	cout
 		<< endl
 		<< "This example runs a timer at 1kHz and logs the time and different "
@@ -46,7 +47,8 @@ int main(int argc, char** argv) {
 	SaiCommon::LoopTimer timer(1000.0);
 
 	// run for 2 seconds
-	while (timer.elapsedTime() < 2.0) {
+	while (timer.elapsedTime() < 2.0)
+	{
 		timer.waitForNextLoop();
 		vec2d_to_log += 0.001 * Vector2d::Ones();
 		vec3d_to_log -= 0.001 * Vector3d::Ones();
@@ -66,7 +68,8 @@ int main(int argc, char** argv) {
 	timer.reinitializeTimer();
 
 	// run for 2 seconds
-	while (timer.elapsedTime() < 2.0) {
+	while (timer.elapsedTime() < 2.0)
+	{
 		timer.waitForNextLoop();
 		vec2d_to_log += 0.001 * Vector2d::Ones();
 		vec3d_to_log -= 0.001 * Vector3d::Ones();

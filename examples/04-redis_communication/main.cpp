@@ -7,7 +7,7 @@
 
 #include <signal.h>
 bool stopRunning = false;
-void sighandler(int){stopRunning = true;}
+void sighandler(int) { stopRunning = true; }
 
 using namespace std;
 using namespace Eigen;
@@ -23,7 +23,8 @@ const string MATRIX_KEY = "matrix_key";
 
 const string prefix = "sai-common-example";
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 	// example data that a robot would have
 	int robot_dofs = 2;
 	double robot_gripper_opening = 0.1;
@@ -51,12 +52,18 @@ int main(int argc, char** argv) {
 
 	cout << endl;
 	cout << "keys read from thread 1 before the loop: " << endl;
-	std::cout << STR_KEY << ":\n" << redis_client.get(STR_KEY) << endl;
-	std::cout << INT_KEY << ":\n" << redis_client.getInt(INT_KEY) << endl;
-	std::cout << BOOL_KEY << ":\n" << redis_client.getBool(BOOL_KEY) << endl;
-	std::cout << DOUBLE_KEY << ":\n" << redis_client.getDouble(DOUBLE_KEY) << endl;
-	std::cout << VECTOR_KEY << ":\n" << redis_client.getEigen(VECTOR_KEY).transpose() << endl;
-	std::cout << MATRIX_KEY << ":\n" << redis_client.getEigen(MATRIX_KEY) << endl;
+	std::cout << STR_KEY << ":\n"
+			  << redis_client.get(STR_KEY) << endl;
+	std::cout << INT_KEY << ":\n"
+			  << redis_client.getInt(INT_KEY) << endl;
+	std::cout << BOOL_KEY << ":\n"
+			  << redis_client.getBool(BOOL_KEY) << endl;
+	std::cout << DOUBLE_KEY << ":\n"
+			  << redis_client.getDouble(DOUBLE_KEY) << endl;
+	std::cout << VECTOR_KEY << ":\n"
+			  << redis_client.getEigen(VECTOR_KEY).transpose() << endl;
+	std::cout << MATRIX_KEY << ":\n"
+			  << redis_client.getEigen(MATRIX_KEY) << endl;
 	cout << endl;
 
 	// setup send and receive groups
@@ -73,7 +80,8 @@ int main(int argc, char** argv) {
 
 	SaiCommon::LoopTimer timer(2.0, 1e6);
 
-	while(!stopRunning) {
+	while (!stopRunning)
+	{
 		timer.waitForNextLoop();
 
 		robot_q += Eigen::Vector2d(0.1, 0.1);
@@ -91,7 +99,8 @@ int main(int argc, char** argv) {
 		cout << "safety enabled: " << safety_enabled << endl;
 		cout << endl;
 
-		if(timer.elapsedTime() > 10.0) {
+		if (timer.elapsedTime() > 10.0)
+		{
 			stopRunning = true;
 		}
 	}
@@ -109,7 +118,8 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void second_program() {
+void second_program()
+{
 
 	// make second redis client connected to the same database
 	SaiCommon::RedisClient redis_client_2(prefix);
@@ -117,12 +127,18 @@ void second_program() {
 
 	cout << endl;
 	cout << "keys read from thread 2 before the loop: " << endl;
-	std::cout << STR_KEY << ":\n" << redis_client_2.get(STR_KEY) << endl;
-	std::cout << INT_KEY << ":\n" << redis_client_2.getInt(INT_KEY) << endl;
-	std::cout << BOOL_KEY << ":\n" << redis_client_2.getBool(BOOL_KEY) << endl;
-	std::cout << DOUBLE_KEY << ":\n" << redis_client_2.getDouble(DOUBLE_KEY) << endl;
-	std::cout << VECTOR_KEY << ":\n" << redis_client_2.getEigen(VECTOR_KEY) << endl;
-	std::cout << MATRIX_KEY << ":\n" << redis_client_2.getEigen(MATRIX_KEY) << endl;
+	std::cout << STR_KEY << ":\n"
+			  << redis_client_2.get(STR_KEY) << endl;
+	std::cout << INT_KEY << ":\n"
+			  << redis_client_2.getInt(INT_KEY) << endl;
+	std::cout << BOOL_KEY << ":\n"
+			  << redis_client_2.getBool(BOOL_KEY) << endl;
+	std::cout << DOUBLE_KEY << ":\n"
+			  << redis_client_2.getDouble(DOUBLE_KEY) << endl;
+	std::cout << VECTOR_KEY << ":\n"
+			  << redis_client_2.getEigen(VECTOR_KEY) << endl;
+	std::cout << MATRIX_KEY << ":\n"
+			  << redis_client_2.getEigen(MATRIX_KEY) << endl;
 	cout << endl;
 
 	std::string message = "second thread loop not started";
@@ -136,7 +152,6 @@ void second_program() {
 	redis_client_2.addToReceiveGroup(VECTOR_KEY, robot_q);
 	redis_client_2.addToReceiveGroup(MATRIX_KEY, robot_M);
 
-	
 	int counter = 0;
 	double time = 0.0;
 	bool enable_safety = false;
@@ -149,11 +164,13 @@ void second_program() {
 
 	SaiCommon::LoopTimer timer(0.95, 1e6);
 
-	while(!stopRunning) {
+	while (!stopRunning)
+	{
 		timer.waitForNextLoop();
 		counter = timer.elapsedCycles();
 		time = timer.elapsedTime();
-		if(counter > 5) {
+		if (counter > 5)
+		{
 			enable_safety = true;
 		}
 
@@ -161,8 +178,10 @@ void second_program() {
 		redis_client_2.receiveAllFromGroup();
 
 		cout << "robot info received from first thread:" << endl;
-		cout << "robot joint angles:\n" << robot_q.transpose() << endl;
-		cout << "robot mass matrix:\n" << robot_M << endl;
+		cout << "robot joint angles:\n"
+			 << robot_q.transpose() << endl;
+		cout << "robot mass matrix:\n"
+			 << robot_M << endl;
 		cout << endl;
 	}
 }
