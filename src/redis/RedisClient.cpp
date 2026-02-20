@@ -583,6 +583,10 @@ namespace SaiCommon
 
 		for (const auto &group_name : group_names)
 		{
+			double objects_number = _keys_to_send.at(group_name).size();
+			if (objects_number == 0)
+				continue;
+
 			for (int i = 0; i < _keys_to_send.at(group_name).size(); i++)
 			{
 				std::string encoded_value = "";
@@ -646,7 +650,9 @@ namespace SaiCommon
 			}
 		}
 
-		mset(write_key_value_pairs);
+		// No data to send across any groups. Skipping MSET.
+		if (!write_key_value_pairs.empty())
+			mset(write_key_value_pairs);
 	}
 
 	bool RedisClient::sendGroupExists(const std::string &group_name) const
