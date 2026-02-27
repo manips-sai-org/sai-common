@@ -567,9 +567,9 @@ namespace SaiCommon
 		sendAllFromGroup(group_names);
 	}
 
-	void RedisClient::sendAllFromGroup(
-		const std::vector<std::string> &group_names)
+	void RedisClient::sendAllFromGroup(const std::vector<std::string> &group_names)
 	{
+		// 1. Validate groups
 		for (const auto &group_name : group_names)
 		{
 			if (!sendGroupExists(group_name))
@@ -581,78 +581,86 @@ namespace SaiCommon
 
 		std::vector<std::pair<std::string, std::string>> write_key_value_pairs;
 
+		// Optional: If you know roughly the total items across all groups,
+		// you can write_key_value_pairs.reserve(total_items) here to be even faster.
+
 		for (const auto &group_name : group_names)
 		{
-			double objects_number = _keys_to_send.at(group_name).size();
+			// 2. Fetch references ONCE per group to eliminate repeated map lookups
+			const auto &keys = _keys_to_send.at(group_name);
+			const auto &types = _objects_to_send_types.at(group_name);
+			const auto &objs = _objects_to_send.at(group_name);
+
+			// Note: size_t is the correct type for .size(), not double.
+			size_t objects_number = keys.size();
 			if (objects_number == 0)
 				continue;
 
-			for (int i = 0; i < _keys_to_send.at(group_name).size(); i++)
+			// 3. Reserve memory to prevent reallocation overhead
+			write_key_value_pairs.reserve(write_key_value_pairs.size() + objects_number);
+
+			for (size_t i = 0; i < objects_number; i++)
 			{
 				std::string encoded_value = "";
 
-				switch (_objects_to_send_types.at(group_name).at(i))
+				switch (types[i])
 				{
 				case DOUBLE_NUMBER:
 				{
-					double *tmp_pointer =
-						(double *)_objects_to_send.at(group_name).at(i);
+					double *tmp_pointer = (double *)objs[i];
 					encoded_value = std::to_string(*tmp_pointer);
 				}
 				break;
 
 				case INT_NUMBER:
 				{
-					int *tmp_pointer =
-						(int *)_objects_to_send.at(group_name).at(i);
+					int *tmp_pointer = (int *)objs[i];
 					encoded_value = std::to_string(*tmp_pointer);
 				}
 				break;
 
 				case BOOL:
 				{
-					bool *tmp_pointer =
-						(bool *)_objects_to_send.at(group_name).at(i);
+					bool *tmp_pointer = (bool *)objs[i];
+					// Using string literals instead of allocating new strings
 					encoded_value = *tmp_pointer ? "1" : "0";
 				}
 				break;
 
 				case STRING:
 				{
-					std::string *tmp_pointer =
-						(std::string *)_objects_to_send.at(group_name).at(i);
+					std::string *tmp_pointer = (std::string *)objs[i];
 					encoded_value = (*tmp_pointer);
 				}
 				break;
 
 				case EIGEN_OBJECT:
 				{
-					double *tmp_pointer = (double *)_objects_to_send.at(group_name).at(i);
-					int nrows = _objects_to_send_sizes.at(group_name).at(i).first;
-					int ncols = _objects_to_send_sizes.at(group_name).at(i).second;
+					// Fetch sizes map ONLY if we hit an Eigen object
+					const auto &sizes = _objects_to_send_sizes.at(group_name);
 
-					// Create a zero-overhead map over your raw pointer. No memory allocation!
-					// If your double array is actually Row-Major, use:
-					// Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+					double *tmp_pointer = (double *)objs[i];
+					int nrows = sizes[i].first;
+					int ncols = sizes[i].second;
+
 					Eigen::Map<const Eigen::MatrixXd> mapped_matrix(tmp_pointer, nrows, ncols);
-
-					// Pass the mapped matrix directly to the encoder
 					encoded_value = encodeEigenMatrix(mapped_matrix);
 				}
 				break;
 				}
 
-				if (encoded_value != "")
+				if (!encoded_value.empty())
 				{
-					write_key_value_pairs.push_back(make_pair(
-						_keys_to_send.at(group_name).at(i), encoded_value));
+					write_key_value_pairs.emplace_back(keys[i], std::move(encoded_value));
 				}
 			}
 		}
 
-		// No data to send across any groups. Skipping MSET.
+		// 4. Send to Redis
 		if (!write_key_value_pairs.empty())
+		{
 			mset(write_key_value_pairs);
+		}
 	}
 
 	bool RedisClient::sendGroupExists(const std::string &group_name) const

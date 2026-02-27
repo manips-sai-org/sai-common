@@ -14,6 +14,7 @@ namespace SaiCommon
 		const string MAX_GRIPPER_ANGLE = "specifications::max_gripper_angle";
 		const string COMMANDED_FORCE_KEY_SUFFIX = "actuators::commanded_force";
 		const string COMMANDED_TORQUE_KEY_SUFFIX = "actuators::commanded_torque";
+		const string IS_RIGHT_HANDED_KEY_SUFFIX = "specifications::is_right_handed";
 		const string COMMANDED_GRIPPER_FORCE_KEY_SUFFIX =
 			"actuators::commanded_force_gripper";
 		const string POSITION_KEY_SUFFIX = "sensors::current_position";
