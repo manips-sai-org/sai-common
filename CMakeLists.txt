@@ -43,6 +43,15 @@ find_path(HIREDIS_INCLUDE_DIR hiredis/hiredis.h REQUIRED)
 # include Redis
 set(REDIS_SOURCE ${PROJECT_SOURCE_DIR}/src/redis/RedisClient.cpp)
 
+# include Zmq
+set(ZMQ_LOCAL_DIR ${PROJECT_SOURCE_DIR}/external/libzmq)
+set(ZMQ_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/cppzmq)
+find_library(
+  ZMQ_LIBRARIES zmq
+  PATHS ${ZMQ_LOCAL_DIR}/build/lib
+  NO_DEFAULT_PATH)
+set(ZMQ_SOURCE ${PROJECT_SOURCE_DIR}/src/zmq/ZmqClient.cpp)
+
 # include Timer
 set(TIMER_SOURCE ${PROJECT_SOURCE_DIR}/src/timer/LoopTimer.cpp)
 
@@ -54,13 +63,13 @@ set(LOGGER_SOURCE ${PROJECT_SOURCE_DIR}/src/logger/Logger.cpp)
 
 # Add the include directory to the include paths
 include_directories(${PROJECT_SOURCE_DIR}/src ${EIGEN3_INCLUDE_DIR}
-                    ${JSONCPP_INCLUDE_DIRS})
+                    ${JSONCPP_INCLUDE_DIRS} ${ZMQ_INCLUDE_DIR})
 
 # Create the library.
 add_library(sai-common STATIC ${REDIS_SOURCE} ${TIMER_SOURCE} ${FILTER_SOURCE}
-                               ${LOGGER_SOURCE})
+                               ${LOGGER_SOURCE} ${ZMQ_SOURCE})
 
-set(SAI-COMMON_LIBRARIES sai-common ${JSONCPP_LIBRARY} ${HIREDIS_LIBRARY})
+set(SAI-COMMON_LIBRARIES sai-common ${JSONCPP_LIBRARY} ${HIREDIS_LIBRARY} ${ZMQ_LIBRARIES})
 
 #
 # export package

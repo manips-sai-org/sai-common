@@ -12,6 +12,8 @@
 
 #include <hiredis/hiredis.h>
 
+#include <cstdint>
+#include <cstring>
 #include <Eigen/Core>
 #include <map>
 #include <memory>
@@ -110,7 +112,7 @@ public:
 	 * @return value converted to an Eigen object
 	 */
 	inline Eigen::MatrixXd getEigen(const std::string& key) {
-		return decodeEigenMatrix(get(key));
+		return decodeEigenValue(get(key));
 	}
 
 	/**
@@ -120,6 +122,15 @@ public:
 	 * @param value  string value for key.
 	 */
 	void set(const std::string& key, const std::string& value);
+
+	/**
+	 * @brief Perform Redis command: SET key value, with the value converted
+	 * from a vector of unsigned char
+	 * 
+	 * @param key 	Key to set in Redis.
+	 * @param binary  binary data for key.
+	 */
+	void set(const std::string& key, const std::vector<unsigned char>& value);
 
 	/**
 	 * @brief Perform Redis command: SET key value, with the value converted
@@ -164,7 +175,7 @@ public:
 	template <typename Derived>
 	inline void setEigen(const std::string& key,
 						 const Eigen::MatrixBase<Derived>& value) {
-		set(key, encodeEigenMatrix(value));
+		set(key, encodeEigenMatrixBinary(value));
 	}
 
 	/**
@@ -343,6 +354,11 @@ private:
 	template <typename Derived>
 	static std::string encodeEigenMatrix(
 		const Eigen::MatrixBase<Derived>& matrix);
+	template <typename Derived>
+	static std::vector<unsigned char> encodeEigenMatrixBinary(
+		const Eigen::MatrixBase<Derived>& matrix);
+	static std::vector<unsigned char> encodeEigenMatrixBinary(
+		const double* data, int rows, int cols);
 
 	/**
 	 * Decode Eigen::MatrixXd from JSON.
@@ -355,6 +371,7 @@ private:
 	 * @return     Decoded Eigen::Matrix. Optimized with RVO.
 	 */
 	static Eigen::MatrixXd decodeEigenMatrix(const std::string& str);
+	static Eigen::MatrixXd decodeEigenValue(const std::string& value);
 
 	/**
 	 * Perform Redis GET commands in bulk: GET key1; GET key2...
@@ -416,13 +433,13 @@ private:
 	 */
 	std::unique_ptr<redisContext, redisContextDeleter> _context;
 
-	std::vector<std::string> _receive_group_names;
 	std::map<std::string, std::vector<std::string>> _keys_to_receive;
 	std::map<std::string, std::vector<void*>> _objects_to_receive;
 	std::map<std::string, std::vector<RedisSupportedTypes>>
 		_objects_to_receive_types;
+	std::map<std::string, std::vector<std::pair<int, int>>>
+		_objects_to_receive_sizes;
 
-	std::vector<std::string> _send_group_names;
 	std::map<std::string, std::vector<std::string>> _keys_to_send;
 	std::map<std::string, std::vector<const void*>> _objects_to_send;
 	std::map<std::string, std::vector<RedisSupportedTypes>>
@@ -464,6 +481,44 @@ std::string RedisClient::encodeEigenMatrix(
 	return s;
 }
 
+template <typename Derived>
+std::vector<unsigned char> RedisClient::encodeEigenMatrixBinary(
+	const Eigen::MatrixBase<Derived>& matrix) {
+	static const unsigned char kMagic[8] = {'S', 'A', 'I', 'E',
+											'I', 'G', '0', '1'};
+	const uint32_t rows = static_cast<uint32_t>(matrix.rows());
+	const uint32_t cols = static_cast<uint32_t>(matrix.cols());
+	const size_t data_size =
+		static_cast<size_t>(rows) * static_cast<size_t>(cols) * sizeof(double);
+	std::vector<unsigned char> out(8 + 4 + 4 + data_size);
+	unsigned char* ptr = out.data();
+
+	std::memcpy(ptr, kMagic, 8);
+	ptr += 8;
+
+	ptr[0] = static_cast<unsigned char>(rows & 0xff);
+	ptr[1] = static_cast<unsigned char>((rows >> 8) & 0xff);
+	ptr[2] = static_cast<unsigned char>((rows >> 16) & 0xff);
+	ptr[3] = static_cast<unsigned char>((rows >> 24) & 0xff);
+	ptr += 4;
+
+	ptr[0] = static_cast<unsigned char>(cols & 0xff);
+	ptr[1] = static_cast<unsigned char>((cols >> 8) & 0xff);
+	ptr[2] = static_cast<unsigned char>((cols >> 16) & 0xff);
+	ptr[3] = static_cast<unsigned char>((cols >> 24) & 0xff);
+	ptr += 4;
+
+	for (int i = 0; i < matrix.rows(); ++i) {
+		for (int j = 0; j < matrix.cols(); ++j) {
+			const double v = static_cast<double>(matrix(i, j));
+			std::memcpy(ptr, &v, sizeof(double));
+			ptr += sizeof(double);
+		}
+	}
+
+	return out;
+}
+
 template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows,
 		  int _MaxCols>
 void RedisClient::addToReceiveGroup(
@@ -480,6 +535,8 @@ void RedisClient::addToReceiveGroup(
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(object.data());
 	_objects_to_receive_types[group_name].push_back(EIGEN_OBJECT);
+	_objects_to_receive_sizes[group_name].push_back(
+		std::make_pair(object.rows(), object.cols()));
 }
 
 template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows,

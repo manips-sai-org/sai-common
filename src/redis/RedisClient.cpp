@@ -77,7 +77,7 @@ std::string RedisClient::get(const std::string& key) {
 								 "' returned non-string value.");
 
 	// Return value
-	return reply->str;
+	return std::string(reply->str, reply->len);
 }
 
 void RedisClient::set(const std::string& key, const std::string& value) {
@@ -89,6 +89,18 @@ void RedisClient::set(const std::string& key, const std::string& value) {
 	if (!reply || reply->type == REDIS_REPLY_ERROR)
 		throw std::runtime_error("RedisClient: SET '" + key_with_prefix + "' '" + value +
 								 "' failed.");
+}
+
+void RedisClient::set(const std::string& key, const std::vector<unsigned char>& value) {
+	const std::string key_with_prefix = _prefix + key;
+	// Call SET command
+	auto reply = command("SET %s %b", key_with_prefix.c_str(), value.data(),
+						 value.size());
+
+	// Check for errors
+	if (!reply || reply->type == REDIS_REPLY_ERROR)
+		throw std::runtime_error("RedisClient: SET '" + key_with_prefix +
+								 "' '" + "binary data" + "' failed.");
 }
 
 void RedisClient::del(const std::string& key) {
@@ -147,7 +159,7 @@ std::vector<std::string> RedisClient::pipeget(
 				"RedisClient: Pipeline GET command returned non-string value for key: " +
 				key_with_prefix + ".");
 
-		values.push_back(reply->str);
+		values.emplace_back(reply->str, reply->len);
 	}
 
 	return values;
@@ -178,9 +190,17 @@ void RedisClient::pipeset(
 
 std::vector<std::string> RedisClient::mget(
 	const std::vector<std::string>& keys) {
+	if (keys.empty()) {
+		return {};
+	}
+
 	// Prepare key list
-	std::vector<const char*> argv = {"MGET"};
-	std::vector<std::string> prefixed_keys = {};
+	std::vector<const char*> argv;
+	argv.reserve(1 + keys.size());
+	argv.push_back("MGET");
+
+	std::vector<std::string> prefixed_keys;
+	prefixed_keys.reserve(keys.size());
 	for (const auto& key : keys) {
 		prefixed_keys.push_back(_prefix + key);
 	}
@@ -199,32 +219,46 @@ std::vector<std::string> RedisClient::mget(
 
 	// Collect values
 	std::vector<std::string> values;
+	values.reserve(reply->elements);
 	for (size_t i = 0; i < reply->elements; i++) {
 		if (reply->element[i]->type != REDIS_REPLY_STRING)
 			throw std::runtime_error(
 				"RedisClient: MGET command returned non-string values.");
 
-		values.push_back(reply->element[i]->str);
+		values.emplace_back(reply->element[i]->str, reply->element[i]->len);
 	}
 	return values;
 }
 
 void RedisClient::mset(
 	const std::vector<std::pair<std::string, std::string>>& keyvals) {
+	if (keyvals.empty()) {
+		return;
+	}
+
 	// Prepare key-value list
-	std::vector<const char*> argv = {"MSET"};
-	std::vector<std::string> prefixed_keys = {};
+	std::vector<const char*> argv;
+	std::vector<size_t> argvlen;
+	argv.reserve(1 + 2 * keyvals.size());
+	argvlen.reserve(1 + 2 * keyvals.size());
+	argv.push_back("MSET");
+	argvlen.push_back(4);
+
+	std::vector<std::string> prefixed_keys;
+	prefixed_keys.reserve(keyvals.size());
 	for (const auto& keyval : keyvals) {
 		prefixed_keys.push_back(_prefix + keyval.first);
 	}
 	for (size_t i = 0; i < keyvals.size(); i++) {
 		argv.push_back(prefixed_keys.at(i).c_str());
+		argvlen.push_back(prefixed_keys.at(i).size());
 		argv.push_back(keyvals.at(i).second.c_str());
+		argvlen.push_back(keyvals.at(i).second.size());
 	}
 
 	// Call MSET command with variable argument formatting
 	redisReply* r = (redisReply*)redisCommandArgv(_context.get(), argv.size(),
-												  &argv[0], nullptr);
+												  &argv[0], &argvlen[0]);
 	std::unique_ptr<redisReply, redisReplyDeleter> reply(r);
 
 	// Check for errors
@@ -240,10 +274,10 @@ void RedisClient::createNewReceiveGroup(const std::string& group_name) {
 		return;
 	}
 
-	_receive_group_names.push_back(group_name);
 	_keys_to_receive[group_name] = vector<string>();
 	_objects_to_receive[group_name] = vector<void*>();
 	_objects_to_receive_types[group_name] = vector<RedisSupportedTypes>();
+	_objects_to_receive_sizes[group_name] = vector<pair<int, int>>();
 }
 
 void RedisClient::createNewSendGroup(const std::string& group_name) {
@@ -254,7 +288,6 @@ void RedisClient::createNewSendGroup(const std::string& group_name) {
 		return;
 	}
 
-	_send_group_names.push_back(group_name);
 	_keys_to_send[group_name] = vector<string>();
 	_objects_to_send[group_name] = vector<const void*>();
 	_objects_to_send_types[group_name] = vector<RedisSupportedTypes>();
@@ -268,9 +301,6 @@ void RedisClient::deleteSendGroup(const std::string& group_name) {
 		return;
 	}
 
-	_send_group_names.erase(std::remove(_send_group_names.begin(),
-										_send_group_names.end(), group_name),
-							_send_group_names.end());
 	_keys_to_send.erase(group_name);
 	_objects_to_send.erase(group_name);
 	_objects_to_send_types.erase(group_name);
@@ -284,13 +314,10 @@ void RedisClient::deleteReceiveGroup(const std::string& group_name) {
 		return;
 	}
 
-	_receive_group_names.erase(
-		std::remove(_receive_group_names.begin(), _receive_group_names.end(),
-					group_name),
-		_receive_group_names.end());
 	_keys_to_receive.erase(group_name);
 	_objects_to_receive.erase(group_name);
 	_objects_to_receive_types.erase(group_name);
+	_objects_to_receive_sizes.erase(group_name);
 }
 
 void RedisClient::addToReceiveGroup(const std::string& key, double& object,
@@ -305,6 +332,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, double& object,
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(DOUBLE_NUMBER);
+	_objects_to_receive_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
 void RedisClient::addToReceiveGroup(const std::string& key, std::string& object,
@@ -319,6 +347,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, std::string& object,
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(STRING);
+	_objects_to_receive_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
 void RedisClient::addToReceiveGroup(const std::string& key, int& object,
@@ -333,6 +362,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, int& object,
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(INT_NUMBER);
+	_objects_to_receive_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
 void RedisClient::addToReceiveGroup(const std::string& key, bool& object,
@@ -347,6 +377,7 @@ void RedisClient::addToReceiveGroup(const std::string& key, bool& object,
 	_keys_to_receive[group_name].push_back(key);
 	_objects_to_receive[group_name].push_back(&object);
 	_objects_to_receive_types[group_name].push_back(BOOL);
+	_objects_to_receive_sizes[group_name].push_back(std::make_pair(0, 0));
 }
 
 void RedisClient::addToSendGroup(const std::string& key, const double& object,
@@ -409,69 +440,98 @@ void RedisClient::receiveAllFromGroup(const std::string& group_name) {
 
 void RedisClient::receiveAllFromGroup(
 	const std::vector<std::string>& group_names) {
+	struct ReceiveGroupData {
+		const std::vector<std::string>* keys;
+		const std::vector<void*>* objects;
+		const std::vector<RedisSupportedTypes>* types;
+		const std::vector<std::pair<int, int>>* sizes;
+	};
+
+	std::vector<ReceiveGroupData> groups;
+	groups.reserve(group_names.size());
+
+	size_t total_keys = 0;
 	for (const auto& group_name : group_names) {
-		if (!receiveGroupExists(group_name)) {
+		auto keys_it = _keys_to_receive.find(group_name);
+		auto objects_it = _objects_to_receive.find(group_name);
+		auto types_it = _objects_to_receive_types.find(group_name);
+		auto sizes_it = _objects_to_receive_sizes.find(group_name);
+
+		if (keys_it == _keys_to_receive.end() ||
+			objects_it == _objects_to_receive.end() ||
+			types_it == _objects_to_receive_types.end() ||
+			sizes_it == _objects_to_receive_sizes.end()) {
 			throw std::runtime_error("Receive group with name [" + group_name +
 									 "] not found, cannot "
 									 "receiveAllFromGroup");
 		}
+
+		total_keys += keys_it->second.size();
+		groups.push_back({&keys_it->second, &objects_it->second, &types_it->second,
+						  &sizes_it->second});
 	}
 
 	std::vector<std::string> keys_to_receive;
-	for (const auto& group_name : group_names) {
-		keys_to_receive.insert(keys_to_receive.end(),
-							   _keys_to_receive.at(group_name).begin(),
-							   _keys_to_receive.at(group_name).end());
+	keys_to_receive.reserve(total_keys);
+	for (const auto& group : groups) {
+		keys_to_receive.insert(keys_to_receive.end(), group.keys->begin(),
+							   group.keys->end());
 	}
 
 	std::vector<std::string> return_values = mget(keys_to_receive);
-	int return_values_index = 0;
+	if (return_values.size() != total_keys) {
+		throw std::runtime_error(
+			"RedisClient: MGET returned unexpected number of values in "
+			"receiveAllFromGroup");
+	}
 
-	for (const auto& group_name : group_names) {
-		for (int i = 0; i < _objects_to_receive.at(group_name).size(); ++i) {
-			switch (_objects_to_receive_types.at(group_name).at(i)) {
+	size_t return_values_index = 0;
+	for (const auto& group : groups) {
+		const auto& objects = *group.objects;
+		const auto& types = *group.types;
+		const auto& sizes = *group.sizes;
+
+		for (size_t i = 0; i < objects.size(); ++i) {
+			switch (types[i]) {
 				case DOUBLE_NUMBER: {
-					double* tmp_pointer =
-						(double*)_objects_to_receive.at(group_name).at(i);
+					double* tmp_pointer = (double*)objects[i];
 					*tmp_pointer = stod(return_values[return_values_index]);
 				} break;
 
 				case INT_NUMBER: {
-					int* tmp_pointer =
-						(int*)_objects_to_receive.at(group_name).at(i);
+					int* tmp_pointer = (int*)objects[i];
 					*tmp_pointer = stoi(return_values[return_values_index]);
 				} break;
 
 				case BOOL: {
-					bool* tmp_pointer =
-						(bool*)_objects_to_receive.at(group_name).at(i);
-					*tmp_pointer =
-						(bool)stoi(return_values[return_values_index]);
+					bool* tmp_pointer = (bool*)objects[i];
+					*tmp_pointer = (bool)stoi(return_values[return_values_index]);
 				} break;
 
 				case STRING: {
-					std::string* tmp_pointer =
-						(std::string*)_objects_to_receive.at(group_name).at(i);
+					std::string* tmp_pointer = (std::string*)objects[i];
 					*tmp_pointer = return_values[return_values_index];
 				} break;
 
 				case EIGEN_OBJECT: {
-					double* tmp_pointer =
-						(double*)_objects_to_receive.at(group_name).at(i);
+					double* tmp_pointer = (double*)objects[i];
+					const int expected_nrows = sizes[i].first;
+					const int expected_ncols = sizes[i].second;
 
-					Eigen::MatrixXd tmp_return_matrix =
-						RedisClient::decodeEigenMatrix(
-							return_values[return_values_index]);
+					Eigen::MatrixXd tmp_return_matrix = RedisClient::decodeEigenValue(
+						return_values[return_values_index]);
 
 					int nrows = tmp_return_matrix.rows();
 					int ncols = tmp_return_matrix.cols();
-
-					for (int k = 0; k < nrows; k++) {
-						for (int l = 0; l < ncols; l++) {
-							tmp_pointer[k + ncols * l] =
-								tmp_return_matrix(k, l);
-						}
+					if (expected_nrows > 0 && expected_ncols > 0 &&
+						(nrows != expected_nrows || ncols != expected_ncols)) {
+						throw std::runtime_error(
+							"RedisClient: Eigen size mismatch in "
+							"receiveAllFromGroup");
 					}
+					std::memcpy(tmp_pointer, tmp_return_matrix.data(),
+								static_cast<size_t>(nrows) *
+									static_cast<size_t>(ncols) * sizeof(double));
 				} break;
 
 				default:
@@ -492,68 +552,86 @@ void RedisClient::sendAllFromGroup(const std::string& group_name) {
 
 void RedisClient::sendAllFromGroup(
 	const std::vector<std::string>& group_names) {
+	struct SendGroupData {
+		const std::vector<std::string>* keys;
+		const std::vector<const void*>* objects;
+		const std::vector<RedisSupportedTypes>* types;
+		const std::vector<std::pair<int, int>>* sizes;
+	};
+
+	std::vector<SendGroupData> groups;
+	groups.reserve(group_names.size());
+
+	size_t total_keys = 0;
 	for (const auto& group_name : group_names) {
-		if (!sendGroupExists(group_name)) {
+		auto keys_it = _keys_to_send.find(group_name);
+		auto objects_it = _objects_to_send.find(group_name);
+		auto types_it = _objects_to_send_types.find(group_name);
+		auto sizes_it = _objects_to_send_sizes.find(group_name);
+
+		if (keys_it == _keys_to_send.end() ||
+			objects_it == _objects_to_send.end() ||
+			types_it == _objects_to_send_types.end() ||
+			sizes_it == _objects_to_send_sizes.end()) {
 			throw std::runtime_error("Send group with name [" + group_name +
 									 "] not found, cannot sendAllFromGroup");
 		}
+
+		total_keys += keys_it->second.size();
+		groups.push_back({&keys_it->second, &objects_it->second, &types_it->second,
+						  &sizes_it->second});
 	}
 
 	std::vector<std::pair<std::string, std::string>> write_key_value_pairs;
+	write_key_value_pairs.reserve(total_keys);
 
-	for (const auto& group_name : group_names) {
-		for (int i = 0; i < _keys_to_send.at(group_name).size(); i++) {
-			std::string encoded_value = "";
+	for (const auto& group : groups) {
+		const auto& keys = *group.keys;
+		const auto& objects = *group.objects;
+		const auto& types = *group.types;
+		const auto& sizes = *group.sizes;
 
-			switch (_objects_to_send_types.at(group_name).at(i)) {
+		for (size_t i = 0; i < keys.size(); i++) {
+			std::string encoded_value;
+			switch (types[i]) {
 				case DOUBLE_NUMBER: {
-					double* tmp_pointer =
-						(double*)_objects_to_send.at(group_name).at(i);
+					double* tmp_pointer = (double*)objects[i];
 					encoded_value = std::to_string(*tmp_pointer);
 				} break;
 
 				case INT_NUMBER: {
-					int* tmp_pointer =
-						(int*)_objects_to_send.at(group_name).at(i);
+					int* tmp_pointer = (int*)objects[i];
 					encoded_value = std::to_string(*tmp_pointer);
 				} break;
 
 				case BOOL: {
-					bool* tmp_pointer =
-						(bool*)_objects_to_send.at(group_name).at(i);
+					bool* tmp_pointer = (bool*)objects[i];
 					encoded_value = *tmp_pointer ? "1" : "0";
 				} break;
 
 				case STRING: {
-					std::string* tmp_pointer =
-						(std::string*)_objects_to_send.at(group_name).at(i);
+					std::string* tmp_pointer = (std::string*)objects[i];
 					encoded_value = (*tmp_pointer);
 				} break;
 
 				case EIGEN_OBJECT: {
-					double* tmp_pointer =
-						(double*)_objects_to_send.at(group_name).at(i);
-					int nrows =
-						_objects_to_send_sizes.at(group_name).at(i).first;
-					int ncols =
-						_objects_to_send_sizes.at(group_name).at(i).second;
-
-					Eigen::MatrixXd tmp_matrix =
-						Eigen::MatrixXd::Zero(nrows, ncols);
-					for (int k = 0; k < nrows; k++) {
-						for (int l = 0; l < ncols; l++) {
-							tmp_matrix(k, l) = tmp_pointer[k + ncols * l];
-						}
-					}
-
-					encoded_value = encodeEigenMatrix(tmp_matrix);
+					double* tmp_pointer = (double*)objects[i];
+					int nrows = sizes[i].first;
+					int ncols = sizes[i].second;
+					const auto encoded_value_binary =
+						encodeEigenMatrixBinary(tmp_pointer, nrows, ncols);
+					encoded_value.assign(
+						reinterpret_cast<const char*>(encoded_value_binary.data()),
+						encoded_value_binary.size());
 				} break;
+
+				default:
+					throw std::runtime_error(
+						"RedisClient: Unknown type in sendAllFromGroup");
+					break;
 			}
 
-			if (encoded_value != "") {
-				write_key_value_pairs.push_back(make_pair(
-					_keys_to_send.at(group_name).at(i), encoded_value));
-			}
+			write_key_value_pairs.emplace_back(keys[i], std::move(encoded_value));
 		}
 	}
 
@@ -561,15 +639,11 @@ void RedisClient::sendAllFromGroup(
 }
 
 bool RedisClient::sendGroupExists(const std::string& group_name) const {
-	auto it = std::find(_send_group_names.begin(), _send_group_names.end(),
-						group_name);
-	return it != _send_group_names.end();
+	return _keys_to_send.find(group_name) != _keys_to_send.end();
 }
 
 bool RedisClient::receiveGroupExists(const std::string& group_name) const {
-	auto it = std::find(_receive_group_names.begin(),
-						_receive_group_names.end(), group_name);
-	return it != _receive_group_names.end();
+	return _keys_to_receive.find(group_name) != _keys_to_receive.end();
 }
 
 static inline Eigen::MatrixXd decodeEigenMatrixWithDelimiters(
@@ -644,6 +718,83 @@ Eigen::MatrixXd RedisClient::decodeEigenMatrix(const std::string& str) {
 		if (idx_temp != std::string::npos) idx_row_end = idx_temp;
 	}
 	return decodeEigenMatrixWithDelimiters(str, ',', ']', ",[]", idx_row_end);
+}
+
+Eigen::MatrixXd RedisClient::decodeEigenValue(const std::string& value) {
+	static const unsigned char kMagic[8] = {'S', 'A', 'I', 'E',
+											'I', 'G', '0', '1'};
+	if (value.size() < 16) {
+		return decodeEigenMatrix(value);
+	}
+
+	const unsigned char* ptr =
+		reinterpret_cast<const unsigned char*>(value.data());
+	if (std::memcmp(ptr, kMagic, 8) != 0) {
+		return decodeEigenMatrix(value);
+	}
+	ptr += 8;
+
+	const uint32_t rows = static_cast<uint32_t>(ptr[0]) |
+						  (static_cast<uint32_t>(ptr[1]) << 8) |
+						  (static_cast<uint32_t>(ptr[2]) << 16) |
+						  (static_cast<uint32_t>(ptr[3]) << 24);
+	ptr += 4;
+	const uint32_t cols = static_cast<uint32_t>(ptr[0]) |
+						  (static_cast<uint32_t>(ptr[1]) << 8) |
+						  (static_cast<uint32_t>(ptr[2]) << 16) |
+						  (static_cast<uint32_t>(ptr[3]) << 24);
+	ptr += 4;
+
+	const size_t data_size =
+		static_cast<size_t>(rows) * static_cast<size_t>(cols) * sizeof(double);
+	const size_t expected_size = 16 + data_size;
+	if (value.size() != expected_size) {
+		throw std::runtime_error(
+			"RedisClient: Corrupted binary Eigen payload in decodeEigenValue.");
+	}
+
+	Eigen::MatrixXd matrix(rows, cols);
+	for (uint32_t i = 0; i < rows; ++i) {
+		for (uint32_t j = 0; j < cols; ++j) {
+			double v;
+			std::memcpy(&v, ptr, sizeof(double));
+			ptr += sizeof(double);
+			matrix(static_cast<int>(i), static_cast<int>(j)) = v;
+		}
+	}
+
+	return matrix;
+}
+
+std::vector<unsigned char> RedisClient::encodeEigenMatrixBinary(
+	const double* data, int rows, int cols) {
+	static const unsigned char kMagic[8] = {'S', 'A', 'I', 'E',
+											'I', 'G', '0', '1'};
+	const uint32_t rows_u32 = static_cast<uint32_t>(rows);
+	const uint32_t cols_u32 = static_cast<uint32_t>(cols);
+	const size_t data_size =
+		static_cast<size_t>(rows_u32) * static_cast<size_t>(cols_u32) *
+		sizeof(double);
+
+	std::vector<unsigned char> out(16 + data_size);
+	unsigned char* ptr = out.data();
+	std::memcpy(ptr, kMagic, 8);
+	ptr += 8;
+
+	ptr[0] = static_cast<unsigned char>(rows_u32 & 0xff);
+	ptr[1] = static_cast<unsigned char>((rows_u32 >> 8) & 0xff);
+	ptr[2] = static_cast<unsigned char>((rows_u32 >> 16) & 0xff);
+	ptr[3] = static_cast<unsigned char>((rows_u32 >> 24) & 0xff);
+	ptr += 4;
+
+	ptr[0] = static_cast<unsigned char>(cols_u32 & 0xff);
+	ptr[1] = static_cast<unsigned char>((cols_u32 >> 8) & 0xff);
+	ptr[2] = static_cast<unsigned char>((cols_u32 >> 16) & 0xff);
+	ptr[3] = static_cast<unsigned char>((cols_u32 >> 24) & 0xff);
+	ptr += 4;
+
+	std::memcpy(ptr, data, data_size);
+	return out;
 }
 
 }  // namespace SaiCommon

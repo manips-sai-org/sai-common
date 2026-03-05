@@ -3,7 +3,7 @@
 #include <thread>
 
 #include "timer/LoopTimer.h"
-#include "redis/RedisClient.h"
+#include "zmq/ZmqClient.h"
 
 #include <signal.h>
 bool stopRunning = false;
@@ -45,37 +45,37 @@ int main(int argc, char** argv) {
 	signal(SIGTERM, &sighandler);
 	signal(SIGINT, &sighandler);
 
-	// make redis client
-	SaiCommon::RedisClient redis_client(prefix);
-	redis_client.connect();
+	// make zmq client
+	SaiCommon::ZmqClient zmq_client(prefix);
+	zmq_client.connect();
 
-	// set some values in redis database
-	redis_client.set(STR_KEY, "Hello World !");
-	redis_client.setInt(INT_KEY, robot_dofs);
-	redis_client.setBool(BOOL_KEY, safety_enabled);
-	redis_client.setDouble(DOUBLE_KEY, robot_gripper_opening);
-	redis_client.setEigen(VECTOR_KEY, robot_q);
-	redis_client.setEigen(MATRIX_KEY, robot_M);
+	// set some values in zmq database
+	zmq_client.set(STR_KEY, "Hello World !");
+	zmq_client.setInt(INT_KEY, robot_dofs);
+	zmq_client.setBool(BOOL_KEY, safety_enabled);
+	zmq_client.setDouble(DOUBLE_KEY, robot_gripper_opening);
+	zmq_client.setEigen(VECTOR_KEY, robot_q);
+	zmq_client.setEigen(MATRIX_KEY, robot_M);
 
 	cout << endl;
 	cout << "keys read from thread 1 before the loop: " << endl;
-	std::cout << STR_KEY << ":\n" << redis_client.get(STR_KEY) << endl;
-	std::cout << INT_KEY << ":\n" << redis_client.getInt(INT_KEY) << endl;
-	std::cout << BOOL_KEY << ":\n" << redis_client.getBool(BOOL_KEY) << endl;
-	std::cout << DOUBLE_KEY << ":\n" << redis_client.getDouble(DOUBLE_KEY) << endl;
-	std::cout << VECTOR_KEY << ":\n" << redis_client.getEigen(VECTOR_KEY).transpose() << endl;
-	std::cout << MATRIX_KEY << ":\n" << redis_client.getEigen(MATRIX_KEY) << endl;
+	std::cout << STR_KEY << ":\n" << zmq_client.get(STR_KEY) << endl;
+	std::cout << INT_KEY << ":\n" << zmq_client.getInt(INT_KEY) << endl;
+	std::cout << BOOL_KEY << ":\n" << zmq_client.getBool(BOOL_KEY) << endl;
+	std::cout << DOUBLE_KEY << ":\n" << zmq_client.getDouble(DOUBLE_KEY) << endl;
+	std::cout << VECTOR_KEY << ":\n" << zmq_client.getEigen(VECTOR_KEY).transpose() << endl;
+	std::cout << MATRIX_KEY << ":\n" << zmq_client.getEigen(MATRIX_KEY) << endl;
 	cout << endl;
 
 	// setup send and receive groups
-	redis_client.addToSendGroup(VECTOR_KEY, robot_q);
-	redis_client.addToSendGroup(MATRIX_KEY, robot_M);
+	zmq_client.addToSendGroup(VECTOR_KEY, robot_q);
+	zmq_client.addToSendGroup(MATRIX_KEY, robot_M);
 
 	int second_thread_counter = 0;
 	double second_thread_time = 0.0;
-	redis_client.addToReceiveGroup(INT_KEY, second_thread_counter);
-	redis_client.addToReceiveGroup(BOOL_KEY, safety_enabled);
-	redis_client.addToReceiveGroup(DOUBLE_KEY, second_thread_time);
+	zmq_client.addToReceiveGroup(INT_KEY, second_thread_counter);
+	zmq_client.addToReceiveGroup(BOOL_KEY, safety_enabled);
+	zmq_client.addToReceiveGroup(DOUBLE_KEY, second_thread_time);
 
 	thread second_thread(second_program);
 
@@ -88,14 +88,14 @@ int main(int argc, char** argv) {
 		robot_M += Eigen::Matrix2d::Identity() * 0.01;
 
 		t1 = high_resolution_clock::now();
-		redis_client.sendAllFromGroup();
+		zmq_client.sendAllFromGroup();
 		t2 = high_resolution_clock::now();
 		duration<double, std::milli> ms_double = t2 - t1;
 		std::cout << "send duration (ms): " << ms_double.count() << "\n";
 
 		t1 = high_resolution_clock::now();
-		std::string second_thread_message = redis_client.get(STR_KEY);
-		redis_client.receiveAllFromGroup();
+		std::string second_thread_message = zmq_client.get(STR_KEY);
+		zmq_client.receiveAllFromGroup();
 		t2 = high_resolution_clock::now();
 		ms_double = t2 - t1;
 		std::cout << "receive duration (ms): " << ms_double.count() << "\n";
@@ -115,51 +115,51 @@ int main(int argc, char** argv) {
 	second_thread.join();
 
 	// delete keys
-	redis_client.del(STR_KEY);
-	redis_client.del(INT_KEY);
-	redis_client.del(BOOL_KEY);
-	redis_client.del(DOUBLE_KEY);
-	redis_client.del(VECTOR_KEY);
-	redis_client.del(MATRIX_KEY);
+	zmq_client.del(STR_KEY);
+	zmq_client.del(INT_KEY);
+	zmq_client.del(BOOL_KEY);
+	zmq_client.del(DOUBLE_KEY);
+	zmq_client.del(VECTOR_KEY);
+	zmq_client.del(MATRIX_KEY);
 
 	return 0;
 }
 
 void second_program() {
 
-	// make second redis client connected to the same database
-	SaiCommon::RedisClient redis_client_2(prefix);
-	redis_client_2.connect();
+	// make second zmq client connected to the same database
+	SaiCommon::ZmqClient zmq_client_2(prefix);
+	zmq_client_2.connect();
 
 	cout << endl;
 	cout << "keys read from thread 2 before the loop: " << endl;
-	std::cout << STR_KEY << ":\n" << redis_client_2.get(STR_KEY) << endl;
-	std::cout << INT_KEY << ":\n" << redis_client_2.getInt(INT_KEY) << endl;
-	std::cout << BOOL_KEY << ":\n" << redis_client_2.getBool(BOOL_KEY) << endl;
-	std::cout << DOUBLE_KEY << ":\n" << redis_client_2.getDouble(DOUBLE_KEY) << endl;
-	std::cout << VECTOR_KEY << ":\n" << redis_client_2.getEigen(VECTOR_KEY) << endl;
-	std::cout << MATRIX_KEY << ":\n" << redis_client_2.getEigen(MATRIX_KEY) << endl;
+	std::cout << STR_KEY << ":\n" << zmq_client_2.get(STR_KEY) << endl;
+	std::cout << INT_KEY << ":\n" << zmq_client_2.getInt(INT_KEY) << endl;
+	std::cout << BOOL_KEY << ":\n" << zmq_client_2.getBool(BOOL_KEY) << endl;
+	std::cout << DOUBLE_KEY << ":\n" << zmq_client_2.getDouble(DOUBLE_KEY) << endl;
+	std::cout << VECTOR_KEY << ":\n" << zmq_client_2.getEigen(VECTOR_KEY) << endl;
+	std::cout << MATRIX_KEY << ":\n" << zmq_client_2.getEigen(MATRIX_KEY) << endl;
 	cout << endl;
 
 	std::string message = "second thread loop not started";
 
-	redis_client_2.setInt(INT_KEY, 0);
-	redis_client_2.setDouble(DOUBLE_KEY, 0);
-	redis_client_2.set(STR_KEY, message);
+	zmq_client_2.setInt(INT_KEY, 0);
+	zmq_client_2.setDouble(DOUBLE_KEY, 0);
+	zmq_client_2.set(STR_KEY, message);
 
-	Eigen::Vector2d robot_q = redis_client_2.getEigen(VECTOR_KEY);
-	Eigen::MatrixXd robot_M = redis_client_2.getEigen(MATRIX_KEY);
-	redis_client_2.addToReceiveGroup(VECTOR_KEY, robot_q);
-	redis_client_2.addToReceiveGroup(MATRIX_KEY, robot_M);
+	Eigen::Vector2d robot_q = zmq_client_2.getEigen(VECTOR_KEY);
+	Eigen::MatrixXd robot_M = zmq_client_2.getEigen(MATRIX_KEY);
+	zmq_client_2.addToReceiveGroup(VECTOR_KEY, robot_q);
+	zmq_client_2.addToReceiveGroup(MATRIX_KEY, robot_M);
 
 	
 	int counter = 0;
 	double time = 0.0;
 	bool enable_safety = false;
-	redis_client_2.addToSendGroup(INT_KEY, counter);
-	redis_client_2.addToSendGroup(BOOL_KEY, enable_safety);
-	redis_client_2.addToSendGroup(DOUBLE_KEY, time);
-	redis_client_2.addToSendGroup(STR_KEY, message);
+	zmq_client_2.addToSendGroup(INT_KEY, counter);
+	zmq_client_2.addToSendGroup(BOOL_KEY, enable_safety);
+	zmq_client_2.addToSendGroup(DOUBLE_KEY, time);
+	zmq_client_2.addToSendGroup(STR_KEY, message);
 
 	message = "Thread 2 started !";
 
@@ -173,8 +173,8 @@ void second_program() {
 			enable_safety = true;
 		}
 
-		redis_client_2.sendAllFromGroup();
-		redis_client_2.receiveAllFromGroup();
+		zmq_client_2.sendAllFromGroup();
+		zmq_client_2.receiveAllFromGroup();
 
 		cout << "robot info received from first thread:" << endl;
 		cout << "robot joint angles:\n" << robot_q.transpose() << endl;
